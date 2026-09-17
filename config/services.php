@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'mercadopago' => [
+        'access_token' => env('MERCADOPAGO_ACCESS_TOKEN'),
+        'currency' => env('MERCADOPAGO_CURRENCY', 'ARS'),
+    ],
+
 ];

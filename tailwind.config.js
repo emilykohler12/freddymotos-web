@@ -4,6 +4,8 @@ export default {
         './resources/**/*.blade.php',
         './resources/**/*.js',
         './resources/**/*.vue',
+        // Vistas de paginación de Laravel (para que Tailwind compile sus clases)
+        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
     ],
     theme: {
         extend: {
@@ -16,7 +18,7 @@ export default {
                     blanco: '#FFFFFF',
                     'gris-claro': '#F2F2F2',
                     'gris-oscuro': '#2A2A2A',
-                    mostaza: '#C6881F',
+                    mostaza: '#BC7C1A',
                     bordo: '#6E1423',
                 },
             },

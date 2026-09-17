@@ -1,0 +1,96 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
+use App\Models\Customer;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class CustomerController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $customers = Customer::query()
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = $request->string('search');
+                $q->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%"));
+            })
+            ->withCount('orders')
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.customers.index', [
+            'customers' => $customers,
+            'search' => $request->string('search')->toString(),
+        ]);
+    }
+
+    public function create(): View
+    {
+        return view('admin.customers.form', ['customer' => new Customer()]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $customer = Customer::create($this->validated($request));
+
+        ActivityLog::log('cliente', "Cliente creado: {$customer->name}", $customer);
+
+        return redirect()->route('admin.customers.index')->with('status', 'Cliente creado.');
+    }
+
+    public function show(Customer $customer): View
+    {
+        $customer->load(['orders' => fn ($q) => $q->latest()]);
+
+        return view('admin.customers.show', compact('customer'));
+    }
+
+    public function edit(Customer $customer): View
+    {
+        return view('admin.customers.form', compact('customer'));
+    }
+
+    public function update(Request $request, Customer $customer): RedirectResponse
+    {
+        $customer->update($this->validated($request, $customer));
+
+        ActivityLog::log('cliente', "Cliente editado: {$customer->name}", $customer);
+
+        return redirect()->route('admin.customers.index')->with('status', 'Cliente actualizado.');
+    }
+
+    public function destroy(Customer $customer): RedirectResponse
+    {
+        if ($customer->orders()->exists()) {
+            return back()->with('error', 'No se puede eliminar: el cliente tiene pedidos.');
+        }
+
+        $name = $customer->name;
+        $customer->delete();
+
+        ActivityLog::log('cliente', "Cliente eliminado: {$name}");
+
+        return back()->with('status', 'Cliente eliminado.');
+    }
+
+    private function validated(Request $request, ?Customer $customer = null): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'phone' => ['required', 'string', 'max:40'],
+            'email' => ['nullable', 'email', 'max:160'],
+            'dni_cuit' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:200'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'province' => ['nullable', 'string', 'max:100'],
+            'postal_code' => ['nullable', 'string', 'max:20'],
+        ]);
+    }
+}

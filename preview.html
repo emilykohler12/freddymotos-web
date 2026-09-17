@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FREDDY MOTOS — Preview Hero</title>
+<title>FREDDY MOTOS — Preview Home</title>
 <!--
-  PREVIEW rápido de la sección Hero (abrí este archivo en el navegador).
-  Es un espejo de resources/views/components/hero.blade.php usando Tailwind por CDN.
-  El componente real de Laravel es el Blade; este archivo es solo para ver el diseño.
+  PREVIEW rápido de la Home (abrí este archivo en el navegador).
+  Es un espejo de las secciones en resources/views/components/*.blade.php usando Tailwind por CDN.
+  Los componentes reales de Laravel son los Blade; este archivo es solo para ver el diseño.
+  Orden: Hero · Categorías · Productos destacados · Banner de confianza · Sobre nosotros · Footer.
 -->
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +26,7 @@
             blanco: '#FFFFFF',
             'gris-claro': '#F2F2F2',
             'gris-oscuro': '#2A2A2A',
-            mostaza: '#C6881F',
+            mostaza: '#BC7C1A',
             bordo: '#6E1423',
           },
         },
@@ -36,11 +37,12 @@
 </head>
 <body class="min-h-screen bg-marca-blanco font-sans text-marca-negro antialiased">
 
-<section class="relative w-full overflow-hidden bg-gradient-to-br from-marca-mostaza to-marca-amarillo">
+<section class="relative flex w-full flex-col overflow-hidden bg-gradient-to-br from-marca-mostaza via-marca-amarillo to-marca-amarillo lg:min-h-[92vh]">
 
   <!-- 1. NAVBAR -->
-  <header class="relative z-20">
-    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+  <header class="relative z-20 w-full">
+    <div class="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+      <!-- Logo al borde izquierdo. En Laravel: <img src="{{ $logo }}"> si el admin subio una imagen, si no el texto. -->
       <a href="#" class="flex shrink-0 items-center gap-2 text-marca-blanco">
         <span class="text-xl font-extrabold tracking-tight sm:text-2xl">FREDDY<span class="text-marca-negro">MOTOS</span></span>
       </a>
@@ -50,26 +52,25 @@
         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </label>
 
-      <nav class="absolute inset-x-0 top-full z-20 hidden flex-col gap-1 border-t border-marca-blanco/10 bg-marca-mostaza/95 px-4 pb-4 pt-2 shadow-lg backdrop-blur peer-checked:flex lg:static lg:flex lg:flex-1 lg:flex-row lg:items-center lg:justify-center lg:gap-8 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-0">
-        <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:hover:bg-transparent">Inicio</a>
-        <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:hover:bg-transparent">Productos</a>
-        <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:hover:bg-transparent">Categorías</a>
-        <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:hover:bg-transparent">Nosotros</a>
-        <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:hover:bg-transparent">Contacto</a>
-        <a href="#" class="mt-2 inline-flex items-center justify-center rounded-full border border-marca-blanco/70 px-5 py-2 text-sm font-semibold text-marca-blanco transition hover:bg-marca-blanco hover:text-marca-negro lg:hidden">Ver catálogo</a>
-      </nav>
-
-      <div class="hidden shrink-0 lg:block">
-        <a href="#" class="inline-flex items-center rounded-full border border-marca-blanco/70 px-5 py-2 text-sm font-semibold text-marca-blanco transition hover:bg-marca-blanco hover:text-marca-negro">Ver catálogo</a>
+      <!-- Grupo derecho: links + boton -->
+      <div class="absolute inset-x-0 top-full z-20 hidden flex-col gap-1 border-t border-marca-blanco/10 bg-marca-mostaza/95 px-4 pb-4 pt-2 shadow-lg backdrop-blur peer-checked:flex lg:static lg:flex lg:w-auto lg:flex-row lg:items-center lg:gap-8 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-0">
+        <nav class="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-6">
+          <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Inicio</a>
+          <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Productos</a>
+          <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Categorías</a>
+          <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Nosotros</a>
+          <a href="#" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Contacto</a>
+        </nav>
+        <a href="#" class="mt-2 inline-flex w-full items-center justify-center rounded-full border border-marca-blanco/70 px-5 py-2 text-sm font-semibold text-marca-blanco transition hover:bg-marca-blanco hover:text-marca-negro lg:mt-0 lg:w-auto">Ver catálogo</a>
       </div>
     </div>
   </header>
 
   <!-- 2 + 3. CONTENIDO -->
-  <div class="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-16 pt-8 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8 lg:pb-28 lg:pt-16">
+  <div class="relative z-10 mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-10 px-4 pb-20 pt-6 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-12">
     <div class="max-w-xl">
       <p class="mb-4 inline-block rounded-full bg-marca-negro/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-marca-blanco">Repuestos originales para tu moto</p>
-      <h1 class="text-4xl font-extrabold leading-[1.05] tracking-tight text-marca-blanco sm:text-5xl lg:text-6xl">
+      <h1 class="text-[2.75rem] font-extrabold leading-[1.02] tracking-tight text-marca-blanco sm:text-6xl lg:text-7xl">
         <span class="block">Título grande</span>
         <span class="block">en dos líneas</span>
       </h1>
@@ -83,14 +84,16 @@
       </div>
     </div>
 
-    <div class="relative">
+    <div class="relative lg:-mr-4">
       <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
-        <div class="absolute -left-8 top-6 h-40 w-40 rounded-full bg-marca-mostaza/70 blur-2xl"></div>
-        <div class="absolute right-0 top-0 h-56 w-56 rounded-full bg-marca-amarillo/80 blur-3xl"></div>
-        <div class="absolute -bottom-4 left-1/4 h-44 w-72 rounded-[45%] bg-marca-blanco/20 blur-2xl"></div>
-        <div class="absolute bottom-8 right-8 h-28 w-28 rotate-12 rounded-3xl bg-marca-mostaza/50 blur-xl"></div>
+        <div class="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-marca-amarillo/70 blur-3xl sm:h-96 sm:w-96"></div>
+        <div class="absolute -left-10 top-4 h-40 w-40 rounded-full bg-marca-mostaza/60 blur-2xl"></div>
+        <div class="absolute -bottom-6 right-2 h-44 w-72 rounded-[45%] bg-marca-blanco/25 blur-2xl"></div>
+        <svg viewBox="0 0 400 400" class="absolute inset-0 h-full w-full text-marca-mostaza/40" fill="currentColor">
+          <path d="M210 40c34-14 58 18 92 12s52 34 46 68 26 58 8 88-8 62-42 70-46 40-82 34-58-26-92-30-64 4-82-26-2-60-6-94 4-64 26-84 44-8 76-20 38-22 32-8z"/>
+        </svg>
       </div>
-      <svg viewBox="0 0 640 380" class="relative mx-auto w-full max-w-lg drop-shadow-2xl" role="img" aria-label="Moto destacada (placeholder)">
+      <svg viewBox="0 0 640 380" class="relative mx-auto w-full max-w-xl drop-shadow-2xl" role="img" aria-label="Moto destacada (placeholder)">
         <ellipse cx="320" cy="352" rx="250" ry="18" fill="#141414" opacity="0.15"/>
         <circle cx="150" cy="270" r="78" fill="#141414"/>
         <circle cx="150" cy="270" r="40" fill="none" stroke="#F5C518" stroke-width="12"/>
@@ -116,6 +119,259 @@
     </div>
   </div>
 </section>
+
+<!-- ============ 1. CATEGORÍAS DESTACADAS ============ -->
+<section class="w-full bg-marca-blanco py-14 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-10 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-rojo">Encontrá lo que buscás</p>
+        <h2 class="text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">Categorías destacadas</h2>
+      </div>
+      <a href="#" class="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-marca-negro transition hover:text-marca-rojo">
+        Ver todas las categorías
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <!-- Cascos -->
+      <a href="#" class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3a7 7 0 00-7 7v3H4a1 1 0 000 2h12a5 5 0 005-5 7 7 0 00-7-7h-3z"/></svg>
+        </span>
+        <span class="text-sm font-semibold text-marca-negro">Cascos</span>
+      </a>
+      <!-- Frenos -->
+      <a href="#" class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v3m0 12v3m9-9h-3M6 12H3m14.5-6.5l-2 2m-9 9l-2 2m13 0l-2-2m-9-9l-2-2"/></svg>
+        </span>
+        <span class="text-sm font-semibold text-marca-negro">Frenos</span>
+      </a>
+      <!-- Motor -->
+      <a href="#" class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M5 9h2l2-2h6l2 2h2v6h-2l-2 2H9l-2-2H5V9z"/></svg>
+        </span>
+        <span class="text-sm font-semibold text-marca-negro">Motor</span>
+      </a>
+      <!-- Escapes -->
+      <a href="#" class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15h10l3-3h5v4a2 2 0 01-2 2H3v-3zM7 15V9"/></svg>
+        </span>
+        <span class="text-sm font-semibold text-marca-negro">Escapes</span>
+      </a>
+      <!-- Neumáticos -->
+      <a href="#" class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4a8 8 0 100 16 8 8 0 000-16zm0 4a4 4 0 100 8 4 4 0 000-8z"/></svg>
+        </span>
+        <span class="text-sm font-semibold text-marca-negro">Neumáticos</span>
+      </a>
+      <!-- Accesorios -->
+      <a href="#" class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
+        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+          <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h10"/></svg>
+        </span>
+        <span class="text-sm font-semibold text-marca-negro">Accesorios</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. PRODUCTOS DESTACADOS ============ -->
+<section class="w-full bg-marca-blanco py-14 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-rojo">Lo más vendido</p>
+      <h2 class="text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">Productos destacados</h2>
+      <p class="mt-3 text-base text-marca-gris-oscuro">Una selección de repuestos y accesorios que más eligen nuestros clientes.</p>
+    </div>
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <!-- Producto (x4) -->
+      <div class="group flex flex-col overflow-hidden rounded-2xl border border-marca-gris-claro bg-marca-blanco transition hover:-translate-y-1 hover:border-marca-amarillo hover:shadow-xl">
+        <div class="relative aspect-square w-full bg-marca-gris-claro">
+          <svg viewBox="0 0 200 200" class="h-full w-full text-marca-gris-oscuro/30" fill="none" stroke="currentColor" stroke-width="4"><circle cx="100" cy="100" r="55"/><path d="M100 55v90M55 100h90" stroke-linecap="round"/></svg>
+          <span class="absolute left-3 top-3 rounded-full bg-marca-rojo px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-marca-blanco">Oferta</span>
+        </div>
+        <div class="flex flex-1 flex-col gap-3 p-4">
+          <h3 class="text-sm font-semibold text-marca-negro">Nombre del producto 1</h3>
+          <p class="text-lg font-extrabold text-marca-negro">$ 00.000</p>
+          <button type="button" class="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17m0 0a2 2 0 100 4 2 2 0 000-4zm-9 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            Agregar al carrito
+          </button>
+        </div>
+      </div>
+      <div class="group flex flex-col overflow-hidden rounded-2xl border border-marca-gris-claro bg-marca-blanco transition hover:-translate-y-1 hover:border-marca-amarillo hover:shadow-xl">
+        <div class="relative aspect-square w-full bg-marca-gris-claro">
+          <svg viewBox="0 0 200 200" class="h-full w-full text-marca-gris-oscuro/30" fill="none" stroke="currentColor" stroke-width="4"><circle cx="100" cy="100" r="55"/><path d="M100 55v90M55 100h90" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flex flex-1 flex-col gap-3 p-4">
+          <h3 class="text-sm font-semibold text-marca-negro">Nombre del producto 2</h3>
+          <p class="text-lg font-extrabold text-marca-negro">$ 00.000</p>
+          <button type="button" class="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17m0 0a2 2 0 100 4 2 2 0 000-4zm-9 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            Agregar al carrito
+          </button>
+        </div>
+      </div>
+      <div class="group flex flex-col overflow-hidden rounded-2xl border border-marca-gris-claro bg-marca-blanco transition hover:-translate-y-1 hover:border-marca-amarillo hover:shadow-xl">
+        <div class="relative aspect-square w-full bg-marca-gris-claro">
+          <svg viewBox="0 0 200 200" class="h-full w-full text-marca-gris-oscuro/30" fill="none" stroke="currentColor" stroke-width="4"><circle cx="100" cy="100" r="55"/><path d="M100 55v90M55 100h90" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flex flex-1 flex-col gap-3 p-4">
+          <h3 class="text-sm font-semibold text-marca-negro">Nombre del producto 3</h3>
+          <p class="text-lg font-extrabold text-marca-negro">$ 00.000</p>
+          <button type="button" class="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17m0 0a2 2 0 100 4 2 2 0 000-4zm-9 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            Agregar al carrito
+          </button>
+        </div>
+      </div>
+      <div class="group flex flex-col overflow-hidden rounded-2xl border border-marca-gris-claro bg-marca-blanco transition hover:-translate-y-1 hover:border-marca-amarillo hover:shadow-xl">
+        <div class="relative aspect-square w-full bg-marca-gris-claro">
+          <svg viewBox="0 0 200 200" class="h-full w-full text-marca-gris-oscuro/30" fill="none" stroke="currentColor" stroke-width="4"><circle cx="100" cy="100" r="55"/><path d="M100 55v90M55 100h90" stroke-linecap="round"/></svg>
+        </div>
+        <div class="flex flex-1 flex-col gap-3 p-4">
+          <h3 class="text-sm font-semibold text-marca-negro">Nombre del producto 4</h3>
+          <p class="text-lg font-extrabold text-marca-negro">$ 00.000</p>
+          <button type="button" class="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17m0 0a2 2 0 100 4 2 2 0 000-4zm-9 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            Agregar al carrito
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="mt-10 text-center">
+      <a href="#" class="inline-flex items-center justify-center rounded-full border-2 border-marca-negro px-7 py-3 text-sm font-bold text-marca-negro transition hover:bg-marca-negro hover:text-marca-blanco">Ver todo el catálogo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. BANNER DE CONFIANZA ============ -->
+<section class="w-full bg-marca-negro py-10 sm:py-12">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 gap-8 lg:grid-cols-4">
+      <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-marca-blanco/10 text-marca-amarillo">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v8H3V7zm11 3h4l3 3v2h-7m-7 2a2 2 0 104 0 2 2 0 00-4 0zm10 0a2 2 0 104 0 2 2 0 00-4 0z"/></svg>
+        </span>
+        <div><p class="text-sm font-bold text-marca-blanco">Envíos a todo el país</p><p class="text-xs text-marca-blanco/60">Despachamos por correo y transporte</p></div>
+      </div>
+      <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-marca-blanco/10 text-marca-amarillo">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3zm-1.5 9l-2-2m0 0l4-4"/></svg>
+        </span>
+        <div><p class="text-sm font-bold text-marca-blanco">Garantía</p><p class="text-xs text-marca-blanco/60">Repuestos con garantía real</p></div>
+      </div>
+      <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-marca-blanco/10 text-marca-amarillo">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v10H3V7zm0 4h18M7 15h4"/></svg>
+        </span>
+        <div><p class="text-sm font-bold text-marca-blanco">Pago seguro</p><p class="text-xs text-marca-blanco/60">Tarjeta, transferencia y efectivo</p></div>
+      </div>
+      <div class="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-center sm:gap-4 sm:text-left">
+        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-marca-blanco/10 text-marca-amarillo">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 20l1.5-4A8 8 0 1112 20a8 8 0 01-4-1L4 20z"/></svg>
+        </span>
+        <div><p class="text-sm font-bold text-marca-blanco">Atención por WhatsApp</p><p class="text-xs text-marca-blanco/60">Te asesoramos antes de comprar</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. SOBRE NOSOTROS ============ -->
+<section class="w-full bg-marca-bordo py-14 sm:py-20">
+  <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+    <div class="relative">
+      <div aria-hidden="true" class="absolute -inset-3 -z-10 rounded-3xl bg-marca-amarillo/20 blur-xl"></div>
+      <div class="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-marca-negro/30 text-marca-blanco/40 shadow-2xl ring-1 ring-marca-blanco/10">
+        <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"/></svg>
+      </div>
+    </div>
+    <div class="max-w-xl text-marca-blanco">
+      <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-amarillo">Sobre nosotros</p>
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Años acompañando a los motociclistas de la zona</h2>
+      <p class="mt-5 text-base leading-relaxed text-marca-blanco/80">Contá en dos o tres frases la historia del local: cuándo abrió, quién lo lleva adelante, qué marcas trabaja y por qué los clientes vuelven. Mantené el texto breve y cercano.</p>
+      <dl class="mt-8 grid grid-cols-3 gap-4 border-t border-marca-blanco/15 pt-6">
+        <div><dt class="text-2xl font-extrabold text-marca-amarillo">+00</dt><dd class="text-xs text-marca-blanco/70">años de trayectoria</dd></div>
+        <div><dt class="text-2xl font-extrabold text-marca-amarillo">+0.000</dt><dd class="text-xs text-marca-blanco/70">clientes atendidos</dd></div>
+        <div><dt class="text-2xl font-extrabold text-marca-amarillo">+00</dt><dd class="text-xs text-marca-blanco/70">marcas disponibles</dd></div>
+      </dl>
+      <a href="#" class="mt-8 inline-flex items-center justify-center rounded-full bg-marca-amarillo px-7 py-3 text-sm font-bold text-marca-negro transition hover:bg-marca-blanco">Conocé la tienda</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. FOOTER ============ -->
+<footer class="w-full bg-marca-negro text-marca-blanco">
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="col-span-2 lg:col-span-1">
+        <span class="text-xl font-extrabold tracking-tight">FREDDY<span class="text-marca-amarillo">MOTOS</span></span>
+        <p class="mt-4 max-w-xs text-sm text-marca-blanco/60">Repuestos y accesorios para tu moto. Atención personalizada y envíos a todo el país.</p>
+        <div class="mt-5 flex gap-3">
+          <a href="#" aria-label="Instagram" class="flex h-9 w-9 items-center justify-center rounded-full bg-marca-blanco/10 transition hover:bg-marca-amarillo hover:text-marca-negro">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.06 1.8.25 2.2.42.6.2 1 .48 1.4.9.4.4.7.8.9 1.4.17.4.36 1 .42 2.2.06 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.06 1.2-.25 1.8-.42 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.17-1 .36-2.2.42-1.3.06-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.06-1.8-.25-2.2-.42-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.17-.4-.36-1-.42-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.9c.06-1.2.25-1.8.42-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.17 1-.36 2.2-.42C8.4 2.2 8.8 2.2 12 2.2zm0 3.05a4.95 4.95 0 110 9.9 4.95 4.95 0 010-9.9zm0 1.8a3.15 3.15 0 100 6.3 3.15 3.15 0 000-6.3zm5.15-3.05a1.15 1.15 0 110 2.3 1.15 1.15 0 010-2.3z"/></svg>
+          </a>
+          <a href="#" aria-label="Facebook" class="flex h-9 w-9 items-center justify-center rounded-full bg-marca-blanco/10 transition hover:bg-marca-amarillo hover:text-marca-negro">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.5V13H10v8h3.5z"/></svg>
+          </a>
+          <a href="#" aria-label="WhatsApp" class="flex h-9 w-9 items-center justify-center rounded-full bg-marca-blanco/10 transition hover:bg-marca-amarillo hover:text-marca-negro">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 20l1.5-4A8 8 0 1112 20a8 8 0 01-4-1L4 20z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-marca-blanco">Links rápidos</h3>
+        <ul class="mt-4 space-y-2.5 text-sm text-marca-blanco/60">
+          <li><a href="#" class="transition hover:text-marca-amarillo">Inicio</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Catálogo</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Ofertas</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Sobre nosotros</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-marca-blanco">Categorías</h3>
+        <ul class="mt-4 space-y-2.5 text-sm text-marca-blanco/60">
+          <li><a href="#" class="transition hover:text-marca-amarillo">Cascos</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Frenos</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Motor</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Escapes</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Neumáticos</a></li>
+          <li><a href="#" class="transition hover:text-marca-amarillo">Accesorios</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-sm font-bold uppercase tracking-wider text-marca-blanco">Contacto</h3>
+        <ul class="mt-4 space-y-3 text-sm text-marca-blanco/60">
+          <li class="flex items-start gap-2">
+            <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-amarillo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5l4-1 2 5-3 2a12 12 0 006 6l2-3 5 2-1 4a2 2 0 01-2 2A16 16 0 013 7a2 2 0 010-2z"/></svg>
+            <span>+54 000 000-0000</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-amarillo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-5.5 7-11a7 7 0 10-14 0c0 5.5 7 11 7 11zm0-8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
+            <span>Calle Falsa 123, Localidad, Provincia</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-amarillo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Lun a Sáb de 09 a 19 h</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="border-t border-marca-blanco/10">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-marca-blanco/50 sm:flex-row sm:px-6 lg:px-8">
+      <p>&copy; <span id="year">2026</span> Freddy Motos. Todos los derechos reservados.</p>
+      <p>Repuestos y accesorios para motos.</p>
+    </div>
+  </div>
+</footer>
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
 </body>
 </html>
