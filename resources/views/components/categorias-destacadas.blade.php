@@ -36,11 +36,17 @@
                    class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition
                           hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg
                           focus:border-marca-rojo focus:outline-none">
-                    <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
-                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconoCategoria }}"/>
-                        </svg>
-                    </span>
+                    @if ($cat->image_url)
+                        <span class="h-14 w-14 shrink-0 overflow-hidden rounded-full shadow-sm">
+                            <img src="{{ $cat->image_url }}" alt="{{ $cat->name }}" class="h-full w-full object-cover">
+                        </span>
+                    @else
+                        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+                            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconoCategoria }}"/>
+                            </svg>
+                        </span>
+                    @endif
                     <span class="text-sm font-semibold text-marca-negro">{{ $cat->name }}</span>
                 </a>
             @endforeach

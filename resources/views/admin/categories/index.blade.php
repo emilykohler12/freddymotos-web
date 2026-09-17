@@ -8,14 +8,13 @@
         $field = 'w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40';
     @endphp
 
-    @if (session('error'))
-        <div class="mb-4 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">{{ session('error') }}</div>
-    @endif
 
     {{-- Crear --}}
-    <form method="POST" action="{{ route('admin.categories.store') }}" class="mb-6 flex max-w-xl gap-3 rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+    <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data"
+          class="mb-6 flex max-w-xl flex-col gap-3 rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
         @csrf
         <input type="text" name="name" placeholder="Nombre de la nueva categoría" required class="{{ $field }}">
+        <input type="file" name="image" accept="image/*" class="text-xs {{ $field }}">
         <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
             Crear
         </button>
@@ -31,8 +30,17 @@
             @foreach ($categories as $category)
                 <details class="group rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3">
-                        <span class="font-medium text-marca-negro">{{ $category->name }}</span>
-                        <span class="flex items-center gap-2">
+                        <span class="flex min-w-0 items-center gap-3">
+                            @if ($category->image_url)
+                                <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-marca-gris-oscuro/10">
+                            @else
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-marca-gris-claro text-marca-gris-oscuro/50">
+                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 8h.01M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+                                </span>
+                            @endif
+                            <span class="truncate font-medium text-marca-negro">{{ $category->name }}</span>
+                        </span>
+                        <span class="flex shrink-0 items-center gap-2">
                             <span class="rounded-full bg-marca-gris-claro px-2.5 py-1 text-xs font-semibold text-marca-gris-oscuro">
                                 {{ $category->products_count }} {{ Str::plural('producto', $category->products_count) }}
                             </span>
@@ -43,11 +51,12 @@
                     </summary>
 
                     <div class="mt-4 space-y-2">
-                        <form method="POST" action="{{ route('admin.categories.update', $category) }}" class="flex gap-2">
+                        <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data" class="space-y-2">
                             @csrf
                             @method('PUT')
                             <input type="text" name="name" value="{{ $category->name }}" required class="{{ $field }}">
-                            <button type="submit" class="shrink-0 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-xs font-semibold text-marca-negro transition hover:border-marca-amarillo">
+                            <input type="file" name="image" accept="image/*" class="text-xs {{ $field }}">
+                            <button type="submit" class="w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-xs font-semibold text-marca-negro transition hover:border-marca-amarillo">
                                 Guardar
                             </button>
                         </form>

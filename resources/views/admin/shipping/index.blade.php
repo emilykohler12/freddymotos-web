@@ -9,9 +9,6 @@
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
     @endphp
 
-    @if (session('status'))
-        <div class="mb-4 rounded-lg bg-marca-amarillo/15 px-4 py-3 text-sm font-medium text-marca-negro">{{ session('status') }}</div>
-    @endif
 
     {{-- Tabs: radios, labels y paneles como hermanos directos (así el CSS peer-checked --}}
     {{-- funciona tanto para resaltar el tab activo como para mostrar/ocultar el panel). --}}

@@ -23,11 +23,17 @@
                         <a href="{{ route('products.index', ['category' => $category->name]) }}"
                            class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-6 text-center transition
                                   hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg">
-                            <span class="flex h-16 w-16 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
-                                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.5 11.5L12 3 3.5 11.5M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/>
-                                </svg>
-                            </span>
+                            @if ($category->image_url)
+                                <span class="h-16 w-16 shrink-0 overflow-hidden rounded-full shadow-sm">
+                                    <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="h-full w-full object-cover">
+                                </span>
+                            @else
+                                <span class="flex h-16 w-16 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+                                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.5 11.5L12 3 3.5 11.5M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/>
+                                    </svg>
+                                </span>
+                            @endif
                             <span class="text-sm font-semibold text-marca-negro">{{ $category->name }}</span>
                             <span class="text-xs text-marca-gris-oscuro">{{ $category->products_count }} {{ Str::plural('producto', $category->products_count) }}</span>
                         </a>

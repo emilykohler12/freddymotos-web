@@ -10,12 +10,6 @@
         </a>
     </div>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-lg bg-marca-amarillo/15 px-4 py-3 text-sm font-medium text-marca-negro">{{ session('status') }}</div>
-    @endif
-    @if (session('error'))
-        <div class="mb-4 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">{{ session('error') }}</div>
-    @endif
 
     <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
         <div class="overflow-x-auto">

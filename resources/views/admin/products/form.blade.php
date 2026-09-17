@@ -46,14 +46,10 @@
                 <textarea id="description" name="description" rows="3" class="{{ $field }}">{{ old('description', $product->description) }}</textarea>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
                     <label for="price" class="{{ $lbl }}">Precio de venta</label>
                     <input type="number" step="0.01" min="0" id="price" name="price" value="{{ old('price', $product->price) }}" required class="{{ $field }}">
-                </div>
-                <div>
-                    <label for="sale_price" class="{{ $lbl }}">Precio de oferta <span class="normal-case text-marca-gris-oscuro/50">(opcional)</span></label>
-                    <input type="number" step="0.01" min="0" id="sale_price" name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" class="{{ $field }}">
                 </div>
                 <div>
                     <label for="cost_price" class="{{ $lbl }}">Precio de compra</label>
@@ -64,6 +60,10 @@
                     <input type="number" min="0" id="stock" name="stock" value="{{ old('stock', $product->stock ?? 0) }}" required class="{{ $field }}">
                 </div>
             </div>
+            <p class="-mt-4 text-xs text-marca-gris-oscuro">
+                Los descuentos y combos (2x1, % OFF, etc.) se cargan desde
+                <a href="{{ route('admin.promotions.index') }}" class="font-semibold text-marca-rojo hover:underline">Promociones</a>.
+            </p>
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
@@ -87,8 +87,8 @@
             </div>
 
             <div>
-                <label for="compatible_model" class="{{ $lbl }}">Modelo de moto compatible</label>
-                <input type="text" id="compatible_model" name="compatible_model" value="{{ old('compatible_model', $product->compatible_model) }}" class="{{ $field }}">
+                <label for="compatible_model" class="{{ $lbl }}">Modelo de moto compatible <span class="normal-case text-marca-gris-oscuro/50">(uno por línea, o separados por coma — se muestran como items)</span></label>
+                <textarea id="compatible_model" name="compatible_model" rows="3" placeholder="Ej: Honda CB 250 Twister&#10;Honda XR 250&#10;Yamaha YBR 125" class="{{ $field }}">{{ old('compatible_model', $product->compatible_model) }}</textarea>
             </div>
 
             <div>

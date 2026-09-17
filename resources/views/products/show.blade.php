@@ -66,10 +66,21 @@
                             <dt class="font-semibold text-marca-gris-oscuro">Categoría</dt>
                             <dd class="text-right text-marca-negro">{{ $product->category }}</dd>
                         </div>
-                        <div class="flex justify-between gap-4 py-3">
-                            <dt class="font-semibold text-marca-gris-oscuro">Modelo compatible</dt>
-                            <dd class="text-right text-marca-negro">{{ $product->compatible_model ?? '—' }}</dd>
-                        </div>
+                        @if (empty($product->compatible_models))
+                            <div class="flex justify-between gap-4 py-3">
+                                <dt class="font-semibold text-marca-gris-oscuro">Modelo compatible</dt>
+                                <dd class="text-right text-marca-negro">—</dd>
+                            </div>
+                        @else
+                            <div class="py-3">
+                                <dt class="mb-2 font-semibold text-marca-gris-oscuro">Modelos compatibles</dt>
+                                <dd class="flex flex-wrap justify-end gap-2">
+                                    @foreach ($product->compatible_models as $modelo)
+                                        <span class="rounded-full bg-marca-gris-claro px-3 py-1 text-xs font-medium text-marca-negro">{{ $modelo }}</span>
+                                    @endforeach
+                                </dd>
+                            </div>
+                        @endif
                     </dl>
 
                     {{-- Descripción --}}

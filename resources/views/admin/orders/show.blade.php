@@ -9,9 +9,6 @@
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
     @endphp
 
-    @if (session('status'))
-        <div class="mb-4 rounded-lg bg-marca-amarillo/15 px-4 py-3 text-sm font-medium text-marca-negro">{{ session('status') }}</div>
-    @endif
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">

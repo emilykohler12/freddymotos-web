@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -23,11 +24,13 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $category = Category::create([
             'name' => $data['name'],
             'slug' => Str::slug($data['name']),
+            'image_path' => $request->hasFile('image') ? $request->file('image')->store('categories', 'public') : null,
         ]);
 
         ActivityLog::log('categoria', "Categoría creada: {$category->name}", $category);
@@ -39,9 +42,19 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $category->update(['name' => $data['name'], 'slug' => Str::slug($data['name'])]);
+        $update = ['name' => $data['name'], 'slug' => Str::slug($data['name'])];
+
+        if ($request->hasFile('image')) {
+            if ($category->image_path) {
+                Storage::disk('public')->delete($category->image_path);
+            }
+            $update['image_path'] = $request->file('image')->store('categories', 'public');
+        }
+
+        $category->update($update);
 
         ActivityLog::log('categoria', "Categoría editada: {$category->name}", $category);
 
@@ -52,6 +65,10 @@ class CategoryController extends Controller
     {
         if ($category->products()->exists()) {
             return back()->with('error', 'No se puede eliminar: hay productos usando esta categoría.');
+        }
+
+        if ($category->image_path) {
+            Storage::disk('public')->delete($category->image_path);
         }
 
         $name = $category->name;

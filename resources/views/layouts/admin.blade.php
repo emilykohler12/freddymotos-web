@@ -94,16 +94,28 @@
         </div>
     </header>
 
-    @if (session('status'))
-        <div class="mx-4 mt-4 rounded-lg bg-marca-mostaza/15 px-4 py-3 text-sm font-medium text-marca-negro sm:mx-6 lg:mx-8">
-            {{ session('status') }}
-        </div>
-    @endif
-
     <main class="p-4 sm:p-6 lg:p-8">
         @yield('content')
     </main>
 </div>
+
+{{-- Aviso flotante abajo a la derecha, se saca solo a los 20 segundos --}}
+@if (session('status') || session('error'))
+    @php $isError = (bool) session('error'); @endphp
+    <div id="admin-toast" role="status"
+         class="fixed bottom-4 right-4 z-[100] max-w-sm rounded-xl px-4 py-3 text-sm font-semibold shadow-lg transition
+                {{ $isError ? 'bg-marca-rojo text-marca-blanco' : 'bg-marca-negro text-marca-blanco' }}">
+        {{ session('error') ?? session('status') }}
+    </div>
+    <script>
+        setTimeout(function () {
+            var toast = document.getElementById('admin-toast');
+            if (!toast) return;
+            toast.style.opacity = '0';
+            setTimeout(function () { toast.remove(); }, 300);
+        }, 20000);
+    </script>
+@endif
 
 </body>
 </html>

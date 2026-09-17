@@ -34,10 +34,6 @@
         </a>
     </div>
 
-    @if (session('status'))
-        <div class="mb-4 rounded-lg bg-marca-amarillo/15 px-4 py-3 text-sm font-medium text-marca-negro">{{ session('status') }}</div>
-    @endif
-
     <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
@@ -47,6 +43,7 @@
                         <th class="px-5 py-3 font-semibold">SKU</th>
                         <th class="px-5 py-3 font-semibold">Categoría</th>
                         <th class="px-5 py-3 font-semibold">Marca</th>
+                        <th class="px-5 py-3 font-semibold">Modelo</th>
                         <th class="px-5 py-3 font-semibold">Precio</th>
                         <th class="px-5 py-3 font-semibold">Stock</th>
                         <th class="px-5 py-3 font-semibold">Estado</th>
@@ -60,6 +57,7 @@
                             <td class="px-5 py-3 text-marca-gris-oscuro">{{ $product->sku ?: '—' }}</td>
                             <td class="px-5 py-3 text-marca-gris-oscuro">{{ $product->category }}</td>
                             <td class="px-5 py-3 text-marca-gris-oscuro">{{ $product->brand }}</td>
+                            <td class="px-5 py-3 text-marca-gris-oscuro">{{ $product->compatible_models ? implode(', ', $product->compatible_models) : '—' }}</td>
                             <td class="px-5 py-3 text-marca-negro">{{ $product->formatted_price }}</td>
                             <td class="px-5 py-3">
                                 <span class="font-semibold {{ $product->stock <= 0 ? 'text-marca-rojo' : ($product->stock <= 5 ? 'text-marca-mostaza' : 'text-marca-negro') }}">
@@ -72,9 +70,9 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3 text-right">
-                                <div class="flex justify-end gap-3">
+                                <div class="flex items-center justify-end gap-3">
                                     <a href="{{ route('admin.products.edit', $product) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Editar</a>
-                                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('¿Eliminar {{ $product->name }}?');">
+                                    <form method="POST" action="{{ route('admin.products.destroy', $product) }}" onsubmit="return confirm('¿Eliminar {{ $product->name }}?');" class="inline-flex">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
@@ -83,7 +81,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="px-5 py-10 text-center text-marca-gris-oscuro">No hay productos que coincidan.</td></tr>
+                        <tr><td colspan="9" class="px-5 py-10 text-center text-marca-gris-oscuro">No hay productos que coincidan.</td></tr>
                     @endforelse
                 </tbody>
             </table>

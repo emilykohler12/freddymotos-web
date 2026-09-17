@@ -8,9 +8,6 @@
         $field = 'w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none';
     @endphp
 
-    @if (session('status'))
-        <div class="mb-4 rounded-lg bg-marca-amarillo/15 px-4 py-3 text-sm font-medium text-marca-negro">{{ session('status') }}</div>
-    @endif
 
     {{-- Tabs: radios, labels y paneles como hermanos directos (así el CSS peer-checked --}}
     {{-- funciona tanto para resaltar el tab activo como para mostrar/ocultar el panel). --}}
