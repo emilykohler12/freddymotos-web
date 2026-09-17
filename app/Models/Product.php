@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
@@ -20,6 +21,7 @@ class Product extends Model
         'compatible_model',
         'description',
         'price',
+        'sale_price',
         'cost_price',
         'stock',
         'image_path',
@@ -31,6 +33,7 @@ class Product extends Model
     {
         return [
             'price' => 'decimal:2',
+            'sale_price' => 'decimal:2',
             'cost_price' => 'decimal:2',
             'stock' => 'integer',
             'is_featured' => 'boolean',
@@ -59,6 +62,11 @@ class Product extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     /** Usar el slug en las URLs: /producto/{slug} */
     public function getRouteKeyName(): string
     {
@@ -77,6 +85,17 @@ class Product extends Model
     public function getFormattedPriceAttribute(): string
     {
         return '$ ' . number_format((float) $this->price, 0, ',', '.');
+    }
+
+    public function getFormattedSalePriceAttribute(): ?string
+    {
+        return $this->sale_price !== null ? '$ ' . number_format((float) $this->sale_price, 0, ',', '.') : null;
+    }
+
+    /** Está en oferta si tiene precio de oferta cargado y es menor al de venta. */
+    public function getOnSaleAttribute(): bool
+    {
+        return $this->sale_price !== null && (float) $this->sale_price < (float) $this->price;
     }
 
     public function getInStockAttribute(): bool
@@ -111,6 +130,14 @@ class Product extends Model
     public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('is_featured', true)->where('active', true);
+    }
+
+    /** Productos con precio de oferta cargado (para la sección "Promociones"). */
+    public function scopeOnSale(Builder $query): Builder
+    {
+        return $query->where('active', true)
+            ->whereNotNull('sale_price')
+            ->whereColumn('sale_price', '<', 'price');
     }
 
     /* ---------- Helpers para los <select> de filtros ---------- */

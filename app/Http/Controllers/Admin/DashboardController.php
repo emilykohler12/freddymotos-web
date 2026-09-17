@@ -16,10 +16,7 @@ class DashboardController extends Controller
     {
         $startOfMonth = now()->startOfMonth();
 
-        $paidOrders = fn () => Order::query()->where(function ($q) {
-            $q->where('payment_status', Order::PAYMENT_STATUS_PAGADO)
-                ->orWhere('status', Order::STATUS_PAGADO);
-        });
+        $paidOrders = fn () => Order::query()->paid();
 
         // Ventas: cantidad de productos vendidos (items de pedidos pagos) este mes.
         $productsSoldThisMonth = (int) OrderItem::query()

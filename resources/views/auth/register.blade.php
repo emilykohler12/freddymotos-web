@@ -43,5 +43,4 @@
         </div>
     </main>
 
-    <x-footer-tienda />
 @endsection

@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * Configuración del sitio. Siempre una sola fila (id = 1).
- * Se lee con SiteSetting::current() (cacheado + memoizado por request).
+ * Se lee con SiteSetting::current() (memoizado solo por request, sin cache
+ * persistente entre procesos: es una tabla de una fila, no hace falta y
+ * evita quedarse con datos viejos después de guardar en el panel).
  */
 class SiteSetting extends Model
 {
@@ -22,22 +23,28 @@ class SiteSetting extends Model
         static::deleted(fn () => static::flush());
     }
 
-    /** Valores por defecto razonables mientras el admin no cargó nada. */
+    /**
+     * Valores por defecto mientras el admin no cargó nada en Configuración.
+     * Sin datos de contacto/redes inventados: todo lo que no sea de sistema
+     * queda en null para que el Home no muestre nada hasta que el admin lo cargue.
+     */
     public static function defaults(): array
     {
         return [
             'nombre_local' => 'Freddy Motos',
-            'telefono' => '+54 351 000-0000',
-            'whatsapp' => '5493510000000',
-            'email' => 'ventas@freddymotos.com',
-            'direccion' => 'Av. Siempreviva 742, Córdoba',
-            'horario_atencion' => 'Lunes a viernes de 9 a 18, sábados de 9 a 13',
-            'instagram_url' => 'https://instagram.com/freddymotos',
-            'facebook_url' => 'https://facebook.com/freddymotos',
+            'telefono' => null,
+            'whatsapp' => null,
+            'email' => null,
+            'direccion' => null,
+            'horario_atencion' => null,
+            'historia' => null,
+            'fecha_creacion' => null,
+            'instagram_url' => null,
+            'facebook_url' => null,
             'logo_path' => null,
             'moneda' => 'ARS',
             'tax_rate' => null,
-            'payment_methods' => ['mercadopago', 'whatsapp'],
+            'payment_methods' => [],
             'banco' => null,
             'cbu_alias' => null,
             'titular_cuenta' => null,
@@ -51,6 +58,7 @@ class SiteSetting extends Model
         return [
             'payment_methods' => 'array',
             'tax_rate' => 'decimal:2',
+            'fecha_creacion' => 'date',
         ];
     }
 
@@ -62,10 +70,7 @@ class SiteSetting extends Model
     private static function resolve(): self
     {
         try {
-            return Cache::rememberForever(
-                'site_settings',
-                fn () => static::query()->first() ?: new static(static::defaults()),
-            );
+            return static::query()->first() ?: new static(static::defaults());
         } catch (\Throwable) {
             // La tabla todavía no existe (antes de migrar): devolvemos los defaults.
             return new static(static::defaults());
@@ -75,7 +80,6 @@ class SiteSetting extends Model
     public static function flush(): void
     {
         static::$memo = null;
-        Cache::forget('site_settings');
     }
 
     /* ---------- Accessors de conveniencia ---------- */
@@ -98,5 +102,19 @@ class SiteSetting extends Model
         $digits = preg_replace('/[^\d+]/', '', (string) $this->telefono);
 
         return $digits ? "tel:{$digits}" : null;
+    }
+
+    /** Link a Google Maps con la dirección cargada por el admin, o null si no la cargó. */
+    public function getMapsUrlAttribute(): ?string
+    {
+        return $this->direccion
+            ? 'https://www.google.com/maps/search/?api=1&query=' . urlencode($this->direccion)
+            : null;
+    }
+
+    /** Años desde la fecha de creación cargada por el admin, o null si no la cargó. */
+    public function getAnosTrayectoriaAttribute(): ?int
+    {
+        return $this->fecha_creacion ? (int) $this->fecha_creacion->diffInYears(now()) : null;
     }
 }

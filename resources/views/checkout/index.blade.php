@@ -139,7 +139,6 @@
         </div>
     </main>
 
-    <x-footer-tienda />
 
     <script>
         (function () {

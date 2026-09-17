@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Catálogo de productos — FREDDY MOTOS')
+@section('title', 'Catálogo de productos — ' . $settings->nombre_local)
 
 @section('content')
     <x-site-nav />
@@ -102,5 +102,4 @@
         </div>
     </main>
 
-    <x-footer-tienda />
 @endsection

@@ -1,23 +1,29 @@
 @extends('layouts.app')
 
-@section('title', 'FREDDY MOTOS — Inicio')
+@section('title', $settings->nombre_local . ' — Inicio')
 
 @section('content')
     {{-- Logo y nombre salen de SiteSetting ($settings, compartido globalmente). --}}
     <x-hero :logo="$settings->logo_url" :nombre="$settings->nombre_local" />
 
-    {{-- 1. Categorías destacadas --}}
-    <x-categorias-destacadas />
-
-    {{-- 2. Productos destacados --}}
+    {{-- 1. Productos más vendidos (ranking real por ventas pagas) --}}
     <x-productos-destacados />
 
-    {{-- 3. Banner de confianza --}}
+    {{-- 2. Promociones (productos con precio de oferta cargado) --}}
+    <x-promociones />
+
+    {{-- 3. Categorías destacadas + "ver todas" --}}
+    <x-categorias-destacadas />
+
+    {{-- 4. Tira de 4 beneficios --}}
     <x-banner-confianza />
 
-    {{-- 4. Sobre nosotros --}}
+    {{-- 5. Sobre nosotros --}}
     <x-sobre-nosotros />
 
-    {{-- 5. Footer --}}
+    {{-- 6. Footer --}}
     <x-footer-tienda />
+
+    {{-- 7. Crédito de desarrollo --}}
+    <x-credito-desarrollo />
 @endsection

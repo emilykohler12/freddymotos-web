@@ -15,7 +15,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-6 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+        <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" class="space-y-6 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
             @csrf
             @method('PUT')
 
@@ -27,6 +27,14 @@
             <div>
                 <label for="nombre_local" class="{{ $lbl }}">Nombre del local</label>
                 <input type="text" id="nombre_local" name="nombre_local" value="{{ old('nombre_local', $settings->nombre_local) }}" class="{{ $field }}">
+            </div>
+
+            <div>
+                <label for="logo" class="{{ $lbl }}">Logo</label>
+                @if ($settings->logo_url)
+                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="mb-2 h-14 w-auto rounded-lg bg-marca-gris-claro object-contain p-1">
+                @endif
+                <input type="file" id="logo" name="logo" accept="image/*" class="{{ $field }}">
             </div>
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -63,6 +71,20 @@
                 <div>
                     <label for="facebook_url" class="{{ $lbl }}">Facebook (URL)</label>
                     <input type="url" id="facebook_url" name="facebook_url" value="{{ old('facebook_url', $settings->facebook_url) }}" placeholder="https://facebook.com/..." class="{{ $field }}">
+                </div>
+            </div>
+
+            <div class="border-t border-marca-gris-claro pt-5">
+                <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Sobre el negocio</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="fecha_creacion" class="{{ $lbl }}">Fecha de creación del negocio</label>
+                        <input type="date" id="fecha_creacion" name="fecha_creacion" value="{{ old('fecha_creacion', optional($settings->fecha_creacion)->toDateString()) }}" class="max-w-xs {{ $field }}">
+                    </div>
+                    <div>
+                        <label for="historia" class="{{ $lbl }}">Historia <span class="normal-case text-marca-gris-oscuro/50">(se muestra en "Sobre nosotros")</span></label>
+                        <textarea id="historia" name="historia" rows="4" maxlength="2000" class="{{ $field }}">{{ old('historia', $settings->historia) }}</textarea>
+                    </div>
                 </div>
             </div>
 

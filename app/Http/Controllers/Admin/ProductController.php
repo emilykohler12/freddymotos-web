@@ -122,6 +122,7 @@ class ProductController extends Controller
             'sku' => ['nullable', 'string', 'max:60', 'unique:products,sku' . ($product ? ",{$product->id}" : '')],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
+            'sale_price' => ['nullable', 'numeric', 'min:0', 'lt:price'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
             'stock' => ['required', 'integer', 'min:0'],
             'category_id' => ['required', 'exists:categories,id'],

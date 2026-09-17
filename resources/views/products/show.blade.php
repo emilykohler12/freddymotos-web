@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' — FREDDY MOTOS')
+@section('title', $product->name . ' — ' . $settings->nombre_local)
 
 @section('content')
     <x-site-nav />
@@ -122,7 +122,6 @@
         </div>
     </main>
 
-    <x-footer-tienda />
 
     {{-- Selector de cantidad (+/−). Script mínimo, sin dependencias. --}}
     <script>

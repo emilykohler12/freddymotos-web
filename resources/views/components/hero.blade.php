@@ -20,16 +20,14 @@
     <header class="relative z-20 w-full">
         <div class="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
 
-            {{-- Logo pegado al borde izquierdo. Si el admin subio una imagen se usa esa; si no, el texto de la marca. --}}
-            <a href="{{ url('/') }}" class="flex shrink-0 items-center gap-2 text-marca-blanco">
+            {{-- Logo pegado al borde izquierdo. Si el admin subio una imagen se usa esa; si no, el nombre real del negocio. Sin link: no es un botón. --}}
+            <div class="flex shrink-0 items-center gap-2 text-marca-blanco">
                 @if ($logo)
                     <img src="{{ $logo }}" alt="{{ $nombre }}" class="h-9 w-auto object-contain sm:h-10">
                 @else
-                    <span class="text-xl font-extrabold tracking-tight sm:text-2xl">
-                        FREDDY<span class="text-marca-negro">MOTOS</span>
-                    </span>
+                    <x-brand-name :nombre="$nombre" />
                 @endif
-            </a>
+            </div>
 
             {{-- Checkbox del menú mobile (peer): hermano previo del dropdown --}}
             <input type="checkbox" id="hero-nav-toggle" class="peer hidden">
@@ -57,19 +55,10 @@
                         lg:static lg:flex lg:w-auto lg:flex-row lg:items-center lg:gap-8
                         lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-0">
                 <nav class="flex flex-col gap-1 lg:flex-row lg:items-center lg:gap-6">
-                    <a href="{{ url('/') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Inicio</a>
-                    <a href="{{ route('products.index') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Productos</a>
-                    <a href="{{ url('/#categorias') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Categorías</a>
-                    <a href="{{ url('/#sobre-nosotros') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Nosotros</a>
-                    <a href="{{ url('/#contacto') }}" class="rounded-lg px-3 py-2 text-sm font-medium text-marca-blanco/90 transition hover:bg-marca-blanco/10 hover:text-marca-blanco lg:px-0 lg:hover:bg-transparent">Contacto</a>
+                    <x-nav-links />
                 </nav>
 
                 <div class="flex items-center gap-3">
-                    {{-- Botón de acción --}}
-                    <a href="{{ route('products.index') }}" class="mt-2 inline-flex w-full items-center justify-center rounded-full border border-marca-blanco/70 px-5 py-2 text-sm font-semibold text-marca-blanco transition hover:bg-marca-blanco hover:text-marca-negro lg:mt-0 lg:w-auto">
-                        Ver catálogo
-                    </a>
-
                     {{-- Carrito en desktop --}}
                     <a href="{{ route('cart.index') }}" class="relative hidden rounded-lg p-2 text-marca-blanco transition hover:bg-marca-blanco/10 lg:inline-flex" aria-label="Carrito">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -93,16 +82,14 @@
                 Repuestos originales para tu moto
             </p>
 
-            {{-- PLACEHOLDER: título grande en dos líneas --}}
             <h1 class="text-[2.75rem] font-extrabold leading-[1.02] tracking-tight text-marca-blanco sm:text-6xl lg:text-7xl">
-                <span class="block">Título grande</span>
-                <span class="block">en dos líneas</span>
+                <span class="block">Encontrá el repuesto</span>
+                <span class="block">que tu moto necesita</span>
             </h1>
 
-            {{-- PLACEHOLDER: párrafo descriptivo corto --}}
             <p class="mt-5 max-w-md text-base leading-relaxed text-marca-blanco/80 sm:text-lg">
-                Párrafo descriptivo corto que acompaña al título. Contá en una o dos
-                frases qué ofrece la tienda y por qué elegirla.
+                Cascos, frenos, filtros y mucho más, con stock real y envíos a todo
+                el país. Te ayudamos a elegir la pieza justa para tu modelo.
             </p>
 
             <div class="mt-8 flex flex-wrap items-center gap-4">
@@ -110,7 +97,7 @@
                 <a href="{{ route('products.index') }}" class="inline-flex items-center justify-center rounded-full bg-marca-blanco px-7 py-3 text-sm font-bold text-marca-negro shadow-lg shadow-marca-negro/10 transition hover:-translate-y-0.5 hover:bg-marca-gris-claro">
                     Ver productos
                 </a>
-                <a href="{{ url('/#categorias') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-marca-blanco/90 transition hover:text-marca-blanco">
+                <a href="{{ route('categories.index') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-marca-blanco/90 transition hover:text-marca-blanco">
                     Ver categorías
                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -157,15 +144,10 @@
 
     {{-- ============ 5. FRANJA INFERIOR DE TRANSICIÓN ============ --}}
     <div class="relative z-10 bg-marca-blanco">
-        <div class="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-6 text-center sm:flex-row sm:justify-center sm:gap-8 sm:px-6 lg:px-8">
-            {{-- PLACEHOLDER: garantía · envíos · marcas que se trabajan --}}
+        <div class="mx-auto flex max-w-7xl items-center justify-center px-4 py-6 text-center sm:px-6 lg:px-8">
             <p class="text-sm font-medium text-marca-gris-oscuro">
                 Garantía en todos los repuestos · Envíos a todo el país · Trabajamos las mejores marcas
             </p>
-            {{-- Botón secundario --}}
-            <a href="{{ url('/#sobre-nosotros') }}" class="inline-flex shrink-0 items-center rounded-full border border-marca-gris-oscuro/20 px-5 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:border-marca-rojo hover:text-marca-rojo">
-                Conocé más
-            </a>
         </div>
     </div>
 </section>

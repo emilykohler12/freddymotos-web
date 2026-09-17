@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -99,6 +100,14 @@ class Order extends Model
     public function isPaid(): bool
     {
         return $this->payment_status === self::PAYMENT_STATUS_PAGADO || $this->status === self::STATUS_PAGADO;
+    }
+
+    /** Pedidos efectivamente pagos (incluye el status "pagado" legacy). */
+    public function scopePaid(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->where('payment_status', self::PAYMENT_STATUS_PAGADO)
+            ->orWhere('status', self::STATUS_PAGADO));
     }
 
     public function getFormattedTotalAttribute(): string

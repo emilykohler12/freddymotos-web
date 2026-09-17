@@ -26,12 +26,7 @@ class Customer extends Model
     /** Total gastado en pedidos pagos. */
     public function getTotalSpentAttribute(): float
     {
-        return (float) $this->orders()
-            ->where(function ($q) {
-                $q->where('payment_status', Order::PAYMENT_STATUS_PAGADO)
-                    ->orWhere('status', Order::STATUS_PAGADO);
-            })
-            ->sum('total');
+        return (float) $this->orders()->paid()->sum('total');
     }
 
     public function getFormattedTotalSpentAttribute(): string
@@ -42,5 +37,11 @@ class Customer extends Model
     public function getLastOrderAtAttribute(): ?\Illuminate\Support\Carbon
     {
         return $this->orders()->latest()->value('created_at');
+    }
+
+    /** Clientes "atendidos": los que tienen al menos un pedido pago. */
+    public function scopeConCompra($query)
+    {
+        return $query->whereHas('orders', fn ($q) => $q->paid());
     }
 }

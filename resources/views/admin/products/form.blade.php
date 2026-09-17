@@ -46,10 +46,14 @@
                 <textarea id="description" name="description" rows="3" class="{{ $field }}">{{ old('description', $product->description) }}</textarea>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                     <label for="price" class="{{ $lbl }}">Precio de venta</label>
                     <input type="number" step="0.01" min="0" id="price" name="price" value="{{ old('price', $product->price) }}" required class="{{ $field }}">
+                </div>
+                <div>
+                    <label for="sale_price" class="{{ $lbl }}">Precio de oferta <span class="normal-case text-marca-gris-oscuro/50">(opcional)</span></label>
+                    <input type="number" step="0.01" min="0" id="sale_price" name="sale_price" value="{{ old('sale_price', $product->sale_price) }}" class="{{ $field }}">
                 </div>
                 <div>
                     <label for="cost_price" class="{{ $lbl }}">Precio de compra</label>

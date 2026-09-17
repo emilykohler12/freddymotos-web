@@ -1,15 +1,38 @@
-{{-- Seccion "Productos destacados" - Home, debajo de Categorias. --}}
-{{-- Titulo centrado + grilla de 4 productos reales (is_featured, o los ultimos si no hay). --}}
+{{-- Seccion "Productos mas vendidos" - Home, debajo de Categorias. --}}
+{{-- Ranking real por cantidad vendida en pedidos pagos; si todavia no hay ventas, --}}
+{{-- completa con destacados/ultimos cargados para no dejar la seccion vacia. --}}
 
 @php
     try {
-        $productos = \App\Models\Product::query()->featured()->latest()->take(4)->get();
-        if ($productos->isEmpty()) {
-            $productos = \App\Models\Product::query()->latest()->take(4)->get();
+        $topIds = \App\Models\OrderItem::query()
+            ->selectRaw('product_id, SUM(quantity) as total_qty')
+            ->whereNotNull('product_id')
+            ->whereHas('order', fn ($q) => $q->paid())
+            ->groupBy('product_id')
+            ->orderByDesc('total_qty')
+            ->take(4)
+            ->pluck('product_id');
+
+        $productos = \App\Models\Product::query()->whereIn('id', $topIds)->where('active', true)->get()
+            ->sortBy(fn ($p) => array_search($p->id, $topIds->all()))
+            ->values();
+        $hayVentas = $productos->isNotEmpty();
+
+        if ($productos->count() < 4) {
+            $faltan = 4 - $productos->count();
+            $relleno = \App\Models\Product::query()
+                ->where('active', true)
+                ->whereNotIn('id', $productos->pluck('id'))
+                ->orderByDesc('is_featured')
+                ->latest()
+                ->take($faltan)
+                ->get();
+            $productos = $productos->concat($relleno);
         }
     } catch (\Throwable $e) {
-        // La tabla todavía no existe (falta correr: php artisan migrate --seed)
+        // La tabla todavía no existe (falta correr: php artisan migrate).
         $productos = collect();
+        $hayVentas = false;
     }
 @endphp
 
@@ -23,10 +46,14 @@
                 Lo más vendido
             </p>
             <h2 class="text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">
-                Productos destacados
+                Productos más vendidos
             </h2>
             <p class="mt-3 text-base text-marca-gris-oscuro">
-                Una selección de repuestos y accesorios que más eligen nuestros clientes.
+                @if ($hayVentas)
+                    Los repuestos y accesorios que más eligen nuestros clientes.
+                @else
+                    Una selección de repuestos y accesorios de la tienda.
+                @endif
             </p>
         </div>
 

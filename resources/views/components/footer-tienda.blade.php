@@ -1,24 +1,23 @@
-{{-- Footer del sitio - mismo degradado mostaza→amarillo que el Hero, ancho completo (sin centrar), 4 columnas + linea inferior de copyright. --}}
+{{-- Footer del sitio - fondo amarillo solido (sin degrade), franja fina, ancho completo, 4 columnas + linea inferior de copyright. --}}
 {{-- Uso: <x-footer-tienda /> (nombre "footer-tienda" para no chocar con el <footer> nativo). --}}
 {{-- Los datos de contacto y redes salen de SiteSetting ($settings, compartido globalmente). --}}
 
 @php
     $settings = $settings ?? \App\Models\SiteSetting::current();
-    $cats = ['Cascos', 'Frenos', 'Motor', 'Lubricantes', 'Neumáticos', 'Transmisión'];
+    $cats = \App\Models\Category::orderBy('name')->take(6)->get();
 @endphp
 
-<footer id="contacto" class="w-full scroll-mt-4 bg-gradient-to-br from-marca-mostaza via-marca-amarillo to-marca-amarillo text-marca-negro">
+<footer id="contacto" class="w-full scroll-mt-4 bg-marca-amarillo text-marca-negro">
     {{-- Sin max-w ni mx-auto: ancho completo, contenido pegado al borde izquierdo (igual que el navbar) --}}
-    <div class="w-full px-4 py-14 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="w-full px-4 py-8 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-4">
 
-            {{-- Columna 1: logo + descripcion --}}
+            {{-- Columna 1: logo (si lo subió el admin) + nombre + descripcion --}}
             <div class="col-span-2 lg:col-span-1">
                 @if ($settings->logo_url)
-                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="h-10 w-auto">
-                @else
-                    <span class="text-xl font-extrabold tracking-tight text-marca-negro">{{ $settings->nombre_local }}</span>
+                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="mb-2 h-10 w-auto object-contain">
                 @endif
+                <span class="text-xl font-extrabold tracking-tight text-marca-negro">{{ $settings->nombre_local }}</span>
                 <p class="mt-4 max-w-xs text-sm text-marca-negro/70">
                     Repuestos y accesorios para tu moto. Atención personalizada y envíos a todo el país.
                 </p>
@@ -46,22 +45,23 @@
                 <h3 class="text-sm font-bold uppercase tracking-wider text-marca-negro">Links rápidos</h3>
                 <ul class="mt-4 space-y-2.5 text-sm text-marca-negro/70">
                     <li><a href="{{ url('/') }}" class="transition hover:text-marca-rojo">Inicio</a></li>
-                    <li><a href="{{ route('products.index') }}" class="transition hover:text-marca-rojo">Catálogo</a></li>
+                    <li><a href="{{ route('products.index') }}" class="transition hover:text-marca-rojo">Productos</a></li>
                     <li><a href="{{ route('cart.index') }}" class="transition hover:text-marca-rojo">Mi carrito</a></li>
                     <li><a href="{{ url('/#sobre-nosotros') }}" class="transition hover:text-marca-rojo">Sobre nosotros</a></li>
-                    <li><a href="{{ url('/#contacto') }}" class="transition hover:text-marca-rojo">Contacto</a></li>
                 </ul>
             </div>
 
-            {{-- Columna 3: categorias --}}
-            <div>
-                <h3 class="text-sm font-bold uppercase tracking-wider text-marca-negro">Categorías</h3>
-                <ul class="mt-4 space-y-2.5 text-sm text-marca-negro/70">
-                    @foreach ($cats as $cat)
-                        <li><a href="{{ route('products.index', ['category' => $cat]) }}" class="transition hover:text-marca-rojo">{{ $cat }}</a></li>
-                    @endforeach
-                </ul>
-            </div>
+            {{-- Columna 3: categorias (reales, cargadas por el admin) --}}
+            @if ($cats->isNotEmpty())
+                <div>
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-marca-negro">Categorías</h3>
+                    <ul class="mt-4 space-y-2.5 text-sm text-marca-negro/70">
+                        @foreach ($cats as $cat)
+                            <li><a href="{{ route('products.index', ['category' => $cat->name]) }}" class="transition hover:text-marca-rojo">{{ $cat->name }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             {{-- Columna 4: contacto (datos reales desde SiteSetting) --}}
             <div>
@@ -98,7 +98,7 @@
 
     {{-- Linea inferior --}}
     <div class="border-t border-marca-negro/10">
-        <div class="flex w-full flex-col items-center justify-between gap-2 px-4 py-5 text-xs text-marca-negro/60 sm:flex-row sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col items-center justify-between gap-2 px-4 py-3 text-xs text-marca-negro/60 sm:flex-row sm:px-6 lg:px-8">
             <p>&copy; {{ date('Y') }} {{ $settings->nombre_local }}. Todos los derechos reservados.</p>
             <p>Repuestos y accesorios para motos.</p>
         </div>

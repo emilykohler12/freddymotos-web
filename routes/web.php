@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingControll
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\ProductController;
@@ -23,6 +24,7 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/productos', [ProductController::class, 'index'])->name('products.index');
 Route::get('/producto/{product:slug}', [ProductController::class, 'show'])->name('products.show');
 

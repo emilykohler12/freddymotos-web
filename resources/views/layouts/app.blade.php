@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', ($settings->nombre_local ?? 'FREDDY MOTOS') . ' — Repuestos de motos')</title>
+    <title>@yield('title', ($settings->nombre_local ?? 'Freddy Motos') . ' — Repuestos de motos')</title>
 
     {{-- Tailwind + assets via Vite. Ejecutar: npm run dev (o npm run build) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
