@@ -9,7 +9,7 @@
         $lbl = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro';
     @endphp
 
-    <div class="max-w-3xl">
+    <div>
         @if ($errors->any())
             <div class="mb-6 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
                 <ul class="list-inside list-disc space-y-1">

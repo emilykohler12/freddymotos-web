@@ -4,13 +4,12 @@
 
 @php
     $settings = $settings ?? \App\Models\SiteSetting::current();
-    $cats = \App\Models\Category::orderBy('name')->take(6)->get();
 @endphp
 
 <footer id="contacto" class="w-full scroll-mt-4 bg-marca-amarillo text-marca-negro">
     {{-- Sin max-w ni mx-auto: ancho completo, contenido pegado al borde izquierdo (igual que el navbar) --}}
     <div class="w-full px-4 py-8 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-3">
 
             {{-- Columna 1: logo (si lo subió el admin) + nombre + descripcion --}}
             <div class="col-span-2 lg:col-span-1">
@@ -51,19 +50,7 @@
                 </ul>
             </div>
 
-            {{-- Columna 3: categorias (reales, cargadas por el admin) --}}
-            @if ($cats->isNotEmpty())
-                <div>
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-marca-negro">Categorías</h3>
-                    <ul class="mt-4 space-y-2.5 text-sm text-marca-negro/70">
-                        @foreach ($cats as $cat)
-                            <li><a href="{{ route('products.index', ['category' => $cat->name]) }}" class="transition hover:text-marca-rojo">{{ $cat->name }}</a></li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            {{-- Columna 4: contacto (datos reales desde SiteSetting) --}}
+            {{-- Columna 3: contacto (datos reales desde SiteSetting) --}}
             <div>
                 <h3 class="text-sm font-bold uppercase tracking-wider text-marca-negro">Contacto</h3>
                 <ul class="mt-4 space-y-3 text-sm text-marca-negro/70">

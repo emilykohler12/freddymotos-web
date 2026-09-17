@@ -9,7 +9,7 @@
         $lbl = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro';
     @endphp
 
-    <div class="max-w-2xl">
+    <div>
         @if ($errors->any())
             <div class="mb-6 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">{{ $errors->first() }}</div>
         @endif
@@ -19,7 +19,7 @@
             @csrf
             @if ($customer->exists) @method('PUT') @endif
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                     <label for="name" class="{{ $lbl }}">Nombre</label>
                     <input type="text" id="name" name="name" value="{{ old('name', $customer->name) }}" required class="{{ $field }}">
@@ -28,9 +28,6 @@
                     <label for="phone" class="{{ $lbl }}">Teléfono</label>
                     <input type="text" id="phone" name="phone" value="{{ old('phone', $customer->phone) }}" required class="{{ $field }}">
                 </div>
-            </div>
-
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <label for="email" class="{{ $lbl }}">Email</label>
                     <input type="email" id="email" name="email" value="{{ old('email', $customer->email) }}" class="{{ $field }}">

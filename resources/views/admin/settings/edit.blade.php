@@ -9,7 +9,7 @@
     </p>
 
     @if ($errors->any())
-        <div class="mb-6 max-w-3xl rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
+        <div class="mb-6 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
             {{ $errors->first() }}
         </div>
     @endif

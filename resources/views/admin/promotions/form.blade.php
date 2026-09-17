@@ -10,7 +10,7 @@
         $selectedProducts = old('product_ids', $promotion->products->pluck('id')->all());
     @endphp
 
-    <div class="max-w-3xl">
+    <div>
         @if ($errors->any())
             <div class="mb-6 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
                 <ul class="list-inside list-disc space-y-1">
@@ -86,9 +86,9 @@
 
                 <div class="mt-4">
                     <label class="{{ $lbl }}">Productos <span class="normal-case text-marca-gris-oscuro/50">(si el alcance es "Productos puntuales")</span></label>
-                    <div class="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3">
+                    <div class="max-h-48 columns-1 gap-4 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3 sm:columns-2 lg:columns-3">
                         @forelse ($products as $product)
-                            <label class="flex items-center gap-2 text-sm text-marca-negro">
+                            <label class="mb-1 flex items-center gap-2 break-inside-avoid text-sm text-marca-negro">
                                 <input type="checkbox" name="product_ids[]" value="{{ $product->id }}" @checked(in_array($product->id, $selectedProducts)) class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
                                 {{ $product->name }}
                             </label>
