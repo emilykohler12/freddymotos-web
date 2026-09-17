@@ -22,13 +22,12 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // SiteSettingSeeder y ProductSeeder quedan afuera a propósito: esos datos
-        // (contacto, redes, horarios, categorías, productos) los carga el admin
-        // desde el panel, no vienen de ejemplo. Se pueden correr a mano si hace
-        // falta una tienda de prueba: `php artisan db:seed --class=ProductSeeder`.
+        // SiteSettingSeeder, ProductSeeder y ExpenseSeeder quedan afuera a propósito:
+        // esos datos (contacto, redes, categorías, productos, gastos) los carga el
+        // admin desde el panel, no vienen de ejemplo. Se pueden correr a mano si
+        // hace falta una tienda de prueba: `php artisan db:seed --class=ProductSeeder`.
         $this->call([
             AdminUserSeeder::class,
-            ExpenseSeeder::class,
         ]);
     }
 }

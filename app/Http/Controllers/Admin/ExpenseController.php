@@ -14,10 +14,12 @@ class ExpenseController extends Controller
 {
     public function index(Request $request): View
     {
-        $type = $request->string('type')->toString() ?: Expense::TYPE_GASTO;
+        // Esta pantalla es solo de Gastos. "Otros ingresos" se registra desde Movimientos.
+        $frequency = $request->string('frequency')->toString();
 
         $items = Expense::with('expenseCategory')
-            ->where('type', $type)
+            ->where('type', Expense::TYPE_GASTO)
+            ->when($frequency, fn ($q) => $q->where('frequency', $frequency))
             ->orderByDesc('incurred_on')
             ->get();
 
@@ -27,10 +29,10 @@ class ExpenseController extends Controller
 
         return view('admin.expenses.index', [
             'items' => $items,
-            'type' => $type,
             'totalThisMonth' => $totalThisMonth,
-            'categories' => ExpenseCategory::where('type', $type)->orderBy('name')->get(),
+            'categories' => ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderBy('name')->get(),
             'frequencies' => Expense::FREQUENCIES,
+            'frequency' => $frequency,
         ]);
     }
 
@@ -70,7 +72,7 @@ class ExpenseController extends Controller
             'type' => ['required', 'in:gasto,ingreso'],
             'expense_category_id' => ['nullable', 'exists:expense_categories,id'],
             'amount' => ['required', 'numeric', 'min:0'],
-            'frequency' => ['nullable', 'in:unica,mensual,anual'],
+            'frequency' => ['nullable', 'in:' . implode(',', array_keys(Expense::FREQUENCIES))],
             'incurred_on' => ['required', 'date'],
         ]);
     }

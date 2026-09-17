@@ -14,6 +14,7 @@
         ['label' => 'Dashboard',     'route' => 'admin.dashboard',     'active' => 'admin.dashboard',   'icon' => 'M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z'],
         ['label' => 'Productos',      'route' => 'admin.products.index', 'active' => 'admin.products.*', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
         ['label' => 'Categorías',     'route' => 'admin.categories.index', 'active' => 'admin.categories.*', 'icon' => 'M4 6h16M4 12h16M4 18h10'],
+        ['label' => 'Promociones',    'route' => 'admin.promotions.index', 'active' => 'admin.promotions.*', 'icon' => 'M7 7h.01M3 11l8-8h6a2 2 0 012 2v6l-8 8a2 2 0 01-2.83 0l-5.17-5.17A2 2 0 013 11z'],
         ['label' => 'Pedidos',        'route' => 'admin.orders.index',  'active' => 'admin.orders.*',    'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z'],
         ['label' => 'Clientes',       'route' => 'admin.customers.index', 'active' => 'admin.customers.*', 'icon' => 'M17 20h5v-1a4 4 0 00-4-4h-1m-4 5H2v-1a4 4 0 014-4h6a4 4 0 014 4v1zm-1-13a3 3 0 11-6 0 3 3 0 016 0zm7 2a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z'],
         ['label' => 'Proveedores',    'route' => 'admin.suppliers.index', 'active' => 'admin.suppliers.*', 'icon' => 'M20 7l-8-4-8 4v10l8 4 8-4V7zM4 7l8 4m0 0l8-4m-8 4v10'],
@@ -26,11 +27,11 @@
 
 <input type="checkbox" id="admin-sidebar-toggle" class="peer hidden">
 
-{{-- Overlay (mobile) --}}
-<label for="admin-sidebar-toggle" class="fixed inset-0 z-30 hidden bg-marca-negro/50 peer-checked:block lg:!hidden"></label>
+{{-- Overlay: a cualquier tamaño de pantalla, no solo mobile --}}
+<label for="admin-sidebar-toggle" class="fixed inset-0 z-30 hidden bg-marca-negro/50 peer-checked:block"></label>
 
-{{-- Sidebar --}}
-<aside class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-marca-negro text-marca-blanco transition-transform duration-200 peer-checked:translate-x-0 lg:translate-x-0">
+{{-- Sidebar: menú hamburguesa siempre (se abre/cierra igual en cualquier tamaño de pantalla) --}}
+<aside class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col bg-marca-negro text-marca-blanco transition-transform duration-200 peer-checked:translate-x-0">
     <div class="flex h-16 shrink-0 items-center gap-2 border-b border-marca-blanco/10 px-5">
         <span class="text-lg font-extrabold tracking-tight">
             {{ \Illuminate\Support\Str::of($settings->nombre_local ?? 'Freddy Motos')->upper() }}
@@ -67,11 +68,11 @@
     </div>
 </aside>
 
-{{-- Contenido --}}
-<div class="lg:pl-64">
+{{-- Contenido: ancho completo, el sidebar ya no reserva espacio fijo --}}
+<div>
     <header class="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-marca-gris-oscuro/10 bg-marca-blanco px-4 sm:px-6">
         <div class="flex items-center gap-3">
-            <label for="admin-sidebar-toggle" class="cursor-pointer rounded-lg p-2 text-marca-gris-oscuro hover:bg-marca-gris-claro lg:hidden" aria-label="Abrir menú">
+            <label for="admin-sidebar-toggle" class="cursor-pointer rounded-lg p-2 text-marca-gris-oscuro hover:bg-marca-gris-claro" aria-label="Abrir menú">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>

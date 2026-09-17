@@ -36,6 +36,11 @@ class ClientAuthController extends Controller
 
         $request->session()->regenerate();
 
+        // Si la cuenta es de admin, no se mezcla con el sitio público: va directo al panel.
+        if (Auth::user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return redirect()->intended(route('home'));
     }
 

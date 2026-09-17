@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ExpenseCategoryController as AdminExpenseCategory
 use App\Http\Controllers\Admin\ExpenseController as AdminExpenseController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
 use App\Http\Controllers\Admin\ShippingController as AdminShippingController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
@@ -75,6 +76,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('productos/{product}/editar', [AdminProductController::class, 'edit'])->name('products.edit');
         Route::put('productos/{product}', [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('productos/{product}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+
+        /* Promociones */
+        Route::get('promociones', [AdminPromotionController::class, 'index'])->name('promotions.index');
+        Route::get('promociones/nueva', [AdminPromotionController::class, 'create'])->name('promotions.create');
+        Route::post('promociones', [AdminPromotionController::class, 'store'])->name('promotions.store');
+        Route::get('promociones/{promotion}/editar', [AdminPromotionController::class, 'edit'])->name('promotions.edit');
+        Route::put('promociones/{promotion}', [AdminPromotionController::class, 'update'])->name('promotions.update');
+        Route::delete('promociones/{promotion}', [AdminPromotionController::class, 'destroy'])->name('promotions.destroy');
 
         /* Ventas / Pedidos */
         Route::get('pedidos', [AdminOrderController::class, 'index'])->name('orders.index');

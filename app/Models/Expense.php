@@ -10,7 +10,15 @@ class Expense extends Model
     public const TYPE_GASTO = 'gasto';
     public const TYPE_INGRESO = 'ingreso';
 
-    public const FREQUENCIES = ['unica' => 'Única vez', 'mensual' => 'Mensual', 'anual' => 'Anual'];
+    public const FREQUENCIES = [
+        'dia' => 'Diaria',
+        'semana' => 'Semanal',
+        'quincena' => 'Cada 15 días',
+        'mes' => 'Mensual',
+        'trimestre' => 'Cada 3 meses',
+        'semestre' => 'Cada 6 meses',
+        'anio' => 'Anual',
+    ];
 
     protected $fillable = [
         'description',

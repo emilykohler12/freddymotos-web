@@ -4,91 +4,118 @@
 @section('page-heading', 'Configuración del negocio')
 
 @section('content')
-    <div class="max-w-3xl">
-        <p class="mb-6 text-sm text-marca-gris-oscuro">
-            Estos datos se muestran en el Home y en el pie de página del sitio público.
-        </p>
+    <p class="mb-6 text-sm text-marca-gris-oscuro">
+        Estos datos se muestran en el Home y en el pie de página del sitio público.
+    </p>
 
-        @if ($errors->any())
-            <div class="mb-6 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
-                {{ $errors->first() }}
-            </div>
-        @endif
+    @if ($errors->any())
+        <div class="mb-6 max-w-3xl rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
+            {{ $errors->first() }}
+        </div>
+    @endif
 
-        <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data" class="space-y-6 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            @csrf
-            @method('PUT')
+    @php
+        $field = 'w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40';
+        $lbl = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro';
+    @endphp
 
-            @php
-                $field = 'w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40';
-                $lbl = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro';
-            @endphp
+    <form method="POST" action="{{ route('admin.settings.update') }}" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
 
-            <div>
-                <label for="nombre_local" class="{{ $lbl }}">Nombre del local</label>
-                <input type="text" id="nombre_local" name="nombre_local" value="{{ old('nombre_local', $settings->nombre_local) }}" class="{{ $field }}">
-            </div>
+        {{-- Tabs: radios, labels y paneles como hermanos directos (así el CSS peer-checked --}}
+        {{-- funciona tanto para resaltar el tab activo como para mostrar/ocultar el panel). --}}
+        <div class="flex flex-wrap items-start gap-2">
+        <input type="radio" name="settings-tab" id="tab-general" class="peer/general hidden" checked>
+        <label for="tab-general" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/general:bg-marca-negro peer-checked/general:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            General
+        </label>
 
-            <div>
-                <label for="logo" class="{{ $lbl }}">Logo</label>
-                @if ($settings->logo_url)
-                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="mb-2 h-14 w-auto rounded-lg bg-marca-gris-claro object-contain p-1">
-                @endif
-                <input type="file" id="logo" name="logo" accept="image/*" class="{{ $field }}">
-            </div>
+        <input type="radio" name="settings-tab" id="tab-negocio" class="peer/negocio hidden">
+        <label for="tab-negocio" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/negocio:bg-marca-negro peer-checked/negocio:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"/></svg>
+            Sobre el negocio
+        </label>
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <input type="radio" name="settings-tab" id="tab-pagos" class="peer/pagos hidden">
+        <label for="tab-pagos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/pagos:bg-marca-negro peer-checked/pagos:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v10H3V7zm0 4h18M7 15h4"/></svg>
+            Pagos
+        </label>
+
+        {{-- ===== General ===== --}}
+        <div class="hidden w-full space-y-6 pt-4 peer-checked/general:block">
+            <div class="space-y-6 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <div>
-                    <label for="telefono" class="{{ $lbl }}">Teléfono</label>
-                    <input type="text" id="telefono" name="telefono" value="{{ old('telefono', $settings->telefono) }}" class="{{ $field }}">
+                    <label for="nombre_local" class="{{ $lbl }}">Nombre del local</label>
+                    <input type="text" id="nombre_local" name="nombre_local" value="{{ old('nombre_local', $settings->nombre_local) }}" class="{{ $field }}">
                 </div>
+
                 <div>
-                    <label for="whatsapp" class="{{ $lbl }}">WhatsApp <span class="normal-case text-marca-gris-oscuro/50">(solo números, con código de país)</span></label>
-                    <input type="text" id="whatsapp" name="whatsapp" value="{{ old('whatsapp', $settings->whatsapp) }}" placeholder="5493510000000" class="{{ $field }}">
+                    <label for="logo" class="{{ $lbl }}">Logo</label>
+                    @if ($settings->logo_url)
+                        <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="mb-2 h-14 w-auto rounded-lg bg-marca-gris-claro object-contain p-1">
+                    @endif
+                    <input type="file" id="logo" name="logo" accept="image/*" class="{{ $field }}">
                 </div>
-            </div>
 
-            <div>
-                <label for="email" class="{{ $lbl }}">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email', $settings->email) }}" class="{{ $field }}">
-            </div>
-
-            <div>
-                <label for="direccion" class="{{ $lbl }}">Dirección</label>
-                <input type="text" id="direccion" name="direccion" value="{{ old('direccion', $settings->direccion) }}" class="{{ $field }}">
-            </div>
-
-            <div>
-                <label for="horario_atencion" class="{{ $lbl }}">Horario de atención</label>
-                <input type="text" id="horario_atencion" name="horario_atencion" value="{{ old('horario_atencion', $settings->horario_atencion) }}" placeholder="Lunes a viernes de 9 a 18" class="{{ $field }}">
-            </div>
-
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div>
-                    <label for="instagram_url" class="{{ $lbl }}">Instagram (URL)</label>
-                    <input type="url" id="instagram_url" name="instagram_url" value="{{ old('instagram_url', $settings->instagram_url) }}" placeholder="https://instagram.com/..." class="{{ $field }}">
-                </div>
-                <div>
-                    <label for="facebook_url" class="{{ $lbl }}">Facebook (URL)</label>
-                    <input type="url" id="facebook_url" name="facebook_url" value="{{ old('facebook_url', $settings->facebook_url) }}" placeholder="https://facebook.com/..." class="{{ $field }}">
-                </div>
-            </div>
-
-            <div class="border-t border-marca-gris-claro pt-5">
-                <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Sobre el negocio</h2>
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
-                        <label for="fecha_creacion" class="{{ $lbl }}">Fecha de creación del negocio</label>
-                        <input type="date" id="fecha_creacion" name="fecha_creacion" value="{{ old('fecha_creacion', optional($settings->fecha_creacion)->toDateString()) }}" class="max-w-xs {{ $field }}">
+                        <label for="telefono" class="{{ $lbl }}">Teléfono</label>
+                        <input type="text" id="telefono" name="telefono" value="{{ old('telefono', $settings->telefono) }}" class="{{ $field }}">
                     </div>
                     <div>
-                        <label for="historia" class="{{ $lbl }}">Historia <span class="normal-case text-marca-gris-oscuro/50">(se muestra en "Sobre nosotros")</span></label>
-                        <textarea id="historia" name="historia" rows="4" maxlength="2000" class="{{ $field }}">{{ old('historia', $settings->historia) }}</textarea>
+                        <label for="whatsapp" class="{{ $lbl }}">WhatsApp <span class="normal-case text-marca-gris-oscuro/50">(solo números, con código de país)</span></label>
+                        <input type="text" id="whatsapp" name="whatsapp" value="{{ old('whatsapp', $settings->whatsapp) }}" placeholder="5493510000000" class="{{ $field }}">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="{{ $lbl }}">Email</label>
+                    <input type="email" id="email" name="email" value="{{ old('email', $settings->email) }}" class="{{ $field }}">
+                </div>
+
+                <div>
+                    <label for="direccion" class="{{ $lbl }}">Dirección</label>
+                    <input type="text" id="direccion" name="direccion" value="{{ old('direccion', $settings->direccion) }}" class="{{ $field }}">
+                </div>
+
+                <div>
+                    <label for="horario_atencion" class="{{ $lbl }}">Horario de atención</label>
+                    <input type="text" id="horario_atencion" name="horario_atencion" value="{{ old('horario_atencion', $settings->horario_atencion) }}" placeholder="Lunes a viernes de 9 a 18" class="{{ $field }}">
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div>
+                        <label for="instagram_url" class="{{ $lbl }}">Instagram (URL)</label>
+                        <input type="url" id="instagram_url" name="instagram_url" value="{{ old('instagram_url', $settings->instagram_url) }}" placeholder="https://instagram.com/..." class="{{ $field }}">
+                    </div>
+                    <div>
+                        <label for="facebook_url" class="{{ $lbl }}">Facebook (URL)</label>
+                        <input type="url" id="facebook_url" name="facebook_url" value="{{ old('facebook_url', $settings->facebook_url) }}" placeholder="https://facebook.com/..." class="{{ $field }}">
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="border-t border-marca-gris-claro pt-5">
+        {{-- ===== Sobre el negocio ===== --}}
+        <div class="hidden w-full space-y-6 pt-4 peer-checked/negocio:block">
+            <div class="space-y-4 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                <div>
+                    <label for="fecha_creacion" class="{{ $lbl }}">Fecha de creación del negocio</label>
+                    <input type="date" id="fecha_creacion" name="fecha_creacion" value="{{ old('fecha_creacion', optional($settings->fecha_creacion)->toDateString()) }}" class="max-w-xs {{ $field }}">
+                </div>
+                <div>
+                    <label for="historia" class="{{ $lbl }}">Historia <span class="normal-case text-marca-gris-oscuro/50">(se muestra en "Sobre nosotros")</span></label>
+                    <textarea id="historia" name="historia" rows="4" maxlength="2000" class="{{ $field }}">{{ old('historia', $settings->historia) }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        {{-- ===== Pagos ===== --}}
+        <div class="hidden w-full space-y-6 pt-4 peer-checked/pagos:block">
+            <div class="rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Moneda e impuestos</h2>
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
@@ -102,7 +129,7 @@
                 </div>
             </div>
 
-            <div class="border-t border-marca-gris-claro pt-5">
+            <div class="rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Métodos de pago</h2>
                 <div class="flex flex-wrap gap-4">
                     @php $selectedMethods = old('payment_methods', $settings->payment_methods ?? []); @endphp
@@ -115,7 +142,7 @@
                 </div>
             </div>
 
-            <div class="border-t border-marca-gris-claro pt-5">
+            <div class="rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Datos bancarios</h2>
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                     <div>
@@ -133,7 +160,7 @@
                 </div>
             </div>
 
-            <div class="border-t border-marca-gris-claro pt-5">
+            <div class="rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Mercado Pago</h2>
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
@@ -146,13 +173,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+        </div>
 
-            <div class="flex items-center gap-3 border-t border-marca-gris-claro pt-5">
-                <button type="submit" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                    Guardar cambios
-                </button>
-                <a href="{{ route('admin.dashboard') }}" class="text-sm font-semibold text-marca-gris-oscuro transition hover:text-marca-rojo">Cancelar</a>
-            </div>
-        </form>
-    </div>
+        <div class="mt-6 flex items-center gap-3 border-t border-marca-gris-claro pt-5">
+            <button type="submit" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                Guardar cambios
+            </button>
+            <a href="{{ route('admin.dashboard') }}" class="text-sm font-semibold text-marca-gris-oscuro transition hover:text-marca-rojo">Cancelar</a>
+        </div>
+    </form>
 @endsection

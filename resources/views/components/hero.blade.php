@@ -88,8 +88,8 @@
             </h1>
 
             <p class="mt-5 max-w-md text-base leading-relaxed text-marca-blanco/80 sm:text-lg">
-                Cascos, frenos, filtros y mucho más, con stock real y envíos a todo
-                el país. Te ayudamos a elegir la pieza justa para tu modelo.
+                Cascos, frenos, filtros y mucho más, con envíos a todo el país.
+                Te ayudamos a elegir la pieza justa para tu modelo.
             </p>
 
             <div class="mt-8 flex flex-wrap items-center gap-4">
