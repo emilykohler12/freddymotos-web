@@ -12,8 +12,10 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
 use App\Http\Controllers\Admin\ShippingController as AdminShippingController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
+use App\Http\Controllers\Admin\StockMovementController as AdminStockMovementController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Auth\ClientAuthController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
@@ -53,6 +55,14 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [ClientAuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+/* ---------------- Recuperar contraseña (código de 6 dígitos por email) ---------------- */
+Route::middleware('guest')->prefix('recuperar-contrasena')->group(function () {
+    Route::get('/', [PasswordResetController::class, 'showRequestForm'])->name('password.request');
+    Route::post('/', [PasswordResetController::class, 'sendCode'])->name('password.send-code');
+    Route::get('/codigo', [PasswordResetController::class, 'showCodeForm'])->name('password.code-form');
+    Route::post('/codigo', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
+});
+
 /* ---------------- Panel de administración ---------------- */
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AdminAuthController::class, 'showLogin'])->name('login');
@@ -87,6 +97,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /* Ventas / Pedidos */
         Route::get('pedidos', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('pedidos/nuevo', [AdminOrderController::class, 'create'])->name('orders.create');
+        Route::post('pedidos', [AdminOrderController::class, 'store'])->name('orders.store');
         Route::get('pedidos/{order:uuid}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('pedidos/{order:uuid}', [AdminOrderController::class, 'update'])->name('orders.update');
 
@@ -123,11 +135,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('gastos', [AdminExpenseController::class, 'store'])->name('expenses.store');
         Route::put('gastos/{expense}', [AdminExpenseController::class, 'update'])->name('expenses.update');
         Route::delete('gastos/{expense}', [AdminExpenseController::class, 'destroy'])->name('expenses.destroy');
+        Route::post('gastos/{expense}/pagado', [AdminExpenseController::class, 'togglePaid'])->name('expenses.toggle-paid');
         Route::post('gastos/categorias', [AdminExpenseCategoryController::class, 'store'])->name('expense-categories.store');
         Route::delete('gastos/categorias/{expenseCategory}', [AdminExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
 
         /* Movimientos / actividad */
         Route::get('movimientos', [AdminActivityLogController::class, 'index'])->name('activity.index');
+        Route::post('movimientos/inventario', [AdminStockMovementController::class, 'store'])->name('stock-movements.store');
 
         Route::get('configuracion', [AdminSiteSettingController::class, 'edit'])->name('settings.edit');
         Route::put('configuracion', [AdminSiteSettingController::class, 'update'])->name('settings.update');

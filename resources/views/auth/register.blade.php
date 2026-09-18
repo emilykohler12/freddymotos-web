@@ -3,7 +3,7 @@
 @section('title', 'Crear cuenta — ' . $settings->nombre_local)
 
 @section('content')
-    <x-site-nav />
+    <x-site-nav show-logo />
 
     <main class="w-full bg-marca-gris-claro">
         <div class="mx-auto flex max-w-md flex-col px-4 py-16 sm:px-6">

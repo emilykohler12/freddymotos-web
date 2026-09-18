@@ -9,6 +9,8 @@
 </head>
 <body class="min-h-screen bg-marca-gris-claro font-sans text-marca-negro antialiased">
 
+<x-offline-banner />
+
 @php
     $nav = [
         ['label' => 'Dashboard',     'route' => 'admin.dashboard',     'active' => 'admin.dashboard',   'icon' => 'M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z'],

@@ -12,7 +12,6 @@
             <div class="mb-8">
                 <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-rojo">Catálogo</p>
                 <h1 class="text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">Todos los productos</h1>
-                <p class="mt-2 text-sm text-marca-gris-oscuro">{{ $products->total() }} productos encontrados</p>
             </div>
 
             {{-- ============ Barra de filtros ============ --}}

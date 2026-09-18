@@ -49,6 +49,11 @@
                                         <p class="mt-1 text-xs text-marca-gris-oscuro">
                                             {{ $line->product->formatted_price }} c/u · {{ $line->product->brand }}
                                         </p>
+                                        @if ($line->promotion)
+                                            <span class="mt-1 inline-block rounded-full bg-marca-rojo/10 px-2 py-0.5 text-[10px] font-bold uppercase text-marca-rojo">
+                                                {{ $line->promotion->label }}
+                                            </span>
+                                        @endif
                                     </div>
 
                                     {{-- Selector de cantidad --}}
@@ -62,9 +67,14 @@
                                     </form>
 
                                     {{-- Subtotal de la línea --}}
-                                    <p class="w-24 text-right text-base font-extrabold text-marca-negro">
-                                        $ {{ number_format($line->subtotal, 0, ',', '.') }}
-                                    </p>
+                                    <div class="w-24 text-right">
+                                        @if ($line->promotion)
+                                            <p class="text-xs text-marca-gris-oscuro/60 line-through">$ {{ number_format($line->original_subtotal, 0, ',', '.') }}</p>
+                                        @endif
+                                        <p class="text-base font-extrabold text-marca-negro">
+                                            $ {{ number_format($line->subtotal, 0, ',', '.') }}
+                                        </p>
+                                    </div>
 
                                     {{-- Quitar --}}
                                     <form method="POST" action="{{ route('cart.remove', $line->product) }}">

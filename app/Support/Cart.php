@@ -77,13 +77,16 @@ class Cart
             ->map(function ($qty, $id) use ($products) {
                 /** @var Product $product */
                 $product = $products->get((int) $id);
-                $unit = (float) $product->price;
+                $quantity = (int) $qty;
+                $pricing = $product->priceFor($quantity);
 
                 return (object) [
                     'product' => $product,
-                    'quantity' => (int) $qty,
-                    'unit_price' => $unit,
-                    'subtotal' => $unit * (int) $qty,
+                    'quantity' => $quantity,
+                    'unit_price' => (float) $product->price,
+                    'subtotal' => $pricing['subtotal'],
+                    'original_subtotal' => $pricing['original_subtotal'],
+                    'promotion' => $pricing['promotion'],
                 ];
             })
             ->values();

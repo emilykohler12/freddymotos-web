@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,8 +32,6 @@ class CategoryController extends Controller
             'image_path' => $request->hasFile('image') ? $request->file('image')->store('categories', 'public') : null,
         ]);
 
-        ActivityLog::log('categoria', "Categoría creada: {$category->name}", $category);
-
         return back()->with('status', 'Categoría creada.');
     }
 
@@ -56,8 +53,6 @@ class CategoryController extends Controller
 
         $category->update($update);
 
-        ActivityLog::log('categoria', "Categoría editada: {$category->name}", $category);
-
         return back()->with('status', 'Categoría actualizada.');
     }
 
@@ -71,10 +66,7 @@ class CategoryController extends Controller
             Storage::disk('public')->delete($category->image_path);
         }
 
-        $name = $category->name;
         $category->delete();
-
-        ActivityLog::log('categoria', "Categoría eliminada: {$name}");
 
         return back()->with('status', 'Categoría eliminada.');
     }

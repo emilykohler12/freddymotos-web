@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,9 +24,7 @@ class SupplierController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $supplier = Supplier::create($this->validated($request));
-
-        ActivityLog::log('proveedor', "Proveedor creado: {$supplier->name}", $supplier);
+        Supplier::create($this->validated($request));
 
         return redirect()->route('admin.suppliers.index')->with('status', 'Proveedor creado.');
     }
@@ -48,8 +45,6 @@ class SupplierController extends Controller
     {
         $supplier->update($this->validated($request));
 
-        ActivityLog::log('proveedor', "Proveedor editado: {$supplier->name}", $supplier);
-
         return redirect()->route('admin.suppliers.index')->with('status', 'Proveedor actualizado.');
     }
 
@@ -59,10 +54,7 @@ class SupplierController extends Controller
             return back()->with('error', 'No se puede eliminar: hay productos con este proveedor.');
         }
 
-        $name = $supplier->name;
         $supplier->delete();
-
-        ActivityLog::log('proveedor', "Proveedor eliminado: {$name}");
 
         return back()->with('status', 'Proveedor eliminado.');
     }
@@ -79,8 +71,6 @@ class SupplierController extends Controller
 
         $supplier->purchases()->create($data + ['paid_amount' => $data['paid_amount'] ?? 0]);
 
-        ActivityLog::log('proveedor', "Compra registrada a {$supplier->name} por \$ " . number_format($data['amount'], 0, ',', '.'), $supplier);
-
         return back()->with('status', 'Compra registrada.');
     }
 
@@ -89,8 +79,8 @@ class SupplierController extends Controller
         return $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'company' => ['nullable', 'string', 'max:150'],
-            'cuit' => ['nullable', 'string', 'max:30'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'cuit' => ['nullable', 'string', 'max:30', 'regex:/^[0-9-]{6,20}$/'],
+            'phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'email' => ['nullable', 'email', 'max:160'],
             'address' => ['nullable', 'string', 'max:200'],
             'payment_terms' => ['nullable', 'string', 'max:500'],

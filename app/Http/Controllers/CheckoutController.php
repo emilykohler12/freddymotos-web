@@ -17,6 +17,11 @@ class CheckoutController extends Controller
 {
     public function show(Cart $cart): View|RedirectResponse
     {
+        if (! auth()->check()) {
+            return redirect()->guest(route('login'))
+                ->with('status', 'Iniciá sesión para ver tu carrito y poder comprar.');
+        }
+
         if ($cart->isEmpty()) {
             return redirect()->route('cart.index');
         }
@@ -29,6 +34,11 @@ class CheckoutController extends Controller
 
     public function store(CheckoutRequest $request, Cart $cart): RedirectResponse
     {
+        if (! auth()->check()) {
+            return redirect()->guest(route('login'))
+                ->with('status', 'Iniciá sesión para ver tu carrito y poder comprar.');
+        }
+
         $lines = $cart->lines();
 
         if ($lines->isEmpty()) {
@@ -54,6 +64,7 @@ class CheckoutController extends Controller
                 'status' => Order::STATUS_PENDIENTE,
                 'delivery_method' => $data['delivery_method'],
                 'payment_method' => $data['payment_method'],
+                'origin' => $data['payment_method'] === Order::PAYMENT_WHATSAPP ? Order::ORIGIN_WHATSAPP : Order::ORIGIN_WEB,
                 'subtotal' => $subtotal,
                 'total' => $subtotal, // sin costo de envío por ahora
                 'shipping_address' => $data['delivery_method'] === Order::DELIVERY_ENVIO

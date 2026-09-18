@@ -7,6 +7,7 @@
     @php
         $field = 'w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none';
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
+        $paymentMethodLabels = ['mercadopago' => 'Mercado Pago'] + \App\Models\Order::REAL_PAYMENT_METHODS;
     @endphp
 
 
@@ -72,7 +73,17 @@
 
                 <div>
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Método de pago</label>
-                    <p class="text-sm font-medium text-marca-negro">{{ ucfirst($order->payment_method) }}</p>
+                    @if ($order->payment_method === \App\Models\Order::PAYMENT_WHATSAPP)
+                        <p class="mb-2 text-sm font-medium text-marca-negro">Coordina por WhatsApp — elegí cómo pagó:</p>
+                        <select name="real_payment_method" class="{{ $field }}">
+                            <option value="">Todavía no pagó</option>
+                            @foreach (\App\Models\Order::REAL_PAYMENT_METHODS as $value => $label)
+                                <option value="{{ $value }}" @selected(old('real_payment_method') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <p class="text-sm font-medium text-marca-negro">{{ $paymentMethodLabels[$order->payment_method] ?? ucfirst($order->payment_method) }}</p>
+                    @endif
                 </div>
 
                 <div>

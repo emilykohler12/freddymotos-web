@@ -9,7 +9,7 @@
 <div class="group flex h-full flex-col overflow-hidden rounded-2xl bg-marca-gris-claro transition hover:shadow-xl hover:shadow-marca-negro/10">
 
     {{-- Imagen --}}
-    <a href="{{ route('products.show', $product) }}" class="relative block aspect-square w-full overflow-hidden bg-marca-gris-claro">
+    <a href="{{ route('products.show', $product) }}" class="relative block aspect-[4/3] w-full overflow-hidden bg-marca-gris-claro">
         @if ($product->image_url)
             <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
                  class="h-full w-full object-cover transition duration-300 group-hover:scale-105">

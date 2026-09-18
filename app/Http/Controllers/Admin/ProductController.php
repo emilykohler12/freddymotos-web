@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Supplier;
@@ -58,14 +57,14 @@ class ProductController extends Controller
     {
         $data = $this->validated($request);
         $data['slug'] = $this->uniqueSlug($data['name']);
+        // El stock inicial se carga aparte desde Movimientos → Inventario.
+        $data['stock'] = 0;
 
         if ($request->hasFile('image')) {
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
 
-        $product = Product::create($data);
-
-        ActivityLog::log('producto', "Producto creado: {$product->name}", $product);
+        Product::create($data);
 
         return redirect()->route('admin.products.index')->with('status', 'Producto creado.');
     }
@@ -96,8 +95,6 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        ActivityLog::log('producto', "Producto editado: {$product->name}", $product);
-
         return redirect()->route('admin.products.index')->with('status', 'Producto actualizado.');
     }
 
@@ -107,10 +104,7 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->image_path);
         }
 
-        $name = $product->name;
         $product->delete();
-
-        ActivityLog::log('producto', "Producto eliminado: {$name}");
 
         return back()->with('status', 'Producto eliminado.');
     }
@@ -123,7 +117,6 @@ class ProductController extends Controller
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
             'cost_price' => ['nullable', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
             'category_id' => ['required', 'exists:categories,id'],
             'brand' => ['required', 'string', 'max:80'],
             'compatible_model' => ['nullable', 'string', 'max:2000'],

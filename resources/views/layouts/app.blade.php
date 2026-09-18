@@ -11,6 +11,8 @@
 </head>
 <body class="min-h-screen bg-marca-blanco font-sans text-marca-negro antialiased">
 
+    <x-offline-banner />
+
     {{-- Mensajes flash (alta/actualización de carrito, errores de checkout, etc.) --}}
     @if (session('status') || session('error'))
         <div class="fixed inset-x-0 top-20 z-[90] flex justify-center px-4">
@@ -22,7 +24,7 @@
     @endif
 
     {{-- Contenedor de toasts (lo llena resources/js/cart.js) --}}
-    <div id="toast-root" class="pointer-events-none fixed inset-x-0 top-4 z-[100] flex flex-col items-center gap-2 px-4"></div>
+    <div id="toast-root" class="pointer-events-none fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-2 px-4 sm:px-0"></div>
 
     {{ $slot ?? '' }}
     @yield('content')

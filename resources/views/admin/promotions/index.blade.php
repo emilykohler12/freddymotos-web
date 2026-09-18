@@ -39,9 +39,9 @@
                             </div>
                         @endif
                     </dl>
-                    <div class="mt-3 flex gap-3 border-t border-marca-gris-claro pt-3">
+                    <div class="mt-3 flex items-center gap-3 border-t border-marca-gris-claro pt-3">
                         <a href="{{ route('admin.promotions.edit', $promotion) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Editar</a>
-                        <form method="POST" action="{{ route('admin.promotions.destroy', $promotion) }}" onsubmit="return confirm('¿Eliminar {{ $promotion->title }}?');">
+                        <form method="POST" action="{{ route('admin.promotions.destroy', $promotion) }}" onsubmit="return confirm('¿Eliminar {{ $promotion->title }}?');" class="inline-flex">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use Illuminate\Http\RedirectResponse;
@@ -23,14 +22,27 @@ class ExpenseController extends Controller
             ->orderByDesc('incurred_on')
             ->get();
 
+        $active = $items->reject(fn (Expense $e) => $e->isDeactivated());
+        $deactivated = $items->filter(fn (Expense $e) => $e->isDeactivated());
+
+        $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderBy('name')->get();
+
+        $byCategory = $categories->map(fn (ExpenseCategory $category) => [
+            'category' => $category,
+            'items' => $active->where('expense_category_id', $category->id)->values(),
+        ]);
+        $withoutCategory = $active->whereNull('expense_category_id')->values();
+
         $totalThisMonth = $items
             ->filter(fn (Expense $e) => $e->incurred_on->isSameMonth(now()))
             ->sum('amount');
 
         return view('admin.expenses.index', [
-            'items' => $items,
+            'byCategory' => $byCategory,
+            'withoutCategory' => $withoutCategory,
+            'deactivated' => $deactivated,
             'totalThisMonth' => $totalThisMonth,
-            'categories' => ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderBy('name')->get(),
+            'categories' => $categories,
             'frequencies' => Expense::FREQUENCIES,
             'frequency' => $frequency,
         ]);
@@ -40,29 +52,39 @@ class ExpenseController extends Controller
     {
         $data = $this->validated($request);
 
-        $expense = Expense::create($data);
+        Expense::create($data);
 
-        ActivityLog::log($data['type'], ucfirst($data['type']) . " registrado: {$expense->description}", $expense);
-
-        return back()->with('status', ucfirst($data['type']) . ' registrado.');
+        return $this->redirectFor($data['type'])->with('status', ucfirst($data['type']) . ' registrado.');
     }
 
     public function update(Request $request, Expense $expense): RedirectResponse
     {
         $expense->update($this->validated($request));
 
-        ActivityLog::log($expense->type, ucfirst($expense->type) . " editado: {$expense->description}", $expense);
-
-        return back()->with('status', 'Registro actualizado.');
+        return $this->redirectFor($expense->type)->with('status', 'Registro actualizado.');
     }
 
     public function destroy(Expense $expense): RedirectResponse
     {
+        $type = $expense->type;
         $expense->delete();
 
-        ActivityLog::log($expense->type, ucfirst($expense->type) . " eliminado: {$expense->description}");
+        return $this->redirectFor($type)->with('status', 'Registro eliminado.');
+    }
 
-        return back()->with('status', 'Registro eliminado.');
+    /** Pagos únicos/anuales quedan marcados como pagados y se archivan en "Desactivados". */
+    public function togglePaid(Expense $expense): RedirectResponse
+    {
+        $expense->update(['paid' => ! $expense->paid]);
+
+        return $this->redirectFor($expense->type)->with('status', $expense->paid ? 'Gasto marcado como pagado.' : 'Gasto reactivado.');
+    }
+
+    private function redirectFor(string $type): RedirectResponse
+    {
+        return $type === Expense::TYPE_INGRESO
+            ? redirect()->route('admin.activity.index', ['tab' => 'ingresos'])
+            : redirect()->route('admin.expenses.index');
     }
 
     private function validated(Request $request): array

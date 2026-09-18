@@ -45,11 +45,6 @@ class SiteSetting extends Model
             'moneda' => 'ARS',
             'tax_rate' => null,
             'payment_methods' => [],
-            'banco' => null,
-            'cbu_alias' => null,
-            'titular_cuenta' => null,
-            'mp_public_key' => null,
-            'mp_access_token' => null,
         ];
     }
 

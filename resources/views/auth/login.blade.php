@@ -3,7 +3,7 @@
 @section('title', 'Ingresar — ' . $settings->nombre_local)
 
 @section('content')
-    <x-site-nav />
+    <x-site-nav show-logo />
 
     <main class="w-full bg-marca-gris-claro">
         <div class="mx-auto flex max-w-md flex-col px-4 py-16 sm:px-6">
@@ -26,9 +26,12 @@
                     <input type="password" id="password" name="password" required
                            class="w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                 </div>
-                <label class="flex items-center gap-2 text-sm text-marca-gris-oscuro">
-                    <input type="checkbox" name="remember" class="rounded border-marca-gris-oscuro/30 accent-marca-rojo"> Recordarme
-                </label>
+                <div class="flex items-center justify-between text-sm text-marca-gris-oscuro">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="remember" class="rounded border-marca-gris-oscuro/30 accent-marca-rojo"> Recordarme
+                    </label>
+                    <a href="{{ route('password.request') }}" class="font-semibold text-marca-rojo hover:underline">¿Olvidaste tu contraseña?</a>
+                </div>
                 <button type="submit" class="w-full rounded-full bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                     Entrar
                 </button>

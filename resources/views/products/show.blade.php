@@ -20,36 +20,38 @@
             </nav>
 
             {{-- ============ Detalle ============ --}}
-            <div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-5 lg:gap-10">
 
-                {{-- Imagen grande --}}
-                <div class="relative overflow-hidden rounded-3xl bg-marca-gris-claro">
-                    <div class="aspect-square w-full">
-                        @if ($product->image_url)
-                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
-                        @else
-                            <span class="flex h-full w-full items-center justify-center text-marca-gris-oscuro/25">
-                                <svg viewBox="0 0 200 200" class="h-1/3 w-1/3" fill="none" stroke="currentColor" stroke-width="4">
-                                    <circle cx="100" cy="100" r="55"/>
-                                    <path d="M100 55v90M55 100h90" stroke-linecap="round"/>
-                                </svg>
-                            </span>
-                        @endif
+                {{-- Imagen, más chica que la info --}}
+                <div class="lg:col-span-2">
+                    <div class="relative mx-auto w-full max-w-xs overflow-hidden rounded-3xl bg-marca-gris-claro sm:max-w-sm">
+                        <div class="aspect-square w-full">
+                            @if ($product->image_url)
+                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
+                            @else
+                                <span class="flex h-full w-full items-center justify-center text-marca-gris-oscuro/25">
+                                    <svg viewBox="0 0 200 200" class="h-1/3 w-1/3" fill="none" stroke="currentColor" stroke-width="4">
+                                        <circle cx="100" cy="100" r="55"/>
+                                        <path d="M100 55v90M55 100h90" stroke-linecap="round"/>
+                                    </svg>
+                                </span>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
                 {{-- Info --}}
-                <div class="flex flex-col">
+                <div class="flex flex-col lg:col-span-3">
                     <p class="text-sm font-semibold uppercase tracking-wide text-marca-mostaza">{{ $product->brand }}</p>
                     <h1 class="mt-1 text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">{{ $product->name }}</h1>
 
                     <p class="mt-4 text-4xl font-extrabold text-marca-negro">{{ $product->formatted_price }}</p>
 
-                    {{-- Indicador de stock --}}
+                    {{-- Indicador de disponibilidad (sin mostrar la cantidad exacta: eso es solo para el admin) --}}
                     <div class="mt-4 flex items-center gap-2 text-sm font-semibold">
                         @if ($product->in_stock)
                             <span class="h-2.5 w-2.5 rounded-full bg-marca-amarillo"></span>
-                            <span class="text-marca-gris-oscuro">Disponible · {{ $product->stock }} en stock</span>
+                            <span class="text-marca-gris-oscuro">Disponible</span>
                         @else
                             <span class="h-2.5 w-2.5 rounded-full bg-marca-rojo"></span>
                             <span class="text-marca-rojo">Sin stock por el momento</span>

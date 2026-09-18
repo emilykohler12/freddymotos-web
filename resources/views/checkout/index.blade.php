@@ -28,7 +28,7 @@
                         <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div class="sm:col-span-2">
                                 <label for="name" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Nombre y apellido *</label>
-                                <input type="text" id="name" name="name" value="{{ old('name') }}" required
+                                <input type="text" id="name" name="name" value="{{ old('name', auth()->user()->name ?? '') }}" required
                                        class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                             </div>
                             <div>
@@ -38,7 +38,7 @@
                             </div>
                             <div>
                                 <label for="email" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Email (opcional)</label>
-                                <input type="email" id="email" name="email" value="{{ old('email') }}"
+                                <input type="email" id="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}"
                                        class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                             </div>
                         </div>

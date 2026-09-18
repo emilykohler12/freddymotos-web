@@ -27,6 +27,7 @@ class Expense extends Model
         'expense_category_id',
         'amount',
         'frequency',
+        'paid',
         'incurred_on',
     ];
 
@@ -35,7 +36,14 @@ class Expense extends Model
         return [
             'amount' => 'decimal:2',
             'incurred_on' => 'date',
+            'paid' => 'boolean',
         ];
+    }
+
+    /** Pagos únicos o anuales que ya se pagaron: se archivan, no vuelven a molestar. */
+    public function isDeactivated(): bool
+    {
+        return $this->paid && in_array($this->frequency, [null, 'anio'], true);
     }
 
     public function expenseCategory(): BelongsTo

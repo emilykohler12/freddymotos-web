@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Promotion;
@@ -32,8 +31,6 @@ class PromotionController extends Controller
         $promotion = Promotion::create($data);
         $promotion->products()->sync($data['scope'] === Promotion::SCOPE_PRODUCTS ? ($request->input('product_ids') ?? []) : []);
 
-        ActivityLog::log('promocion', "Promoción creada: {$promotion->title}", $promotion);
-
         return redirect()->route('admin.promotions.index')->with('status', 'Promoción creada.');
     }
 
@@ -49,17 +46,12 @@ class PromotionController extends Controller
         $promotion->update($data);
         $promotion->products()->sync($data['scope'] === Promotion::SCOPE_PRODUCTS ? ($request->input('product_ids') ?? []) : []);
 
-        ActivityLog::log('promocion', "Promoción editada: {$promotion->title}", $promotion);
-
         return redirect()->route('admin.promotions.index')->with('status', 'Promoción actualizada.');
     }
 
     public function destroy(Promotion $promotion): RedirectResponse
     {
-        $title = $promotion->title;
         $promotion->delete();
-
-        ActivityLog::log('promocion', "Promoción eliminada: {$title}");
 
         return back()->with('status', 'Promoción eliminada.');
     }

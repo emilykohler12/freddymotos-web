@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Customer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,9 +37,7 @@ class CustomerController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $customer = Customer::create($this->validated($request));
-
-        ActivityLog::log('cliente', "Cliente creado: {$customer->name}", $customer);
+        Customer::create($this->validated($request));
 
         return redirect()->route('admin.customers.index')->with('status', 'Cliente creado.');
     }
@@ -61,8 +58,6 @@ class CustomerController extends Controller
     {
         $customer->update($this->validated($request, $customer));
 
-        ActivityLog::log('cliente', "Cliente editado: {$customer->name}", $customer);
-
         return redirect()->route('admin.customers.index')->with('status', 'Cliente actualizado.');
     }
 
@@ -72,10 +67,7 @@ class CustomerController extends Controller
             return back()->with('error', 'No se puede eliminar: el cliente tiene pedidos.');
         }
 
-        $name = $customer->name;
         $customer->delete();
-
-        ActivityLog::log('cliente', "Cliente eliminado: {$name}");
 
         return back()->with('status', 'Cliente eliminado.');
     }
@@ -84,13 +76,13 @@ class CustomerController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:150'],
-            'phone' => ['required', 'string', 'max:40'],
+            'phone' => ['required', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'email' => ['nullable', 'email', 'max:160'],
-            'dni_cuit' => ['nullable', 'string', 'max:30'],
+            'dni_cuit' => ['nullable', 'string', 'max:30', 'regex:/^[0-9-]{6,20}$/'],
             'address' => ['nullable', 'string', 'max:200'],
             'city' => ['nullable', 'string', 'max:100'],
             'province' => ['nullable', 'string', 'max:100'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
+            'postal_code' => ['nullable', 'string', 'max:20', 'regex:/^[0-9A-Za-z-\s]{3,20}$/'],
         ]);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\ShippingCompany;
 use App\Models\ShippingZone;
 use Illuminate\Http\RedirectResponse;
@@ -27,9 +26,7 @@ class ShippingController extends Controller
         $data = $this->validatedCompany($request);
         $data['active'] = $request->boolean('active', true);
 
-        $company = ShippingCompany::create($data);
-
-        ActivityLog::log('envios', "Empresa de envío creada: {$company->name}", $company);
+        ShippingCompany::create($data);
 
         return back()->with('status', 'Empresa de envío creada.');
     }
@@ -41,17 +38,12 @@ class ShippingController extends Controller
 
         $company->update($data);
 
-        ActivityLog::log('envios', "Empresa de envío editada: {$company->name}", $company);
-
         return back()->with('status', 'Empresa de envío actualizada.');
     }
 
     public function destroyCompany(ShippingCompany $company): RedirectResponse
     {
-        $name = $company->name;
         $company->delete();
-
-        ActivityLog::log('envios', "Empresa de envío eliminada: {$name}");
 
         return back()->with('status', 'Empresa eliminada.');
     }
@@ -60,9 +52,7 @@ class ShippingController extends Controller
 
     public function storeZone(Request $request): RedirectResponse
     {
-        $zone = ShippingZone::create($this->validatedZone($request));
-
-        ActivityLog::log('envios', "Zona de envío creada: {$zone->name}", $zone);
+        ShippingZone::create($this->validatedZone($request));
 
         return back()->with('status', 'Zona de envío creada.');
     }
@@ -71,17 +61,12 @@ class ShippingController extends Controller
     {
         $zone->update($this->validatedZone($request));
 
-        ActivityLog::log('envios', "Zona de envío editada: {$zone->name}", $zone);
-
         return back()->with('status', 'Zona de envío actualizada.');
     }
 
     public function destroyZone(ShippingZone $zone): RedirectResponse
     {
-        $name = $zone->name;
         $zone->delete();
-
-        ActivityLog::log('envios', "Zona de envío eliminada: {$name}");
 
         return back()->with('status', 'Zona eliminada.');
     }
@@ -91,7 +76,7 @@ class ShippingController extends Controller
         return $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'contact_name' => ['nullable', 'string', 'max:120'],
-            'contact_phone' => ['nullable', 'string', 'max:40'],
+            'contact_phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'contact_email' => ['nullable', 'email', 'max:160'],
             'service_type' => ['nullable', 'string', 'max:120'],
             'price' => ['required', 'numeric', 'min:0'],

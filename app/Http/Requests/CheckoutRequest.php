@@ -17,7 +17,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:120'],
-            'phone' => ['required', 'string', 'max:40'],
+            'phone' => ['required', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'email' => ['nullable', 'email', 'max:160'],
             'address' => ['nullable', 'string', 'max:255', 'required_if:delivery_method,' . Order::DELIVERY_ENVIO],
             'delivery_method' => ['required', Rule::in([Order::DELIVERY_RETIRO, Order::DELIVERY_ENVIO])],

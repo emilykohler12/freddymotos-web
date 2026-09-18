@@ -66,6 +66,51 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /** Promoción vigente aplicable a este producto (puntual > categoría > todo el catálogo). */
+    public function activePromotion(): ?Promotion
+    {
+        return Promotion::vigentes()
+            ->where(function ($q) {
+                $q->where('scope', Promotion::SCOPE_ALL)
+                    ->orWhere(fn ($q2) => $q2->where('scope', Promotion::SCOPE_CATEGORY)->where('category_id', $this->category_id))
+                    ->orWhereHas('products', fn ($q2) => $q2->where('products.id', $this->id));
+            })
+            ->orderByRaw("CASE scope WHEN 'products' THEN 0 WHEN 'category' THEN 1 ELSE 2 END")
+            ->first();
+    }
+
+    /**
+     * Precio efectivo para una cantidad, aplicando la promoción vigente (si hay).
+     *
+     * @return array{subtotal:float, original_subtotal:float, promotion:?Promotion}
+     */
+    public function priceFor(int $quantity): array
+    {
+        $unit = (float) $this->price;
+        $original = $unit * $quantity;
+        $promotion = $this->activePromotion();
+
+        if (! $promotion) {
+            return ['subtotal' => $original, 'original_subtotal' => $original, 'promotion' => null];
+        }
+
+        $subtotal = match ($promotion->type) {
+            Promotion::TYPE_PERCENTAGE => $original * (1 - min(100, (float) $promotion->value) / 100),
+            Promotion::TYPE_FIXED => max(0, $unit - (float) $promotion->value) * $quantity,
+            Promotion::TYPE_NXM => (function () use ($quantity, $promotion, $unit) {
+                $buy = max(1, (int) $promotion->buy_quantity);
+                $pay = min($buy, max(0, (int) $promotion->pay_quantity));
+                $groups = intdiv($quantity, $buy);
+                $remainder = $quantity % $buy;
+
+                return (($groups * $pay) + $remainder) * $unit;
+            })(),
+            default => $original,
+        };
+
+        return ['subtotal' => round($subtotal, 2), 'original_subtotal' => $original, 'promotion' => $promotion];
+    }
+
     public function promotions(): BelongsToMany
     {
         return $this->belongsToMany(Promotion::class, 'promotion_product');

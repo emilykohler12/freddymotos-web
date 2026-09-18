@@ -46,7 +46,7 @@
                 <textarea id="description" name="description" rows="3" class="{{ $field }}">{{ old('description', $product->description) }}</textarea>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <label for="price" class="{{ $lbl }}">Precio de venta</label>
                     <input type="number" step="0.01" min="0" id="price" name="price" value="{{ old('price', $product->price) }}" required class="{{ $field }}">
@@ -55,11 +55,22 @@
                     <label for="cost_price" class="{{ $lbl }}">Precio de compra</label>
                     <input type="number" step="0.01" min="0" id="cost_price" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" class="{{ $field }}">
                 </div>
-                <div>
-                    <label for="stock" class="{{ $lbl }}">Stock</label>
-                    <input type="number" min="0" id="stock" name="stock" value="{{ old('stock', $product->stock ?? 0) }}" required class="{{ $field }}">
-                </div>
             </div>
+
+            @if ($product->exists)
+                <div class="flex items-center justify-between rounded-xl bg-marca-gris-claro px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Stock actual</p>
+                        <p class="text-lg font-extrabold text-marca-negro">{{ $product->stock }} unidades</p>
+                    </div>
+                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="text-xs font-semibold text-marca-rojo hover:underline">Ajustar en Inventario →</a>
+                </div>
+            @else
+                <p class="-mt-2 text-xs text-marca-gris-oscuro">
+                    El stock inicial se carga después desde
+                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="font-semibold text-marca-rojo hover:underline">Movimientos → Inventario</a>.
+                </p>
+            @endif
             <p class="-mt-4 text-xs text-marca-gris-oscuro">
                 Los descuentos y combos (2x1, % OFF, etc.) se cargan desde
                 <a href="{{ route('admin.promotions.index') }}" class="font-semibold text-marca-rojo hover:underline">Promociones</a>.

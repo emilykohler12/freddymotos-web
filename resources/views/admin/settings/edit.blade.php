@@ -25,20 +25,22 @@
 
         {{-- Tabs: radios, labels y paneles como hermanos directos (así el CSS peer-checked --}}
         {{-- funciona tanto para resaltar el tab activo como para mostrar/ocultar el panel). --}}
+        {{-- El hidden "tab" recuerda cuál estaba abierta para que, al guardar, la redirección vuelva a la misma. --}}
+        <input type="hidden" name="tab" id="active-tab-field" value="{{ request('tab', 'general') }}">
         <div class="flex flex-wrap items-start gap-2">
-        <input type="radio" name="settings-tab" id="tab-general" class="peer/general hidden" checked>
+        <input type="radio" name="settings-tab" id="tab-general" class="peer/general hidden" @checked(request('tab', 'general') === 'general') onchange="document.getElementById('active-tab-field').value='general'">
         <label for="tab-general" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/general:bg-marca-negro peer-checked/general:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             General
         </label>
 
-        <input type="radio" name="settings-tab" id="tab-negocio" class="peer/negocio hidden">
+        <input type="radio" name="settings-tab" id="tab-negocio" class="peer/negocio hidden" @checked(request('tab') === 'negocio') onchange="document.getElementById('active-tab-field').value='negocio'">
         <label for="tab-negocio" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/negocio:bg-marca-negro peer-checked/negocio:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"/></svg>
             Sobre el negocio
         </label>
 
-        <input type="radio" name="settings-tab" id="tab-pagos" class="peer/pagos hidden">
+        <input type="radio" name="settings-tab" id="tab-pagos" class="peer/pagos hidden" @checked(request('tab') === 'pagos') onchange="document.getElementById('active-tab-field').value='pagos'">
         <label for="tab-pagos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/pagos:bg-marca-negro peer-checked/pagos:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v10H3V7zm0 4h18M7 15h4"/></svg>
             Pagos
@@ -53,9 +55,13 @@
                 </div>
 
                 <div>
-                    <label for="logo" class="{{ $lbl }}">Logo</label>
+                    <label for="logo" class="{{ $lbl }}">Logo <span class="normal-case text-marca-gris-oscuro/50">(se muestra en el login, el registro y la página de inicio)</span></label>
                     @if ($settings->logo_url)
                         <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="mb-2 h-14 w-auto rounded-lg bg-marca-gris-claro object-contain p-1">
+                        <label class="mb-2 flex items-center gap-2 text-sm text-marca-gris-oscuro">
+                            <input type="checkbox" name="remove_logo" value="1" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-rojo focus:ring-marca-rojo">
+                            Eliminar el logo actual
+                        </label>
                     @endif
                     <input type="file" id="logo" name="logo" accept="image/*" class="{{ $field }}">
                 </div>
@@ -133,44 +139,12 @@
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Métodos de pago</h2>
                 <div class="flex flex-wrap gap-4">
                     @php $selectedMethods = old('payment_methods', $settings->payment_methods ?? []); @endphp
-                    @foreach (['mercadopago' => 'Mercado Pago', 'efectivo' => 'Efectivo', 'transferencia' => 'Transferencia', 'whatsapp' => 'Coordinar por WhatsApp'] as $value => $label)
+                    @foreach (['efectivo' => 'Efectivo', 'transferencia' => 'Transferencia', 'tarjeta_debito' => 'Tarjeta débito', 'tarjeta_credito' => 'Tarjeta crédito'] as $value => $label)
                         <label class="flex items-center gap-2 text-sm font-medium text-marca-negro">
                             <input type="checkbox" name="payment_methods[]" value="{{ $value }}" @checked(in_array($value, $selectedMethods)) class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
                             {{ $label }}
                         </label>
                     @endforeach
-                </div>
-            </div>
-
-            <div class="rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Datos bancarios</h2>
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
-                    <div>
-                        <label for="banco" class="{{ $lbl }}">Banco</label>
-                        <input type="text" id="banco" name="banco" value="{{ old('banco', $settings->banco) }}" class="{{ $field }}">
-                    </div>
-                    <div>
-                        <label for="cbu_alias" class="{{ $lbl }}">CBU / Alias</label>
-                        <input type="text" id="cbu_alias" name="cbu_alias" value="{{ old('cbu_alias', $settings->cbu_alias) }}" class="{{ $field }}">
-                    </div>
-                    <div>
-                        <label for="titular_cuenta" class="{{ $lbl }}">Titular de la cuenta</label>
-                        <input type="text" id="titular_cuenta" name="titular_cuenta" value="{{ old('titular_cuenta', $settings->titular_cuenta) }}" class="{{ $field }}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Mercado Pago</h2>
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                        <label for="mp_public_key" class="{{ $lbl }}">Public key</label>
-                        <input type="text" id="mp_public_key" name="mp_public_key" value="{{ old('mp_public_key', $settings->mp_public_key) }}" class="{{ $field }}">
-                    </div>
-                    <div>
-                        <label for="mp_access_token" class="{{ $lbl }}">Access token <span class="normal-case text-marca-gris-oscuro/50">{{ $settings->mp_access_token ? '(cargado — dejar vacío para no cambiarlo)' : '' }}</span></label>
-                        <input type="password" id="mp_access_token" name="mp_access_token" autocomplete="new-password" placeholder="{{ $settings->mp_access_token ? '••••••••••••' : '' }}" class="{{ $field }}">
-                    </div>
                 </div>
             </div>
         </div>

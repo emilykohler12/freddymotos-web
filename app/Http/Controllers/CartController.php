@@ -11,8 +11,13 @@ use Illuminate\View\View;
 
 class CartController extends Controller
 {
-    public function index(Cart $cart): View
+    public function index(Cart $cart): View|RedirectResponse
     {
+        if (! auth()->check()) {
+            return redirect()->guest(route('login'))
+                ->with('status', 'Iniciá sesión para ver tu carrito y poder comprar.');
+        }
+
         return view('cart.index', [
             'lines' => $cart->lines(),
             'subtotal' => $cart->subtotal(),

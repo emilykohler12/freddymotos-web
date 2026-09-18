@@ -22,8 +22,8 @@ class SiteSettingController extends Controller
     {
         $data = $request->validate([
             'nombre_local' => ['nullable', 'string', 'max:120'],
-            'telefono' => ['nullable', 'string', 'max:40'],
-            'whatsapp' => ['nullable', 'string', 'max:40'],
+            'telefono' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
+            'whatsapp' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'email' => ['nullable', 'email', 'max:160'],
             'direccion' => ['nullable', 'string', 'max:200'],
             'horario_atencion' => ['nullable', 'string', 'max:200'],
@@ -32,40 +32,37 @@ class SiteSettingController extends Controller
             'instagram_url' => ['nullable', 'url', 'max:200'],
             'facebook_url' => ['nullable', 'url', 'max:200'],
             'logo' => ['nullable', 'image', 'max:2048'],
+            'remove_logo' => ['sometimes', 'boolean'],
             'moneda' => ['nullable', 'string', 'max:10'],
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'payment_methods' => ['nullable', 'array'],
-            'payment_methods.*' => ['string', 'in:mercadopago,efectivo,transferencia,whatsapp'],
-            'banco' => ['nullable', 'string', 'max:120'],
-            'cbu_alias' => ['nullable', 'string', 'max:80'],
-            'titular_cuenta' => ['nullable', 'string', 'max:120'],
-            'mp_public_key' => ['nullable', 'string', 'max:200'],
-            'mp_access_token' => ['nullable', 'string', 'max:200'],
+            'payment_methods.*' => ['string', 'in:efectivo,transferencia,tarjeta_debito,tarjeta_credito'],
+            'tab' => ['nullable', 'string', 'in:general,negocio,pagos'],
         ]);
 
         $data['payment_methods'] = $data['payment_methods'] ?? [];
+        $tab = $data['tab'] ?? 'general';
+        unset($data['tab']);
 
         $settings = SiteSetting::query()->firstOrNew(['id' => 1]);
-
-        // Los secretos de Mercado Pago no se pisan si se deja el campo vacío (ya están guardados).
-        if (empty($data['mp_access_token'])) {
-            unset($data['mp_access_token']);
-        }
 
         if ($request->hasFile('logo')) {
             if ($settings->logo_path) {
                 Storage::disk('public')->delete($settings->logo_path);
             }
             $data['logo_path'] = $request->file('logo')->store('branding', 'public');
+        } elseif ($request->boolean('remove_logo') && $settings->logo_path) {
+            Storage::disk('public')->delete($settings->logo_path);
+            $data['logo_path'] = null;
         }
-        unset($data['logo']);
+        unset($data['logo'], $data['remove_logo']);
 
         $settings->fill($data)->save();
 
         SiteSetting::flush();
 
         return redirect()
-            ->route('admin.settings.edit')
+            ->route('admin.settings.edit', ['tab' => $tab])
             ->with('status', 'La configuración del negocio se guardó correctamente.');
     }
 }

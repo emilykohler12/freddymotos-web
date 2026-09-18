@@ -29,6 +29,23 @@ class Order extends Model
     public const PAYMENT_MERCADOPAGO = 'mercadopago';
     public const PAYMENT_WHATSAPP = 'whatsapp';
 
+    // Métodos de pago reales (los carga el admin cuando marca un pedido coordinado por WhatsApp como pagado).
+    public const PAYMENT_EFECTIVO = 'efectivo';
+    public const PAYMENT_TRANSFERENCIA = 'transferencia';
+    public const PAYMENT_TARJETA_DEBITO = 'tarjeta_debito';
+    public const PAYMENT_TARJETA_CREDITO = 'tarjeta_credito';
+
+    public const REAL_PAYMENT_METHODS = [
+        self::PAYMENT_EFECTIVO => 'Efectivo',
+        self::PAYMENT_TRANSFERENCIA => 'Transferencia',
+        self::PAYMENT_TARJETA_DEBITO => 'Tarjeta débito',
+        self::PAYMENT_TARJETA_CREDITO => 'Tarjeta crédito',
+    ];
+
+    // De dónde vino el pedido: se mantiene fijo aunque después cambie el payment_method real.
+    public const ORIGIN_WEB = 'web';
+    public const ORIGIN_WHATSAPP = 'whatsapp';
+
     protected $fillable = [
         'uuid',
         'customer_id',
@@ -36,6 +53,7 @@ class Order extends Model
         'payment_status',
         'delivery_method',
         'payment_method',
+        'origin',
         'subtotal',
         'discount',
         'shipping_cost',
@@ -95,6 +113,11 @@ class Order extends Model
         ])->save();
 
         ActivityLog::log('pedido', "Pedido #{$this->id} pagado ({$this->formatted_total})", $this);
+    }
+
+    public function isWhatsappOrigin(): bool
+    {
+        return $this->origin === self::ORIGIN_WHATSAPP;
     }
 
     public function isPaid(): bool

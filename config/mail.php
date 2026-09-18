@@ -53,6 +53,21 @@ return [
             'transport' => 'ses',
         ],
 
+        'mailgun' => [
+            'transport' => 'mailgun',
+            // 'client' => [
+            //     'timeout' => 5,
+            // ],
+        ],
+
+        'brevo' => [
+            'transport' => 'brevo',
+        ],
+
+        'mailjet' => [
+            'transport' => 'mailjet',
+        ],
+
         'postmark' => [
             'transport' => 'postmark',
             // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),

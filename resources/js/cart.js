@@ -7,7 +7,7 @@ function toast(message, ok = true) {
     if (!root) {
         root = document.createElement('div');
         root.id = 'toast-root';
-        root.className = 'fixed inset-x-0 top-4 z-[100] flex flex-col items-center gap-2 px-4';
+        root.className = 'fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-2 px-4 sm:px-0';
         document.body.appendChild(root);
     }
 

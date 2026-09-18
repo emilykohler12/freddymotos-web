@@ -4,12 +4,15 @@
 
 @props([
     'logo' => null,
+    'showLogo' => false,
 ])
 
 @php
     $settings = $settings ?? \App\Models\SiteSetting::current();
     $cartCount = $cartCount ?? 0;
-    $logoUrl = $logo ?: $settings->logo_url;
+    // El logo-imagen solo se usa en login/registro (pasan show-logo). El resto
+    // del sitio muestra siempre el nombre en texto, para que quede unificado.
+    $logoUrl = $showLogo ? ($logo ?: $settings->logo_url) : null;
 @endphp
 
 <header class="w-full bg-gradient-to-r from-marca-mostaza to-marca-amarillo">

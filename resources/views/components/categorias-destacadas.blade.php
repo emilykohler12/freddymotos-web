@@ -1,9 +1,9 @@
 {{-- Seccion "Categorias destacadas" - Home, debajo del Hero. --}}
-{{-- Grilla de tarjetas con las categorías reales que carga el admin (/admin/categorias). --}}
+{{-- Grilla de tarjetas con las categorías reales que carga el admin (/admin/categorias), hasta 7. --}}
 {{-- Si todavía no cargó ninguna, la sección no se muestra (nada de datos de ejemplo). --}}
 
 @php
-    $categorias = \App\Models\Category::orderBy('name')->take(12)->get();
+    $categorias = \App\Models\Category::orderBy('name')->take(7)->get();
     $iconoCategoria = 'M20.5 11.5L12 3 3.5 11.5M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9';
 @endphp
 
@@ -30,24 +30,26 @@
         </div>
 
         {{-- Grilla de categorias --}}
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5 lg:grid-cols-7">
             @foreach ($categorias as $cat)
                 <a href="{{ route('products.index', ['category' => $cat->name]) }}"
-                   class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-5 text-center transition
-                          hover:border-marca-amarillo hover:bg-marca-blanco hover:shadow-lg
-                          focus:border-marca-rojo focus:outline-none">
-                    @if ($cat->image_url)
-                        <span class="h-14 w-14 shrink-0 overflow-hidden rounded-full shadow-sm">
-                            <img src="{{ $cat->image_url }}" alt="{{ $cat->name }}" class="h-full w-full object-cover">
-                        </span>
-                    @else
-                        <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
-                            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconoCategoria }}"/>
-                            </svg>
-                        </span>
-                    @endif
-                    <span class="text-sm font-semibold text-marca-negro">{{ $cat->name }}</span>
+                   class="group relative flex flex-col overflow-hidden rounded-2xl bg-marca-gris-claro shadow-sm ring-1 ring-marca-negro/5 transition
+                          hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-marca-rojo">
+                    <div class="relative flex h-28 w-full items-center justify-center overflow-hidden bg-marca-gris-claro sm:h-32">
+                        @if ($cat->image_url)
+                            <img src="{{ $cat->image_url }}" alt="{{ $cat->name }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                        @else
+                            <span class="flex h-14 w-14 items-center justify-center rounded-full bg-marca-blanco text-marca-negro shadow-sm transition group-hover:bg-marca-amarillo">
+                                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconoCategoria }}"/>
+                                </svg>
+                            </span>
+                        @endif
+                        <span class="absolute inset-0 bg-gradient-to-t from-marca-negro/60 via-transparent to-transparent opacity-0 transition group-hover:opacity-100"></span>
+                    </div>
+                    <span class="bg-marca-blanco px-3 py-2.5 text-center text-sm font-semibold text-marca-negro transition group-hover:text-marca-rojo">
+                        {{ $cat->name }}
+                    </span>
                 </a>
             @endforeach
         </div>

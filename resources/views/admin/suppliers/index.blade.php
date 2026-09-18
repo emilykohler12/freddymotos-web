@@ -35,9 +35,9 @@
                             <td class="px-5 py-3 text-marca-negro">{{ $supplier->products_count }}</td>
                             <td class="px-5 py-3 {{ $supplier->debt > 0 ? 'font-semibold text-marca-rojo' : 'text-marca-gris-oscuro' }}">{{ $supplier->formatted_debt }}</td>
                             <td class="px-5 py-3 text-right">
-                                <div class="flex justify-end gap-3">
+                                <div class="flex items-center justify-end gap-3">
                                     <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Editar</a>
-                                    <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" onsubmit="return confirm('¿Eliminar {{ $supplier->name }}?');">
+                                    <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" onsubmit="return confirm('¿Eliminar {{ $supplier->name }}?');" class="inline-flex">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>

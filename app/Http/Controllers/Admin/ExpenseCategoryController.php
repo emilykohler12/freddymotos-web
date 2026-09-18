@@ -18,17 +18,25 @@ class ExpenseCategoryController extends Controller
 
         ExpenseCategory::create($data);
 
-        return back()->with('status', 'Categoría creada.');
+        return $this->redirectFor($data['type'])->with('status', 'Categoría creada.');
     }
 
     public function destroy(ExpenseCategory $expenseCategory): RedirectResponse
     {
         if ($expenseCategory->expenses()->exists()) {
-            return back()->with('error', 'No se puede eliminar: hay registros usando esta categoría.');
+            return $this->redirectFor($expenseCategory->type)->with('error', 'No se puede eliminar: hay registros usando esta categoría.');
         }
 
+        $type = $expenseCategory->type;
         $expenseCategory->delete();
 
-        return back()->with('status', 'Categoría eliminada.');
+        return $this->redirectFor($type)->with('status', 'Categoría eliminada.');
+    }
+
+    private function redirectFor(string $type): RedirectResponse
+    {
+        return $type === ExpenseCategory::TYPE_INGRESO
+            ? redirect()->route('admin.activity.index', ['tab' => 'ingresos'])
+            : redirect()->route('admin.expenses.index');
     }
 }

@@ -3,8 +3,8 @@
 @section('title', $settings->nombre_local . ' — Inicio')
 
 @section('content')
-    {{-- Logo y nombre salen de SiteSetting ($settings, compartido globalmente). --}}
-    <x-hero :logo="$settings->logo_url" :nombre="$settings->nombre_local" />
+    {{-- El home siempre muestra el nombre de marca en texto (no el logo subido). --}}
+    <x-hero :nombre="$settings->nombre_local" />
 
     {{-- 1. Productos más vendidos (ranking real por ventas pagas) --}}
     <x-productos-destacados />
