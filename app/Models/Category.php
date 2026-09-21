@@ -28,6 +28,11 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function attributes(): HasMany
+    {
+        return $this->hasMany(CategoryAttribute::class);
+    }
+
     /** URL de la imagen subida por el admin, o null para mostrar el ícono genérico. */
     public function getImageUrlAttribute(): ?string
     {

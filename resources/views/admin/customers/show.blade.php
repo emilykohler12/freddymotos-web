@@ -6,13 +6,13 @@
 @section('content')
     @php
         $estados = [
-            'pendiente' => 'bg-marca-mostaza/15 text-marca-mostaza', 'procesando' => 'bg-marca-mostaza/15 text-marca-mostaza',
+            'pendiente' => 'bg-marca-mostaza/15 text-marca-mostaza',
             'enviado' => 'bg-marca-amarillo/20 text-marca-negro', 'entregado' => 'bg-marca-amarillo/20 text-marca-negro',
             'pagado' => 'bg-marca-amarillo/20 text-marca-negro', 'cancelado' => 'bg-marca-rojo/10 text-marca-rojo',
         ];
     @endphp
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
             <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <div class="border-b border-marca-gris-claro px-5 py-4">

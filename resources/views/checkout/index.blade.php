@@ -51,28 +51,58 @@
                             <label class="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-transparent bg-marca-blanco p-4 transition has-[:checked]:border-marca-amarillo">
                                 <input type="radio" name="delivery_method" value="retiro" class="mt-1 accent-marca-rojo"
                                        {{ old('delivery_method', 'retiro') === 'retiro' ? 'checked' : '' }} required>
-                                <span>
-                                    <span class="block text-sm font-bold text-marca-negro">Retiro en el local</span>
-                                    <span class="block text-xs text-marca-gris-oscuro">{{ $settings->direccion }}</span>
-                                </span>
+                                <span class="block text-sm font-bold text-marca-negro">Retiro en el local</span>
                             </label>
                             <label class="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-transparent bg-marca-blanco p-4 transition has-[:checked]:border-marca-amarillo">
                                 <input type="radio" name="delivery_method" value="envio" class="mt-1 accent-marca-rojo"
                                        {{ old('delivery_method') === 'envio' ? 'checked' : '' }}>
-                                <span>
-                                    <span class="block text-sm font-bold text-marca-negro">Envío a domicilio</span>
-                                    <span class="block text-xs text-marca-gris-oscuro">Coordinamos el costo después</span>
-                                </span>
+                                <span class="block text-sm font-bold text-marca-negro">Envío a domicilio</span>
                             </label>
                         </div>
 
-                        <div class="mt-4" data-address-field>
-                            <label for="address" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">
-                                Dirección <span data-address-required class="hidden">*</span>
-                            </label>
-                            <input type="text" id="address" name="address" value="{{ old('address') }}"
-                                   placeholder="Calle, número, localidad"
-                                   class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
+                        {{-- Retiro: dirección real del local + link a Google Maps --}}
+                        <div class="mt-4 rounded-xl bg-marca-blanco p-4 text-sm" data-retiro-field>
+                            @if ($settings->direccion)
+                                <p class="text-marca-negro">{{ $settings->direccion }}</p>
+                                @if ($settings->maps_url)
+                                    <a href="{{ $settings->maps_url }}" target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-marca-rojo hover:underline">
+                                        Ver en Google Maps
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                    </a>
+                                @endif
+                                @if ($settings->horario_atencion)
+                                    <p class="mt-2 flex items-start gap-1.5 text-xs text-marca-gris-oscuro">
+                                        <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        {{ $settings->horario_atencion }}
+                                    </p>
+                                @endif
+                            @else
+                                <p class="text-marca-gris-oscuro">Coordinamos la dirección de retiro al contactarte.</p>
+                            @endif
+                        </div>
+
+                        {{-- Envío: zona (define el costo) + dirección --}}
+                        <div class="mt-4 hidden grid-cols-1 gap-4 sm:grid-cols-2" data-shipping-fields>
+                            <div>
+                                <label for="shipping_zone_id" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Zona de envío</label>
+                                <select id="shipping_zone_id" name="shipping_zone_id" data-shipping-zone
+                                        class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
+                                    <option value="">Elegir…</option>
+                                    @foreach ($shippingZones as $zone)
+                                        <option value="{{ $zone->id }}" data-price="{{ $zone->price }}" @selected(old('shipping_zone_id') == $zone->id)>
+                                            {{ $zone->company->name }} — {{ $zone->name }} ({{ '$ ' . number_format($zone->price, 0, ',', '.') }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="address" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">
+                                    Dirección <span data-address-required class="hidden">*</span>
+                                </label>
+                                <input type="text" id="address" name="address" value="{{ old('address') }}"
+                                       placeholder="Calle, número, localidad"
+                                       class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
+                            </div>
                         </div>
                     </section>
 
@@ -120,9 +150,14 @@
                             @endforeach
                         </ul>
 
-                        <div class="mt-4 flex justify-between text-base font-extrabold">
+                        <div class="mt-4 hidden justify-between text-sm text-marca-blanco/80" data-shipping-line>
+                            <span>Envío</span>
+                            <span data-shipping-amount>$ 0</span>
+                        </div>
+
+                        <div class="mt-2 flex justify-between text-base font-extrabold">
                             <span>Total</span>
-                            <span>$ {{ number_format($subtotal, 0, ',', '.') }}</span>
+                            <span data-total-amount>$ {{ number_format($subtotal, 0, ',', '.') }}</span>
                         </div>
 
                         <button type="submit" data-submit-btn
@@ -145,6 +180,15 @@
             const btn = document.querySelector('[data-submit-btn]');
             const addrRequired = document.querySelector('[data-address-required]');
             const addrInput = document.getElementById('address');
+            const retiroField = document.querySelector('[data-retiro-field]');
+            const shippingFields = document.querySelector('[data-shipping-fields]');
+            const zoneSelect = document.querySelector('[data-shipping-zone]');
+            const shippingLine = document.querySelector('[data-shipping-line]');
+            const shippingAmount = document.querySelector('[data-shipping-amount]');
+            const totalAmount = document.querySelector('[data-total-amount]');
+            const subtotal = {{ (float) $subtotal }};
+
+            const money = (n) => '$ ' + Math.round(n).toLocaleString('es-AR');
 
             function sync() {
                 const pay = document.querySelector('input[name="payment_method"]:checked')?.value;
@@ -152,12 +196,24 @@
 
                 const delivery = document.querySelector('input[name="delivery_method"]:checked')?.value;
                 const envio = delivery === 'envio';
+
+                retiroField.classList.toggle('hidden', envio);
+                shippingFields.classList.toggle('hidden', !envio);
+                shippingFields.classList.toggle('grid', envio);
                 addrRequired.classList.toggle('hidden', !envio);
                 if (addrInput) addrInput.required = envio;
+                if (zoneSelect) zoneSelect.required = envio;
+
+                const price = envio ? parseFloat(zoneSelect?.selectedOptions[0]?.dataset.price || 0) : 0;
+                shippingLine.classList.toggle('hidden', !envio);
+                shippingLine.classList.toggle('flex', envio);
+                shippingAmount.textContent = money(price);
+                totalAmount.textContent = money(subtotal + price);
             }
 
             document.querySelectorAll('input[name="payment_method"], input[name="delivery_method"]')
                 .forEach((el) => el.addEventListener('change', sync));
+            if (zoneSelect) zoneSelect.addEventListener('change', sync);
             sync();
         })();
     </script>

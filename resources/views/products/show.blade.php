@@ -68,12 +68,7 @@
                             <dt class="font-semibold text-marca-gris-oscuro">Categoría</dt>
                             <dd class="text-right text-marca-negro">{{ $product->category }}</dd>
                         </div>
-                        @if (empty($product->compatible_models))
-                            <div class="flex justify-between gap-4 py-3">
-                                <dt class="font-semibold text-marca-gris-oscuro">Modelo compatible</dt>
-                                <dd class="text-right text-marca-negro">—</dd>
-                            </div>
-                        @else
+                        @if (! empty($product->compatible_models))
                             <div class="py-3">
                                 <dt class="mb-2 font-semibold text-marca-gris-oscuro">Modelos compatibles</dt>
                                 <dd class="flex flex-wrap justify-end gap-2">
@@ -83,6 +78,13 @@
                                 </dd>
                             </div>
                         @endif
+                        {{-- Detalles propios de la categoría (ej: Colores, Medidas): solo los que el admin completó. --}}
+                        @foreach ($product->filled_attributes as $attr)
+                            <div class="flex justify-between gap-4 py-3">
+                                <dt class="font-semibold text-marca-gris-oscuro">{{ $attr['name'] }}</dt>
+                                <dd class="text-right text-marca-negro">{{ $attr['value'] }}</dd>
+                            </div>
+                        @endforeach
                     </dl>
 
                     {{-- Descripción --}}

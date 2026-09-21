@@ -87,7 +87,8 @@ class ShippingController extends Controller
     {
         return $request->validate([
             'name' => ['required', 'string', 'max:120'],
-            'locations' => ['nullable', 'string', 'max:1000'],
+            'provincia' => ['nullable', 'string', 'max:120'],
+            'localidad' => ['nullable', 'string', 'max:120'],
             'postal_code' => ['nullable', 'string', 'max:40'],
             'price' => ['required', 'numeric', 'min:0'],
             'shipping_company_id' => ['nullable', 'exists:shipping_companies,id'],

@@ -2,29 +2,17 @@
 {{-- Mismo estilo que el navbar del Hero pero con fondo sólido mostaza→amarillo. --}}
 {{-- Uso: <x-site-nav /> --}}
 
-@props([
-    'logo' => null,
-    'showLogo' => false,
-])
-
 @php
     $settings = $settings ?? \App\Models\SiteSetting::current();
     $cartCount = $cartCount ?? 0;
-    // El logo-imagen solo se usa en login/registro (pasan show-logo). El resto
-    // del sitio muestra siempre el nombre en texto, para que quede unificado.
-    $logoUrl = $showLogo ? ($logo ?: $settings->logo_url) : null;
 @endphp
 
-<header class="w-full bg-gradient-to-r from-marca-mostaza to-marca-amarillo">
-    <div class="relative mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+<header class="relative z-20 w-full bg-gradient-to-r from-marca-mostaza to-marca-amarillo">
+    <div class="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
 
-        {{-- Logo. Sin link: no es un botón. --}}
+        {{-- Logo en texto: se mantiene igual en todo el sitio. Sin link: no es un botón. --}}
         <div class="flex shrink-0 items-center gap-2 text-marca-blanco">
-            @if ($logoUrl)
-                <img src="{{ $logoUrl }}" alt="{{ $settings->nombre_local }}" class="h-9 w-auto object-contain sm:h-10">
-            @else
-                <x-brand-name />
-            @endif
+            <x-brand-name />
         </div>
 
         {{-- Checkbox del menú mobile (peer): tiene que ser hermano previo del dropdown --}}

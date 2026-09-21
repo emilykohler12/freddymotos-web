@@ -6,7 +6,7 @@
     <x-site-nav />
 
     <main class="w-full bg-marca-blanco">
-        <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div class="w-full px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
 
             <div class="mb-10">
                 <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-rojo">Catálogo</p>
@@ -18,7 +18,7 @@
                     Todavía no hay categorías cargadas.
                 </p>
             @else
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-7">
                     @foreach ($categories as $category)
                         <a href="{{ route('products.index', ['category' => $category->name]) }}"
                            class="group flex flex-col items-center gap-3 rounded-2xl border-2 border-transparent bg-marca-gris-claro p-6 text-center transition

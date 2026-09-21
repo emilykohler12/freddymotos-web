@@ -177,7 +177,6 @@ class OrderController extends Controller
     {
         return [
             Order::STATUS_PENDIENTE => 'Pendiente',
-            Order::STATUS_PROCESANDO => 'Procesando',
             Order::STATUS_ENVIADO => 'Enviado',
             Order::STATUS_ENTREGADO => 'Entregado',
             Order::STATUS_CANCELADO => 'Cancelado',

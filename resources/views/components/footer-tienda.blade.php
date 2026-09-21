@@ -31,55 +31,19 @@
                             <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.5V13H10v8h3.5z"/></svg>
                         </a>
                     @endif
-                    @if ($settings->whatsapp_link)
-                        <a href="{{ $settings->whatsapp_link }}" target="_blank" rel="noopener" aria-label="WhatsApp" class="flex h-9 w-9 items-center justify-center rounded-full bg-marca-blanco/10 text-marca-blanco transition hover:bg-marca-amarillo hover:text-marca-negro">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 20l1.5-4A8 8 0 1112 20a8 8 0 01-4-1L4 20z"/></svg>
-                        </a>
-                    @endif
                 </div>
             </div>
 
-            {{-- Derecha: links rapidos + contacto, uno al lado del otro --}}
-            <div class="grid grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-marca-amarillo">Links rápidos</h3>
-                    <ul class="mt-4 space-y-2.5 text-sm text-marca-blanco/70">
-                        <li><a href="{{ url('/') }}" class="transition hover:text-marca-amarillo">Inicio</a></li>
-                        <li><a href="{{ route('products.index') }}" class="transition hover:text-marca-amarillo">Productos</a></li>
-                        <li><a href="{{ route('cart.index') }}" class="transition hover:text-marca-amarillo">Mi carrito</a></li>
-                        <li><a href="{{ url('/#sobre-nosotros') }}" class="transition hover:text-marca-amarillo">Sobre nosotros</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="text-sm font-bold uppercase tracking-wider text-marca-amarillo">Contacto</h3>
-                    <ul class="mt-4 space-y-3 text-sm text-marca-blanco/70">
-                        @if ($settings->telefono)
-                            <li class="flex items-start gap-2">
-                                <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-blanco" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5l4-1 2 5-3 2a12 12 0 006 6l2-3 5 2-1 4a2 2 0 01-2 2A16 16 0 013 7a2 2 0 010-2z"/></svg>
-                                <a href="{{ $settings->tel_link }}" class="transition hover:text-marca-amarillo">{{ $settings->telefono }}</a>
-                            </li>
-                        @endif
-                        @if ($settings->direccion)
-                            <li class="flex items-start gap-2">
-                                <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-blanco" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7-5.5 7-11a7 7 0 10-14 0c0 5.5 7 11 7 11zm0-8a2.5 2.5 0 100-5 2.5 2.5 0 000 5z"/></svg>
-                                <span>{{ $settings->direccion }}</span>
-                            </li>
-                        @endif
-                        @if ($settings->email)
-                            <li class="flex items-start gap-2">
-                                <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-blanco" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg>
-                                <a href="mailto:{{ $settings->email }}" class="transition hover:text-marca-amarillo">{{ $settings->email }}</a>
-                            </li>
-                        @endif
-                        @if ($settings->horario_atencion)
-                            <li class="flex items-start gap-2">
-                                <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-blanco" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>{{ $settings->horario_atencion }}</span>
-                            </li>
-                        @endif
-                    </ul>
-                </div>
+            {{-- Derecha: links rapidos (los datos de contacto se muestran en "Sobre nosotros") --}}
+            <div>
+                <h3 class="text-sm font-bold uppercase tracking-wider text-marca-amarillo">Links rápidos</h3>
+                <ul class="mt-4 space-y-2.5 text-sm text-marca-blanco/70">
+                    <li><a href="{{ url('/') }}" class="transition hover:text-marca-amarillo">Inicio</a></li>
+                    <li><a href="{{ route('products.index') }}" class="transition hover:text-marca-amarillo">Productos</a></li>
+                    <li><a href="{{ route('workshop.index') }}" class="transition hover:text-marca-amarillo">Taller</a></li>
+                    <li><a href="{{ route('cart.index') }}" class="transition hover:text-marca-amarillo">Mi carrito</a></li>
+                    <li><a href="{{ url('/#sobre-nosotros') }}" class="transition hover:text-marca-amarillo">Sobre nosotros</a></li>
+                </ul>
             </div>
         </div>
     </div>

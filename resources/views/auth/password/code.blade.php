@@ -10,6 +10,9 @@
 
     <div class="w-full max-w-sm">
         <div class="mb-6 text-center">
+            @if ($settings->logo_url ?? null)
+                <img src="{{ $settings->logo_url }}" alt="{{ $settings->nombre_local }}" class="mx-auto mb-3 h-14 w-auto object-contain">
+            @endif
             <span class="text-2xl font-extrabold tracking-tight text-marca-blanco">
                 {{ \Illuminate\Support\Str::of($settings->nombre_local ?? 'Freddy Motos')->upper() }}
             </span>

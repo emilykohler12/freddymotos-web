@@ -3,6 +3,7 @@
     $field = $field ?? 'w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none';
     $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
     $frequencies = \App\Models\Expense::FREQUENCIES;
+    $cardTab = $activeTab ?? request('tab', 'categoria');
 @endphp
 
 <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
@@ -23,6 +24,7 @@
             <form method="POST" action="{{ route('admin.expenses.update', $item) }}" class="mt-3 space-y-2">
                 @csrf @method('PUT')
                 <input type="hidden" name="type" value="{{ $item->type }}">
+                <input type="hidden" name="tab" value="{{ $cardTab }}">
                 <input type="text" name="description" value="{{ $item->description }}" required class="{{ $field }}">
                 <input type="number" step="0.01" min="0" name="amount" value="{{ $item->amount }}" required class="{{ $field }}">
                 <select name="expense_category_id" class="{{ $field }}">
@@ -31,8 +33,7 @@
                         <option value="{{ $category->id }}" @selected($item->expense_category_id === $category->id)>{{ $category->name }}</option>
                     @endforeach
                 </select>
-                <select name="frequency" class="{{ $field }}">
-                    <option value="">Sin frecuencia</option>
+                <select name="frequency" required class="{{ $field }}">
                     @foreach ($frequencies as $value => $label)
                         <option value="{{ $value }}" @selected($item->frequency === $value)>{{ $label }}</option>
                     @endforeach
@@ -42,15 +43,19 @@
             </form>
         </details>
 
-        <form method="POST" action="{{ route('admin.expenses.toggle-paid', $item) }}" class="inline-flex">
-            @csrf
-            <button type="submit" class="text-xs font-semibold text-marca-gris-oscuro hover:text-marca-negro">
-                {{ $item->paid ? 'Reactivar' : 'Marcar pagado' }}
-            </button>
-        </form>
+        @if ($item->type !== \App\Models\Expense::TYPE_INGRESO)
+            <form method="POST" action="{{ route('admin.expenses.toggle-paid', $item) }}" class="inline-flex">
+                @csrf
+                <input type="hidden" name="tab" value="{{ $cardTab }}">
+                <button type="submit" class="text-xs font-semibold text-marca-gris-oscuro hover:text-marca-negro">
+                    {{ $item->paid ? 'Reactivar' : 'Marcar pagado' }}
+                </button>
+            </form>
+        @endif
 
         <form method="POST" action="{{ route('admin.expenses.destroy', $item) }}" onsubmit="return confirm('¿Eliminar este registro?');" class="ml-auto inline-flex">
             @csrf @method('DELETE')
+            <input type="hidden" name="tab" value="{{ $cardTab }}">
             <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
         </form>
     </div>

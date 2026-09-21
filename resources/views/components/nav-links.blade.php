@@ -10,15 +10,17 @@
 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? $linkActivo : $link }}">Inicio</a>
 <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? $linkActivo : $link }}">Productos</a>
 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? $linkActivo : $link }}">Categorías</a>
+<a href="{{ route('workshop.index') }}" class="{{ request()->routeIs('workshop.*') ? $linkActivo : $link }}">Taller</a>
 <a href="{{ url('/#sobre-nosotros') }}" class="{{ $link }}">Nosotros</a>
 @auth
     @if (auth()->user()->isAdmin())
         <a href="{{ route('admin.dashboard') }}" class="{{ $link }}">Panel</a>
+    @else
+        <form method="POST" action="{{ route('logout') }}" class="contents">
+            @csrf
+            <button type="submit" class="{{ $link }} text-left">Salir ({{ \Illuminate\Support\Str::of(auth()->user()->name)->words(1, '') }})</button>
+        </form>
     @endif
-    <form method="POST" action="{{ route('logout') }}" class="contents">
-        @csrf
-        <button type="submit" class="{{ $link }} text-left">Salir ({{ \Illuminate\Support\Str::of(auth()->user()->name)->words(1, '') }})</button>
-    </form>
 @else
     <a href="{{ route('login') }}" class="{{ $link }}">Ingresar</a>
 @endauth

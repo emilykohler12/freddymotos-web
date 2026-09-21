@@ -2,11 +2,15 @@
 
 use App\Http\Controllers\Admin\ActivityLogController as AdminActivityLogController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\CategoryAttributeController as AdminCategoryAttributeController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExpenseCategoryController as AdminExpenseCategoryController;
 use App\Http\Controllers\Admin\ExpenseController as AdminExpenseController;
+use App\Http\Controllers\Admin\InquiryController as AdminInquiryController;
+use App\Http\Controllers\Admin\MechanicController as AdminMechanicController;
+use App\Http\Controllers\Admin\MechanicJobController as AdminMechanicJobController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
@@ -14,6 +18,7 @@ use App\Http\Controllers\Admin\ShippingController as AdminShippingController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
 use App\Http\Controllers\Admin\StockMovementController as AdminStockMovementController;
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
+use App\Http\Controllers\Admin\WorkshopController as AdminWorkshopController;
 use App\Http\Controllers\Auth\ClientAuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\CartController;
@@ -21,6 +26,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WorkshopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,6 +36,10 @@ Route::get('/', function () {
 Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/productos', [ProductController::class, 'index'])->name('products.index');
 Route::get('/producto/{product:slug}', [ProductController::class, 'show'])->name('products.show');
+
+/* ---------------- Taller y consultas ---------------- */
+Route::get('/taller', [WorkshopController::class, 'index'])->name('workshop.index');
+Route::post('/consultas', [WorkshopController::class, 'storeInquiry'])->name('workshop.inquiries.store');
 
 /* ---------------- Carrito (sesión, sin login) ---------------- */
 Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
@@ -78,6 +88,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('categorias', [AdminCategoryController::class, 'store'])->name('categories.store');
         Route::put('categorias/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
         Route::delete('categorias/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::post('categorias/{category}/atributos', [AdminCategoryAttributeController::class, 'store'])->name('categories.attributes.store');
+        Route::delete('categorias/{category}/atributos/{attribute}', [AdminCategoryAttributeController::class, 'destroy'])->name('categories.attributes.destroy');
 
         /* Productos / Inventario */
         Route::get('productos', [AdminProductController::class, 'index'])->name('products.index');
@@ -142,6 +154,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /* Movimientos / actividad */
         Route::get('movimientos', [AdminActivityLogController::class, 'index'])->name('activity.index');
         Route::post('movimientos/inventario', [AdminStockMovementController::class, 'store'])->name('stock-movements.store');
+        Route::post('movimientos/consultas/{inquiry}/atendida', [AdminInquiryController::class, 'toggle'])->name('inquiries.toggle');
+        Route::delete('movimientos/consultas/{inquiry}', [AdminInquiryController::class, 'destroy'])->name('inquiries.destroy');
+
+        /* Taller: categorías de servicios */
+        Route::get('taller', [AdminWorkshopController::class, 'index'])->name('workshop.index');
+        Route::post('taller/categorias', [AdminWorkshopController::class, 'storeCategory'])->name('workshop.categories.store');
+        Route::delete('taller/categorias/{workshopCategory}', [AdminWorkshopController::class, 'destroyCategory'])->name('workshop.categories.destroy');
+
+        /* Taller: coordinación de mecánicos (solo panel, no se muestra en el sitio público) */
+        Route::post('taller/mecanicos', [AdminMechanicController::class, 'store'])->name('mechanics.store');
+        Route::delete('taller/mecanicos/{mechanic}', [AdminMechanicController::class, 'destroy'])->name('mechanics.destroy');
+        Route::post('taller/trabajos', [AdminMechanicJobController::class, 'store'])->name('mechanic-jobs.store');
+        Route::put('taller/trabajos/{mechanicJob}', [AdminMechanicJobController::class, 'update'])->name('mechanic-jobs.update');
+        Route::post('taller/trabajos/{mechanicJob}/pagado', [AdminMechanicJobController::class, 'togglePaid'])->name('mechanic-jobs.toggle-paid');
+        Route::delete('taller/trabajos/{mechanicJob}', [AdminMechanicJobController::class, 'destroy'])->name('mechanic-jobs.destroy');
 
         Route::get('configuracion', [AdminSiteSettingController::class, 'edit'])->name('settings.edit');
         Route::put('configuracion', [AdminSiteSettingController::class, 'update'])->name('settings.update');

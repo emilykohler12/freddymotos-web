@@ -66,6 +66,20 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function attributeValues(): HasMany
+    {
+        return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    /** Clasificadores de la categoría con el valor cargado por el admin, solo los completados. */
+    public function getFilledAttributesAttribute()
+    {
+        return $this->attributeValues
+            ->filter(fn (ProductAttributeValue $v) => trim((string) $v->value) !== '')
+            ->map(fn (ProductAttributeValue $v) => ['name' => $v->categoryAttribute->name, 'value' => $v->value])
+            ->values();
+    }
+
     /** Promoción vigente aplicable a este producto (puntual > categoría > todo el catálogo). */
     public function activePromotion(): ?Promotion
     {
@@ -141,10 +155,10 @@ class Product extends Model
         return $this->stock > 0;
     }
 
-    /** Modelos de moto compatible como lista: admite separarlos por coma o por línea. */
+    /** Modelos de moto compatible como lista: uno por línea. */
     public function getCompatibleModelsAttribute(): array
     {
-        return collect(preg_split('/[\n,]+/', (string) $this->compatible_model))
+        return collect(preg_split('/\n+/', (string) $this->compatible_model))
             ->map(fn ($item) => trim($item))
             ->filter()
             ->values()

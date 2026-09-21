@@ -67,6 +67,29 @@
                                 Eliminar
                             </button>
                         </form>
+
+                        {{-- Clasificadores: detalles propios de esta categoría (ej: Colores, Medidas). --}}
+                        <div class="border-t border-marca-gris-claro pt-3">
+                            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Detalles de esta categoría</p>
+                            @if ($category->attributes->isNotEmpty())
+                                <ul class="mb-2 space-y-1">
+                                    @foreach ($category->attributes as $attribute)
+                                        <li class="flex items-center justify-between gap-2 rounded-lg bg-marca-gris-claro px-3 py-1.5 text-xs">
+                                            <span class="text-marca-negro">{{ $attribute->name }}</span>
+                                            <form method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}" onsubmit="return confirm('¿Eliminar el detalle {{ $attribute->name }}?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                            </form>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                            <form method="POST" action="{{ route('admin.categories.attributes.store', $category) }}" class="flex gap-2">
+                                @csrf
+                                <input type="text" name="name" placeholder="Nuevo detalle (ej: Colores)" required class="{{ $field }}">
+                                <button type="submit" class="shrink-0 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-xs font-semibold hover:border-marca-amarillo">Añadir</button>
+                            </form>
+                        </div>
                     </div>
                 </details>
             @endforeach

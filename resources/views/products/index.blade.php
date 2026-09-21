@@ -6,7 +6,7 @@
     <x-site-nav />
 
     <main class="w-full bg-marca-blanco">
-        <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div class="w-full px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
 
             {{-- Encabezado --}}
             <div class="mb-8">
@@ -22,14 +22,14 @@
                 <div class="lg:col-span-4">
                     <label for="f-search" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Buscar</label>
                     <input type="search" id="f-search" name="search" value="{{ $filters['search'] ?? '' }}"
-                           placeholder="Nombre, marca, modelo…"
+                           placeholder="Nombre, marca, modelo…" data-live-search
                            class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm text-marca-negro placeholder:text-marca-gris-oscuro/40 focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                 </div>
 
                 {{-- Categoría --}}
                 <div class="lg:col-span-3">
                     <label for="f-category" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Categoría</label>
-                    <select id="f-category" name="category"
+                    <select id="f-category" name="category" onchange="this.form.requestSubmit()"
                             class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm text-marca-negro focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                         <option value="">Todas</option>
                         @foreach ($categories as $category)
@@ -41,7 +41,7 @@
                 {{-- Marca --}}
                 <div class="lg:col-span-3">
                     <label for="f-brand" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Marca</label>
-                    <select id="f-brand" name="brand"
+                    <select id="f-brand" name="brand" onchange="this.form.requestSubmit()"
                             class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-3 py-2 text-sm text-marca-negro focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                         <option value="">Todas</option>
                         @foreach ($brands as $brand)
@@ -54,27 +54,23 @@
                 <div class="lg:col-span-2">
                     <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Precio</label>
                     <div class="flex items-center gap-2">
-                        <input type="number" name="min" min="0" step="1000" value="{{ $filters['min'] ?? '' }}" placeholder="Mín"
+                        <input type="number" name="min" min="0" step="1000" value="{{ $filters['min'] ?? '' }}" placeholder="Mín" onchange="this.form.requestSubmit()"
                                class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-2 py-2 text-sm text-marca-negro placeholder:text-marca-gris-oscuro/40 focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                         <span class="text-marca-gris-oscuro/50">–</span>
-                        <input type="number" name="max" min="0" step="1000" value="{{ $filters['max'] ?? '' }}" placeholder="Máx"
+                        <input type="number" name="max" min="0" step="1000" value="{{ $filters['max'] ?? '' }}" placeholder="Máx" onchange="this.form.requestSubmit()"
                                class="w-full rounded-lg border border-marca-gris-oscuro/15 bg-marca-blanco px-2 py-2 text-sm text-marca-negro placeholder:text-marca-gris-oscuro/40 focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
                     </div>
                 </div>
 
-                {{-- Acciones --}}
-                <div class="flex items-end gap-3 sm:col-span-2 lg:col-span-12">
-                    <button type="submit"
-                            class="inline-flex items-center justify-center rounded-full bg-marca-negro px-6 py-2.5 text-sm font-bold text-marca-blanco transition hover:bg-marca-rojo">
-                        Aplicar filtros
-                    </button>
-                    @if (array_filter($filters))
+                {{-- Los filtros se aplican solos al cambiar; esto solo limpia --}}
+                @if (array_filter($filters))
+                    <div class="flex items-end sm:col-span-2 lg:col-span-12">
                         <a href="{{ route('products.index') }}"
                            class="inline-flex items-center justify-center rounded-full border border-marca-gris-oscuro/20 px-5 py-2.5 text-sm font-semibold text-marca-gris-oscuro transition hover:border-marca-rojo hover:text-marca-rojo">
-                            Limpiar
+                            Limpiar filtros
                         </a>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </form>
 
             {{-- ============ Grilla ============ --}}
@@ -87,7 +83,7 @@
                     </a>
                 </div>
             @else
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                     @foreach ($products as $product)
                         <x-product-card :product="$product" />
                     @endforeach
@@ -100,5 +96,17 @@
             @endif
         </div>
     </main>
+
+    <script>
+        (function () {
+            const input = document.querySelector('[data-live-search]');
+            if (!input) return;
+            let timer;
+            input.addEventListener('input', function () {
+                clearTimeout(timer);
+                timer = setTimeout(() => input.form.requestSubmit(), 450);
+            });
+        })();
+    </script>
 
 @endsection

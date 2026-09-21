@@ -10,8 +10,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\SupplierPurchase;
+use App\Models\WorkshopInquiry;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class ActivityLogController extends Controller
@@ -33,16 +33,17 @@ class ActivityLogController extends Controller
             'webOrders' => $openOrders->where('origin', Order::ORIGIN_WEB)->values(),
             'orderStatuses' => [
                 Order::STATUS_PENDIENTE => 'Pendiente',
-                Order::STATUS_PROCESANDO => 'Procesando',
                 Order::STATUS_ENVIADO => 'Enviado',
                 Order::STATUS_ENTREGADO => 'Entregado',
                 Order::STATUS_CANCELADO => 'Cancelado',
             ],
+            'newInquiries' => WorkshopInquiry::where('status', WorkshopInquiry::STATUS_NUEVA)->latest()->get(),
+            'inquiries' => WorkshopInquiry::latest()->paginate(15)->withQueryString(),
             'lowStock' => Product::where('active', true)->where('stock', '>', 0)->where('stock', '<=', 5)->orderBy('stock')->get(),
             'outOfStock' => Product::where('active', true)->where('stock', '<=', 0)->get(),
             'pendingSupplierPayments' => $this->pendingSupplierPayments(),
             'pendingRefunds' => $this->pendingRefunds(),
-            'dueExpenses' => $this->dueExpenses(),
+            'dueExpenses' => Expense::due(),
             'ingresoCategories' => ExpenseCategory::where('type', Expense::TYPE_INGRESO)->orderBy('name')->get(),
             'otrosIngresos' => Expense::with('expenseCategory')->where('type', Expense::TYPE_INGRESO)->orderByDesc('incurred_on')->get(),
             'inventoryProducts' => Product::orderBy('name')->get(['id', 'name', 'stock']),
@@ -68,39 +69,5 @@ class ActivityLogController extends Controller
             ->where('payment_status', Order::PAYMENT_STATUS_PAGADO)
             ->latest()
             ->get();
-    }
-
-    /** Gastos recurrentes (luz, agua, etc.) cuyo próximo pago ya venció. */
-    private function dueExpenses()
-    {
-        return Expense::where('type', Expense::TYPE_GASTO)
-            ->whereNotNull('frequency')
-            ->get()
-            ->groupBy('description')
-            ->map(fn ($group) => $group->sortByDesc('incurred_on')->first())
-            ->map(function (Expense $expense) {
-                $expense->next_due_on = $this->nextDueDate($expense);
-
-                return $expense;
-            })
-            ->filter(fn (Expense $expense) => $expense->next_due_on && now()->greaterThanOrEqualTo($expense->next_due_on))
-            ->sortBy('next_due_on')
-            ->values();
-    }
-
-    private function nextDueDate(Expense $expense): ?Carbon
-    {
-        $base = $expense->incurred_on->copy();
-
-        return match ($expense->frequency) {
-            'dia' => $base->addDay(),
-            'semana' => $base->addWeek(),
-            'quincena' => $base->addDays(15),
-            'mes' => $base->addMonth(),
-            'trimestre' => $base->addMonths(3),
-            'semestre' => $base->addMonths(6),
-            'anio' => $base->addYear(),
-            default => null,
-        };
     }
 }

@@ -6,7 +6,7 @@
 @section('content')
     @php
         $estados = [
-            'pendiente' => 'bg-marca-mostaza/15 text-marca-mostaza', 'procesando' => 'bg-marca-mostaza/15 text-marca-mostaza',
+            'pendiente' => 'bg-marca-mostaza/15 text-marca-mostaza',
             'enviado' => 'bg-marca-amarillo/20 text-marca-negro', 'entregado' => 'bg-marca-amarillo/20 text-marca-negro',
             'pagado' => 'bg-marca-amarillo/20 text-marca-negro', 'cancelado' => 'bg-marca-rojo/10 text-marca-rojo',
             'rechazado' => 'bg-marca-rojo/10 text-marca-rojo',

@@ -33,6 +33,24 @@
 
             <div class="border-t border-marca-gris-claro pt-5">
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Tipo de descuento</h2>
+
+                <div class="mb-4">
+                    <label for="template" class="{{ $lbl }}">Plantilla rápida <span class="normal-case text-marca-gris-oscuro/50">(opcional: completa tipo y valor por vos)</span></label>
+                    <select id="template" class="max-w-xs {{ $field }}">
+                        <option value="">Elegir…</option>
+                        <option value="nxm:2:1">2x1</option>
+                        <option value="nxm:3:2">3x2</option>
+                        <option value="nxm:4:3">4x3</option>
+                        <option value="percentage:10">10% OFF</option>
+                        <option value="percentage:15">15% OFF</option>
+                        <option value="percentage:20">20% OFF</option>
+                        <option value="percentage:25">25% OFF</option>
+                        <option value="percentage:30">30% OFF</option>
+                        <option value="percentage:40">40% OFF</option>
+                        <option value="percentage:50">50% OFF</option>
+                    </select>
+                </div>
+
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
                     <div>
                         <label for="type" class="{{ $lbl }}">Tipo</label>
@@ -128,4 +146,35 @@
             </div>
         </form>
     </div>
+
+    <script>
+        (function () {
+            var templateSelect = document.getElementById('template');
+            var titleInput = document.getElementById('title');
+            var typeSelect = document.getElementById('type');
+            var valueInput = document.getElementById('value');
+            var buyInput = document.getElementById('buy_quantity');
+            var payInput = document.getElementById('pay_quantity');
+
+            templateSelect.addEventListener('change', function () {
+                if (!templateSelect.value) return;
+                var parts = templateSelect.value.split(':');
+                var type = parts[0];
+
+                typeSelect.value = type;
+
+                if (type === 'nxm') {
+                    buyInput.value = parts[1];
+                    payInput.value = parts[2];
+                    valueInput.value = '';
+                    if (!titleInput.value) titleInput.value = parts[1] + 'x' + parts[2];
+                } else {
+                    valueInput.value = parts[1];
+                    buyInput.value = '';
+                    payInput.value = '';
+                    if (!titleInput.value) titleInput.value = parts[1] + '% OFF';
+                }
+            });
+        })();
+    </script>
 @endsection

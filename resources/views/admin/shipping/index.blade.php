@@ -82,7 +82,8 @@
             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <input type="text" name="name" placeholder="Nombre de la zona" required class="{{ $field }}">
                 <input type="text" name="postal_code" placeholder="Código postal" class="{{ $field }}">
-                <input type="text" name="locations" placeholder="Provincias / localidades" class="sm:col-span-2 {{ $field }}">
+                <input type="text" name="provincia" placeholder="Provincia" class="{{ $field }}">
+                <input type="text" name="localidad" placeholder="Localidad" class="{{ $field }}">
                 <select name="shipping_company_id" class="{{ $field }}">
                     <option value="">Empresa de envío…</option>
                     @foreach ($companies as $company)
@@ -103,12 +104,18 @@
                         <span class="font-medium text-marca-negro">{{ $zone->name }}</span>
                         <span class="text-marca-gris-oscuro">{{ $money($zone->price) }}</span>
                     </summary>
-                    <p class="mt-2 text-xs text-marca-gris-oscuro">{{ $zone->locations }} @if($zone->postal_code) · CP {{ $zone->postal_code }} @endif @if($zone->company) · {{ $zone->company->name }} @endif</p>
+                    <p class="mt-2 text-xs text-marca-gris-oscuro">
+                        @if ($zone->localidad || $zone->provincia)
+                            {{ collect([$zone->localidad, $zone->provincia])->filter()->implode(', ') }}
+                        @endif
+                        @if($zone->postal_code) · CP {{ $zone->postal_code }} @endif @if($zone->company) · {{ $zone->company->name }} @endif
+                    </p>
                     <form method="POST" action="{{ route('admin.shipping.zones.update', $zone) }}" class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                         @csrf @method('PUT')
                         <input type="text" name="name" value="{{ $zone->name }}" required class="{{ $field }}">
                         <input type="text" name="postal_code" value="{{ $zone->postal_code }}" class="{{ $field }}">
-                        <input type="text" name="locations" value="{{ $zone->locations }}" class="sm:col-span-2 {{ $field }}">
+                        <input type="text" name="provincia" value="{{ $zone->provincia }}" placeholder="Provincia" class="{{ $field }}">
+                        <input type="text" name="localidad" value="{{ $zone->localidad }}" placeholder="Localidad" class="{{ $field }}">
                         <select name="shipping_company_id" class="{{ $field }}">
                             <option value="">Sin empresa</option>
                             @foreach ($companies as $company)

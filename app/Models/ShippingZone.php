@@ -9,7 +9,8 @@ class ShippingZone extends Model
 {
     protected $fillable = [
         'name',
-        'locations',
+        'provincia',
+        'localidad',
         'postal_code',
         'price',
         'shipping_company_id',

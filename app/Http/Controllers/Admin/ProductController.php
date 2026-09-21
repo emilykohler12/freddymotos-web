@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\CategoryAttribute;
 use App\Models\Product;
+use App\Models\ProductAttributeValue;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,8 +50,9 @@ class ProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => new Product(),
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::with('attributes')->orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
+            'attributeValues' => collect(),
         ]);
     }
 
@@ -64,7 +67,9 @@ class ProductController extends Controller
             $data['image_path'] = $request->file('image')->store('products', 'public');
         }
 
-        Product::create($data);
+        $product = Product::create($data);
+
+        $this->syncAttributes($product, $data['category_id'], $request->input('attributes', []));
 
         return redirect()->route('admin.products.index')->with('status', 'Producto creado.');
     }
@@ -73,8 +78,9 @@ class ProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => $product,
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::with('attributes')->orderBy('name')->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
+            'attributeValues' => $product->attributeValues->pluck('value', 'category_attribute_id'),
         ]);
     }
 
@@ -95,7 +101,37 @@ class ProductController extends Controller
 
         $product->update($data);
 
+        $this->syncAttributes($product, $data['category_id'], $request->input('attributes', []));
+
         return redirect()->route('admin.products.index')->with('status', 'Producto actualizado.');
+    }
+
+    /** Guarda solo los detalles (clasificadores) que el admin completó para la categoría elegida. */
+    private function syncAttributes(Product $product, int $categoryId, array $values): void
+    {
+        $attributeIds = CategoryAttribute::where('category_id', $categoryId)->pluck('id');
+
+        foreach ($attributeIds as $attributeId) {
+            $value = trim((string) ($values[$attributeId] ?? ''));
+
+            if ($value === '') {
+                ProductAttributeValue::where('product_id', $product->id)
+                    ->where('category_attribute_id', $attributeId)
+                    ->delete();
+
+                continue;
+            }
+
+            ProductAttributeValue::updateOrCreate(
+                ['product_id' => $product->id, 'category_attribute_id' => $attributeId],
+                ['value' => $value],
+            );
+        }
+
+        // Detalles que no pertenecen a la categoría actual del producto no se guardan.
+        ProductAttributeValue::where('product_id', $product->id)
+            ->whereNotIn('category_attribute_id', $attributeIds)
+            ->delete();
     }
 
     public function destroy(Product $product): RedirectResponse
@@ -124,7 +160,11 @@ class ProductController extends Controller
             'is_featured' => ['sometimes', 'boolean'],
             'active' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'max:4096'],
+            'attributes' => ['nullable', 'array'],
+            'attributes.*' => ['nullable', 'string', 'max:255'],
         ]);
+
+        unset($data['attributes']);
 
         $data['is_featured'] = $request->boolean('is_featured');
         $data['active'] = $request->boolean('active');

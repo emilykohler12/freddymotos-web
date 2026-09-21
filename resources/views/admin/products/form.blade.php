@@ -98,9 +98,66 @@
             </div>
 
             <div>
-                <label for="compatible_model" class="{{ $lbl }}">Modelo de moto compatible <span class="normal-case text-marca-gris-oscuro/50">(uno por línea, o separados por coma — se muestran como items)</span></label>
+                <label for="compatible_model" class="{{ $lbl }}">Modelo de moto compatible <span class="normal-case text-marca-gris-oscuro/50">(uno por línea — se muestran como items)</span></label>
                 <textarea id="compatible_model" name="compatible_model" rows="3" placeholder="Ej: Honda CB 250 Twister&#10;Honda XR 250&#10;Yamaha YBR 125" class="{{ $field }}">{{ old('compatible_model', $product->compatible_model) }}</textarea>
             </div>
+
+            {{-- Detalles de la categoría (ej: Colores en Cascos, Medidas en Neumáticos). Se muestran solo los de la categoría elegida. --}}
+            @if ($categories->pluck('attributes')->flatten()->isNotEmpty())
+                <div data-category-attributes-wrapper>
+                    <p class="{{ $lbl }}">Detalles de la categoría <span class="normal-case text-marca-gris-oscuro/50">(se completan solo los que apliquen; el resto no se muestra en el producto)</span></p>
+                    <div class="grid grid-cols-1 gap-4 rounded-xl bg-marca-gris-claro p-4 sm:grid-cols-2">
+                        @forelse ($categories as $category)
+                            @if ($category->attributes->isNotEmpty())
+                                <template data-category-attributes-group="{{ $category->id }}">
+                                    @foreach ($category->attributes as $attribute)
+                                        <div>
+                                            <label for="attr-{{ $attribute->id }}" class="{{ $lbl }}">{{ $attribute->name }}</label>
+                                            <input type="text" id="attr-{{ $attribute->id }}" name="attributes[{{ $attribute->id }}]"
+                                                   value="{{ old('attributes.' . $attribute->id, $attributeValues[$attribute->id] ?? '') }}" class="{{ $field }}">
+                                        </div>
+                                    @endforeach
+                                </template>
+                            @endif
+                        @empty
+                        @endforelse
+                        <p data-category-attributes-empty class="col-span-full text-sm text-marca-gris-oscuro">Esta categoría no tiene detalles configurados. Se agregan desde Categorías.</p>
+                    </div>
+                </div>
+
+                <script>
+                    (function () {
+                        var wrapper = document.querySelector('[data-category-attributes-wrapper]');
+                        var container = wrapper.querySelector('.grid');
+                        var emptyMsg = wrapper.querySelector('[data-category-attributes-empty]');
+                        var templates = wrapper.querySelectorAll('template[data-category-attributes-group]');
+                        var categorySelect = document.getElementById('category_id');
+
+                        function render() {
+                            container.querySelectorAll('[data-rendered-group]').forEach(function (el) { el.remove(); });
+                            var categoryId = categorySelect.value;
+                            var matched = false;
+
+                            templates.forEach(function (tpl) {
+                                if (tpl.getAttribute('data-category-attributes-group') === categoryId) {
+                                    matched = true;
+                                    var clone = tpl.content.cloneNode(true);
+                                    var group = document.createElement('div');
+                                    group.setAttribute('data-rendered-group', '');
+                                    group.className = 'contents';
+                                    group.appendChild(clone);
+                                    container.appendChild(group);
+                                }
+                            });
+
+                            emptyMsg.classList.toggle('hidden', matched);
+                        }
+
+                        categorySelect.addEventListener('change', render);
+                        render();
+                    })();
+                </script>
+            @endif
 
             <div>
                 <label for="image" class="{{ $lbl }}">Imagen</label>

@@ -32,6 +32,8 @@ class ProductController extends Controller
     /** Detalle: /producto/{slug} */
     public function show(Product $product): View
     {
+        $product->load('attributeValues.categoryAttribute');
+
         $related = Product::query()
             ->where('category', $product->category)
             ->where('active', true)

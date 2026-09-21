@@ -6,6 +6,7 @@ use App\Http\Requests\CheckoutRequest;
 use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Order;
+use App\Models\ShippingZone;
 use App\Models\SiteSetting;
 use App\Services\MercadoPagoService;
 use App\Support\Cart;
@@ -29,6 +30,10 @@ class CheckoutController extends Controller
         return view('checkout.index', [
             'lines' => $cart->lines(),
             'subtotal' => $cart->subtotal(),
+            'shippingZones' => ShippingZone::with('company')
+                ->whereHas('company', fn ($q) => $q->where('active', true))
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -59,6 +64,12 @@ class CheckoutController extends Controller
 
             $subtotal = (float) $lines->sum('subtotal');
 
+            $isEnvio = $data['delivery_method'] === Order::DELIVERY_ENVIO;
+            $shippingZone = $isEnvio && ! empty($data['shipping_zone_id'])
+                ? ShippingZone::find($data['shipping_zone_id'])
+                : null;
+            $shippingCost = $shippingZone ? (float) $shippingZone->price : 0;
+
             /** @var Order $order */
             $order = $customer->orders()->create([
                 'status' => Order::STATUS_PENDIENTE,
@@ -66,10 +77,10 @@ class CheckoutController extends Controller
                 'payment_method' => $data['payment_method'],
                 'origin' => $data['payment_method'] === Order::PAYMENT_WHATSAPP ? Order::ORIGIN_WHATSAPP : Order::ORIGIN_WEB,
                 'subtotal' => $subtotal,
-                'total' => $subtotal, // sin costo de envío por ahora
-                'shipping_address' => $data['delivery_method'] === Order::DELIVERY_ENVIO
-                    ? ($data['address'] ?? null)
-                    : null,
+                'shipping_cost' => $shippingCost,
+                'shipping_zone_id' => $shippingZone?->id,
+                'total' => $subtotal + $shippingCost,
+                'shipping_address' => $isEnvio ? ($data['address'] ?? null) : null,
                 'notes' => $data['notes'] ?? null,
             ]);
 
@@ -134,7 +145,7 @@ class CheckoutController extends Controller
         $settings = SiteSetting::current();
         $to = preg_replace('/\D+/', '', (string) $settings->whatsapp);
 
-        $lines = ["*Nuevo pedido* #{$order->id}", ''];
+        $lines = ['Hola, me gustaría hacer un pedido', '', "*Nuevo pedido* #{$order->id}", ''];
 
         foreach ($order->items as $item) {
             $lines[] = sprintf(
@@ -156,6 +167,10 @@ class CheckoutController extends Controller
         }
 
         $lines[] = 'Entrega: ' . ($order->delivery_method === Order::DELIVERY_ENVIO ? 'Envío' : 'Retiro en el local');
+
+        if ($order->shippingZone) {
+            $lines[] = "Zona de envío: {$order->shippingZone->name} (\$ " . number_format((float) $order->shipping_cost, 0, ',', '.') . ')';
+        }
 
         if ($order->shipping_address) {
             $lines[] = "Dirección: {$order->shipping_address}";

@@ -12,7 +12,6 @@ class Order extends Model
 {
     // Estado del PEDIDO (armado / logística).
     public const STATUS_PENDIENTE = 'pendiente';
-    public const STATUS_PROCESANDO = 'procesando';
     public const STATUS_ENVIADO = 'enviado';
     public const STATUS_ENTREGADO = 'entregado';
     public const STATUS_PAGADO = 'pagado'; // legacy, se mantiene por compatibilidad con pedidos viejos

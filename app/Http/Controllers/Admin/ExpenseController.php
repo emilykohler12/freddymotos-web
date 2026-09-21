@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ExpenseController extends Controller
@@ -22,25 +23,29 @@ class ExpenseController extends Controller
             ->orderByDesc('incurred_on')
             ->get();
 
-        $active = $items->reject(fn (Expense $e) => $e->isDeactivated());
-        $deactivated = $items->filter(fn (Expense $e) => $e->isDeactivated());
-
         $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderBy('name')->get();
 
-        $byCategory = $categories->map(fn (ExpenseCategory $category) => [
-            'category' => $category,
-            'items' => $active->where('expense_category_id', $category->id)->values(),
-        ]);
-        $withoutCategory = $active->whereNull('expense_category_id')->values();
+        $groupByCategory = function (Collection $collection) use ($categories) {
+            return $categories->map(fn (ExpenseCategory $category) => [
+                'category' => $category,
+                'items' => $collection->where('expense_category_id', $category->id)->values(),
+            ]);
+        };
+
+        $pending = $items->where('paid', false)->values();
+        $paid = $items->where('paid', true)->values();
 
         $totalThisMonth = $items
             ->filter(fn (Expense $e) => $e->incurred_on->isSameMonth(now()))
             ->sum('amount');
 
         return view('admin.expenses.index', [
-            'byCategory' => $byCategory,
-            'withoutCategory' => $withoutCategory,
-            'deactivated' => $deactivated,
+            'activeTab' => $request->string('tab', 'categoria')->toString(),
+            'allExpenses' => $items,
+            'pendingByCategory' => $groupByCategory($pending),
+            'pendingWithoutCategory' => $pending->whereNull('expense_category_id')->values(),
+            'paidByCategory' => $groupByCategory($paid),
+            'paidWithoutCategory' => $paid->whereNull('expense_category_id')->values(),
             'totalThisMonth' => $totalThisMonth,
             'categories' => $categories,
             'frequencies' => Expense::FREQUENCIES,
@@ -50,52 +55,62 @@ class ExpenseController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $data = $this->validated($request);
+        [$data, $tab] = $this->validated($request);
 
         Expense::create($data);
 
-        return $this->redirectFor($data['type'])->with('status', ucfirst($data['type']) . ' registrado.');
+        return $this->redirectFor($tab)->with('status', ucfirst($data['type']) . ' registrado.');
     }
 
     public function update(Request $request, Expense $expense): RedirectResponse
     {
-        $expense->update($this->validated($request));
+        [$data, $tab] = $this->validated($request);
 
-        return $this->redirectFor($expense->type)->with('status', 'Registro actualizado.');
+        $expense->update($data);
+
+        return $this->redirectFor($tab)->with('status', 'Registro actualizado.');
     }
 
-    public function destroy(Expense $expense): RedirectResponse
+    public function destroy(Request $request, Expense $expense): RedirectResponse
     {
         $type = $expense->type;
         $expense->delete();
 
-        return $this->redirectFor($type)->with('status', 'Registro eliminado.');
+        return $this->redirectFor($request->string('tab', $type === Expense::TYPE_INGRESO ? 'ingresos' : 'categoria')->toString())
+            ->with('status', 'Registro eliminado.');
     }
 
-    /** Pagos únicos/anuales quedan marcados como pagados y se archivan en "Desactivados". */
-    public function togglePaid(Expense $expense): RedirectResponse
+    /** Pagos únicos/anuales quedan marcados como pagados y se archivan en "Pagadas". */
+    public function togglePaid(Request $request, Expense $expense): RedirectResponse
     {
         $expense->update(['paid' => ! $expense->paid]);
 
-        return $this->redirectFor($expense->type)->with('status', $expense->paid ? 'Gasto marcado como pagado.' : 'Gasto reactivado.');
+        return $this->redirectFor($request->string('tab', 'pendientes')->toString())
+            ->with('status', $expense->paid ? 'Gasto marcado como pagado.' : 'Gasto reactivado.');
     }
 
-    private function redirectFor(string $type): RedirectResponse
+    private function redirectFor(string $tab): RedirectResponse
     {
-        return $type === Expense::TYPE_INGRESO
+        return in_array($tab, ['ingresos'], true)
             ? redirect()->route('admin.activity.index', ['tab' => 'ingresos'])
-            : redirect()->route('admin.expenses.index');
+            : redirect()->route('admin.expenses.index', ['tab' => in_array($tab, ['categoria', 'nuevo-gasto', 'pendientes', 'pagadas'], true) ? $tab : 'categoria']);
     }
 
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'description' => ['required', 'string', 'max:150'],
             'type' => ['required', 'in:gasto,ingreso'],
             'expense_category_id' => ['nullable', 'exists:expense_categories,id'],
             'amount' => ['required', 'numeric', 'min:0'],
             'frequency' => ['nullable', 'in:' . implode(',', array_keys(Expense::FREQUENCIES))],
             'incurred_on' => ['required', 'date'],
+            'tab' => ['nullable', 'string'],
         ]);
+
+        $tab = $data['tab'] ?? ($data['type'] === Expense::TYPE_INGRESO ? 'ingresos' : 'categoria');
+        unset($data['tab']);
+
+        return [$data, $tab];
     }
 }

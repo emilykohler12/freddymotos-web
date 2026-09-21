@@ -30,10 +30,52 @@
             Otros ingresos
         </label>
 
+        <input type="radio" name="activity-tab" id="tab-consultas" class="peer/consultas hidden" @checked($activeTab === 'consultas')>
+        <label for="tab-consultas" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/consultas:bg-marca-negro peer-checked/consultas:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h8m-8 4h4m-7 6l2.4-2.4A2 2 0 019.8 17H18a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14z"/></svg>
+            Consultas
+        </label>
+
     {{-- Notificaciones: stock + feed de movimientos --}}
     <div class="hidden w-full pt-4 peer-checked/notificaciones:block">
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
-            <div class="space-y-6 xl:col-span-2">
+        <div class="space-y-6">
+                @if ($newInquiries->isNotEmpty())
+                    <div class="rounded-2xl bg-marca-amarillo/10 p-4 ring-1 ring-marca-amarillo/30">
+                        <h3 class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-marca-negro">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h8m-8 4h4m-7 6l2.4-2.4A2 2 0 019.8 17H18a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v14z"/></svg>
+                            Consultas
+                        </h3>
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                            @foreach ($newInquiries as $inquiry)
+                                <button type="button" onclick="document.getElementById('inquiry-modal-{{ $inquiry->id }}').showModal()"
+                                        class="rounded-xl bg-marca-blanco p-3 text-left text-sm shadow-sm transition hover:ring-2 hover:ring-marca-amarillo">
+                                    <p class="font-semibold text-marca-negro">{{ $inquiry->name }}</p>
+                                    <p class="mt-0.5 truncate text-xs text-marca-gris-oscuro">{{ $inquiry->created_at->diffForHumans() }}</p>
+                                </button>
+
+                                <dialog id="inquiry-modal-{{ $inquiry->id }}" class="w-full max-w-sm rounded-2xl p-0 backdrop:bg-marca-negro/50">
+                                    <div class="p-5">
+                                        <div class="flex items-start justify-between gap-2">
+                                            <h4 class="text-base font-bold text-marca-negro">{{ $inquiry->name }}</h4>
+                                            <button type="button" onclick="document.getElementById('inquiry-modal-{{ $inquiry->id }}').close()" class="text-marca-gris-oscuro hover:text-marca-negro" aria-label="Cerrar">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
+                                        <dl class="mt-3 space-y-1.5 text-sm text-marca-gris-oscuro">
+                                            <div>Tel: <a href="tel:{{ $inquiry->phone }}" class="font-medium text-marca-negro hover:text-marca-rojo">{{ $inquiry->phone }}</a></div>
+                                            @if ($inquiry->email)
+                                                <div>Email: <span class="font-medium text-marca-negro">{{ $inquiry->email }}</span></div>
+                                            @endif
+                                            <div class="pt-1 text-marca-negro">{{ $inquiry->message }}</div>
+                                        </dl>
+                                        <a href="{{ route('admin.activity.index', ['tab' => 'consultas']) }}" class="mt-4 inline-flex text-xs font-semibold text-marca-rojo hover:underline">Ir a Consultas</a>
+                                    </div>
+                                </dialog>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 @if ($whatsappOrders->isNotEmpty() || $webOrders->isNotEmpty())
                     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         {{-- Pedidos por WhatsApp: coordinados a mano, necesitan seguimiento --}}
@@ -167,13 +209,12 @@
                 </div>
 
                 <div>{{ $logs->links() }}</div>
-            </div>
         </div>
     </div>
 
     {{-- Inventario: sumar o restar stock de un producto --}}
     <div class="hidden w-full pt-4 peer-checked/inventario:block">
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
             <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <h2 class="mb-3 text-sm font-bold text-marca-negro">Ajustar stock</h2>
                 <form method="POST" action="{{ route('admin.stock-movements.store') }}" class="space-y-3">
@@ -200,7 +241,7 @@
                                 @endif
                             @endforeach
                         </div>
-                        <p class="mt-1 text-xs text-marca-gris-oscuro">Compra suma stock. Venta en el local lo resta (para ventas que no pasaron por la web).</p>
+                        <p class="mt-1 text-xs text-marca-gris-oscuro">Compra suma stock. Venta lo resta (para ventas que no pasaron por la web).</p>
                     </div>
 
                     <div>
@@ -247,7 +288,7 @@
 
     {{-- Otros ingresos: registrar + listado + categorías --}}
     <div class="hidden w-full pt-4 peer-checked/ingresos:block">
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
             <div class="space-y-4 lg:col-span-2">
                 <h2 class="text-sm font-bold text-marca-negro">Registros de otros ingresos</h2>
                 @if ($otrosIngresos->isEmpty())
@@ -257,7 +298,7 @@
                 @else
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         @foreach ($otrosIngresos as $item)
-                            @include('admin.expenses._card', ['item' => $item, 'categories' => $ingresoCategories])
+                            @include('admin.expenses._card', ['item' => $item, 'categories' => $ingresoCategories, 'activeTab' => 'ingresos'])
                         @endforeach
                     </div>
                 @endif
@@ -308,6 +349,50 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    {{-- Consultas: mensajes generales que dejan los clientes desde el Home --}}
+    <div class="hidden w-full space-y-4 pt-4 peer-checked/consultas:block">
+        @if ($inquiries->isEmpty())
+            <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                Todavía no hay consultas.
+            </p>
+        @else
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach ($inquiries as $inquiry)
+                    <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                        <div class="flex items-start justify-between gap-2">
+                            <p class="font-bold text-marca-negro">{{ $inquiry->name }}</p>
+                            <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase {{ $inquiry->status === 'atendida' ? 'bg-marca-amarillo/20 text-marca-negro' : 'bg-marca-rojo/10 text-marca-rojo' }}">
+                                {{ $inquiry->status === 'atendida' ? 'Atendida' : 'Nueva' }}
+                            </span>
+                        </div>
+                        <dl class="mt-2 space-y-1 text-sm text-marca-gris-oscuro">
+                            <div>Tel: <a href="tel:{{ $inquiry->phone }}" class="font-medium text-marca-negro hover:text-marca-rojo">{{ $inquiry->phone }}</a></div>
+                            @if ($inquiry->email)
+                                <div>Email: <span class="font-medium text-marca-negro">{{ $inquiry->email }}</span></div>
+                            @endif
+                            <div class="pt-1 text-marca-negro">{{ $inquiry->message }}</div>
+                            <div class="text-xs">{{ $inquiry->created_at->diffForHumans() }}</div>
+                        </dl>
+                        <div class="mt-3 flex items-center gap-3 border-t border-marca-gris-claro pt-3">
+                            <form method="POST" action="{{ route('admin.inquiries.toggle', $inquiry) }}" class="inline-flex">
+                                @csrf
+                                <button type="submit" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">
+                                    {{ $inquiry->status === 'atendida' ? 'Marcar como nueva' : 'Marcar atendida' }}
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.inquiries.destroy', $inquiry) }}" onsubmit="return confirm('¿Eliminar esta consulta?');" class="ml-auto inline-flex">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div>{{ $inquiries->links() }}</div>
+        @endif
     </div>
     </div>
 @endsection

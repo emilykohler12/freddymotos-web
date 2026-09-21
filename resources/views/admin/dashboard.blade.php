@@ -7,18 +7,14 @@
     @php
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
         $cards = [
-            ['label' => 'Ventas (productos vendidos)', 'value' => $productsSold, 'accent' => 'bg-marca-mostaza'],
-            ['label' => 'Ingresos', 'value' => $money($revenue), 'accent' => 'bg-marca-amarillo'],
-            ['label' => 'Pedidos enviados y pagados', 'value' => $shippedAndPaidCount, 'accent' => 'bg-marca-negro'],
-            ['label' => 'Gastos', 'value' => $money($expensesTotal), 'accent' => 'bg-marca-bordo'],
-        ];
-        $estados = [
-            'pendiente'  => 'bg-marca-mostaza/15 text-marca-mostaza',
-            'procesando' => 'bg-marca-mostaza/15 text-marca-mostaza',
-            'enviado'    => 'bg-marca-amarillo/20 text-marca-negro',
-            'entregado'  => 'bg-marca-amarillo/20 text-marca-negro',
-            'pagado'     => 'bg-marca-amarillo/20 text-marca-negro',
-            'cancelado'  => 'bg-marca-rojo/10 text-marca-rojo',
+            ['label' => 'Ventas (productos vendidos)', 'value' => $productsSold, 'bg' => 'bg-marca-mostaza', 'text' => 'text-marca-blanco',
+                'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+            ['label' => 'Ingresos', 'value' => $money($revenue), 'bg' => 'bg-marca-amarillo', 'text' => 'text-marca-negro',
+                'icon' => 'M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z'],
+            ['label' => 'Pedidos enviados y pagados', 'value' => $shippedAndPaidCount, 'bg' => 'bg-marca-negro', 'text' => 'text-marca-blanco',
+                'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z'],
+            ['label' => 'Gastos', 'value' => $money($expensesTotal), 'bg' => 'bg-marca-bordo', 'text' => 'text-marca-blanco',
+                'icon' => 'M3 10h18M7 15h4m-4 0v.01M3 6h18v12H3z'],
         ];
     @endphp
 
@@ -35,38 +31,72 @@
     {{-- Tarjetas de KPIs --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($cards as $card)
-            <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                <span class="inline-block h-1.5 w-8 rounded-full {{ $card['accent'] }}"></span>
-                <p class="mt-3 text-sm text-marca-gris-oscuro">{{ $card['label'] }}</p>
-                <p class="mt-1 text-2xl font-extrabold text-marca-negro">{{ $card['value'] }}</p>
+            <div class="relative overflow-hidden rounded-2xl {{ $card['bg'] }} p-5 shadow-sm">
+                <svg class="pointer-events-none absolute -bottom-3 -right-3 h-20 w-20 opacity-10 {{ $card['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $card['icon'] }}"/>
+                </svg>
+                <span class="flex h-9 w-9 items-center justify-center rounded-full bg-marca-blanco/15 {{ $card['text'] }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $card['icon'] }}"/>
+                    </svg>
+                </span>
+                <p class="relative mt-3 text-sm {{ $card['text'] }} opacity-80">{{ $card['label'] }}</p>
+                <p class="relative mt-1 text-2xl font-extrabold {{ $card['text'] }}">{{ $card['value'] }}</p>
             </div>
         @endforeach
     </div>
 
-    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {{-- Productos más vendidos --}}
+    {{-- Ingresos vs gastos: todo el ancho, siguiendo el mismo filtro de período de arriba --}}
+    <div class="mt-8 w-full rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+        <h2 class="text-sm font-bold text-marca-negro">Ingresos vs gastos · {{ $periods[$period] }}</h2>
+        <div class="mt-4 h-72 w-full sm:h-80">
+            <canvas data-chart="{{ json_encode($incomeVsExpensesChart) }}"></canvas>
+        </div>
+    </div>
+
+    {{-- Gráficos --}}
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
             <h2 class="text-sm font-bold text-marca-negro">Productos más vendidos</h2>
-            @if ($topProducts->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">Todavía no hay ventas en este período.</p>
-            @else
-                <div class="mt-4 space-y-3">
-                    @foreach ($topProducts as $item)
-                        @php $pct = max(4, round(($item->total_qty / $topProductsMax) * 100)); @endphp
-                        <div>
-                            <div class="mb-1 flex items-center justify-between text-sm">
-                                <span class="font-medium text-marca-negro">{{ $item->product_name }}</span>
-                                <span class="text-marca-gris-oscuro">{{ $item->total_qty }}</span>
-                            </div>
-                            <div class="h-2 w-full rounded-full bg-marca-gris-claro">
-                                <div class="h-2 rounded-full bg-marca-amarillo" style="width: {{ $pct }}%"></div>
-                            </div>
-                        </div>
-                    @endforeach
+            @if ($hasTopProducts)
+                <div class="mt-4 h-72">
+                    <canvas data-chart="{{ json_encode($topProductsChart) }}"></canvas>
                 </div>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">Todavía no hay ventas en este período.</p>
             @endif
         </div>
 
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-marca-negro">Gastos por categoría</h2>
+                <a href="{{ route('admin.expenses.index') }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ver gastos</a>
+            </div>
+            @if ($hasExpensesByCategory)
+                <div class="mt-4 h-72">
+                    <canvas data-chart="{{ json_encode($expensesByCategoryChart) }}"></canvas>
+                </div>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos registrados en este período.</p>
+            @endif
+        </div>
+
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold text-marca-negro">Cuánto se le debe a cada mecánico</h2>
+                <a href="{{ route('admin.workshop.index', ['tab' => 'mecanicos']) }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ver taller</a>
+            </div>
+            @if ($hasMechanicsDebt)
+                <div class="mt-4 h-72">
+                    <canvas data-chart="{{ json_encode($mechanicsDebtChart) }}"></canvas>
+                </div>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay trabajos de mecánicos pendientes de pago.</p>
+            @endif
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {{-- Stock bajo / sin stock --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
             <h2 class="text-sm font-bold text-marca-negro">Sin stock o poco stock</h2>
@@ -113,14 +143,14 @@
             @endif
         </div>
 
-        {{-- Pagos pendientes --}}
+        {{-- Pagos pendientes: pedidos del ecommerce --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes</h2>
-            @if ($pendingPayments->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay pagos pendientes en este período.</p>
+            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes · Pedidos</h2>
+            @if ($pendingOrderPayments->isEmpty())
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay pagos de pedidos pendientes en este período.</p>
             @else
                 <ul class="mt-4 divide-y divide-marca-gris-claro text-sm">
-                    @foreach ($pendingPayments as $order)
+                    @foreach ($pendingOrderPayments as $order)
                         <li class="py-2">
                             <div class="flex items-center justify-between gap-3">
                                 <a href="{{ route('admin.orders.show', $order) }}" class="font-medium text-marca-negro hover:text-marca-rojo">{{ $order->customer->name ?? '—' }}</a>
@@ -133,67 +163,27 @@
             @endif
         </div>
 
-        {{-- Últimos pedidos --}}
-        <div class="rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <div class="flex items-center justify-between border-b border-marca-gris-claro px-5 py-4">
-                <h2 class="text-sm font-bold text-marca-negro">Últimos pedidos</h2>
-                <a href="{{ route('admin.orders.index') }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ver todos</a>
-            </div>
-
-            @if ($latestOrders->isEmpty())
-                <p class="px-5 py-10 text-center text-sm text-marca-gris-oscuro">Todavía no hay pedidos en este período.</p>
-            @else
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="text-xs uppercase tracking-wide text-marca-gris-oscuro/60">
-                            <tr>
-                                <th class="px-5 py-3 font-semibold">Cliente</th>
-                                <th class="px-5 py-3 font-semibold">Descripción</th>
-                                <th class="px-5 py-3 font-semibold">Estado</th>
-                                <th class="px-5 py-3 font-semibold">Fecha</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-marca-gris-claro">
-                            @foreach ($latestOrders as $order)
-                                <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', $order) }}'">
-                                    <td class="px-5 py-3 font-medium text-marca-negro">{{ $order->customer->name ?? '—' }}</td>
-                                    <td class="px-5 py-3 text-marca-gris-oscuro">{{ $order->items->pluck('product_name')->implode(', ') }}</td>
-                                    <td class="px-5 py-3">
-                                        <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $estados[$order->status] ?? 'bg-marca-gris-claro text-marca-gris-oscuro' }}">
-                                            {{ ucfirst($order->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-5 py-3 text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-        </div>
-
-        {{-- Gastos por categoría --}}
+        {{-- Pagos pendientes: gastos vencidos --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Gastos por categoría</h2>
-            @if ($expensesByCategory->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos registrados en este período.</p>
+            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes · Gastos vencidos</h2>
+            @if ($pendingExpensePayments->isEmpty())
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos recurrentes vencidos.</p>
             @else
-                <div class="mt-4 space-y-3">
-                    @foreach ($expensesByCategory as $categoryName => $total)
-                        @php $pct = max(4, round(($total / $expensesByCategoryMax) * 100)); @endphp
-                        <div>
-                            <div class="mb-1 flex items-center justify-between text-sm">
-                                <span class="font-medium text-marca-negro">{{ $categoryName }}</span>
-                                <span class="text-marca-gris-oscuro">{{ $money($total) }}</span>
+                <ul class="mt-4 divide-y divide-marca-gris-claro text-sm">
+                    @foreach ($pendingExpensePayments as $expense)
+                        <li class="py-2">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="font-medium text-marca-negro">{{ $expense->description }}</span>
+                                <span class="shrink-0 text-marca-gris-oscuro">{{ $expense->formatted_amount }}</span>
                             </div>
-                            <div class="h-2 w-full rounded-full bg-marca-gris-claro">
-                                <div class="h-2 rounded-full bg-marca-bordo" style="width: {{ $pct }}%"></div>
-                            </div>
-                        </div>
+                            <p class="mt-0.5 text-xs text-marca-gris-oscuro">
+                                {{ \App\Models\Expense::FREQUENCIES[$expense->frequency] ?? $expense->frequency }} · venció el {{ $expense->next_due_on->format('d/m/Y') }}
+                            </p>
+                        </li>
                     @endforeach
-                </div>
+                </ul>
             @endif
-            <a href="{{ route('admin.expenses.index') }}" class="mt-4 block text-center text-xs font-semibold text-marca-rojo hover:underline">Ver gastos</a>
+            <a href="{{ route('admin.expenses.index', ['tab' => 'pendientes']) }}" class="mt-4 block text-center text-xs font-semibold text-marca-rojo hover:underline">Ver gastos pendientes</a>
         </div>
     </div>
 @endsection

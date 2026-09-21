@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Panel') · {{ $settings->nombre_local ?? 'Freddy Motos' }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/admin.js'])
 </head>
 <body class="min-h-screen bg-marca-gris-claro font-sans text-marca-negro antialiased">
 
@@ -23,6 +23,7 @@
         ['label' => 'Envíos',         'route' => 'admin.shipping.index', 'active' => 'admin.shipping.*', 'icon' => 'M3 7h11v8H3V7zm11 3h4l3 3v2h-7m-7 2a2 2 0 104 0 2 2 0 00-4 0zm10 0a2 2 0 104 0 2 2 0 00-4 0z'],
         ['label' => 'Gastos',         'route' => 'admin.expenses.index', 'active' => 'admin.expenses.*', 'icon' => 'M3 10h18M7 15h4m-4 0v.01M3 6h18v12H3z'],
         ['label' => 'Movimientos',    'route' => 'admin.activity.index', 'active' => 'admin.activity.*', 'icon' => 'M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z'],
+        ['label' => 'Taller',         'route' => 'admin.workshop.index', 'active' => 'admin.workshop.*', 'icon' => 'M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z'],
         ['label' => 'Configuración',  'route' => 'admin.settings.edit', 'active' => 'admin.settings.*', 'icon' => 'M10.3 4.3a1 1 0 011.4 0l1 1a1 1 0 001 .3l1.4-.2a1 1 0 011 .6l.6 1.3a1 1 0 00.7.6l1.4.4a1 1 0 01.7 1.2l-.3 1.4a1 1 0 00.2 1l1 1a1 1 0 010 1.4l-1 1a1 1 0 00-.3 1l.2 1.4a1 1 0 01-.6 1l-1.3.6a1 1 0 00-.6.7l-.4 1.4a1 1 0 01-1.2.7l-1.4-.3a1 1 0 00-1 .2l-1 1a1 1 0 01-1.4 0l-1-1a1 1 0 00-1-.3l-1.4.2a1 1 0 01-1-.6l-.6-1.3a1 1 0 00-.7-.6l-1.4-.4a1 1 0 01-.7-1.2l.3-1.4a1 1 0 00-.2-1l-1-1a1 1 0 010-1.4l1-1a1 1 0 00.3-1L4.3 8a1 1 0 01.6-1l1.3-.6a1 1 0 00.6-.7l.4-1.4zM12 15a3 3 0 100-6 3 3 0 000 6z'],
     ];
 @endphp

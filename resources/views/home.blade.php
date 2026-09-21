@@ -15,8 +15,14 @@
     {{-- 3. Categorías destacadas + "ver todas" --}}
     <x-categorias-destacadas />
 
+    {{-- 3b. Marcas más vendidas (ranking real por ventas pagas) --}}
+    <x-marcas-destacadas />
+
     {{-- 4. Tira de 4 beneficios --}}
     <x-banner-confianza />
+
+    {{-- 4b. Consultas: formulario general de contacto --}}
+    <x-consultas />
 
     {{-- 5. Sobre nosotros --}}
     <x-sobre-nosotros />
