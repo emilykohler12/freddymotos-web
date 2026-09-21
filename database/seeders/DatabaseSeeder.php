@@ -26,8 +26,15 @@ class DatabaseSeeder extends Seeder
         // esos datos (contacto, redes, categorías, productos, gastos) los carga el
         // admin desde el panel, no vienen de ejemplo. Se pueden correr a mano si
         // hace falta una tienda de prueba: `php artisan db:seed --class=ProductSeeder`.
-        $this->call([
-            AdminUserSeeder::class,
-        ]);
+        //
+        // AdminUserSeeder crea un login de prueba con contraseña fija y conocida
+        // (está en el código, público en GitHub): solo se corre en local. En
+        // producción, el admin real se crea a mano por tinker con su propia
+        // contraseña (ver la guía de deploy).
+        if ($this->command->getLaravel()->environment('local')) {
+            $this->call([
+                AdminUserSeeder::class,
+            ]);
+        }
     }
 }
