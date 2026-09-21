@@ -66,6 +66,18 @@
                     <input type="file" id="logo" name="logo" accept="image/*" class="{{ $field }}">
                 </div>
 
+                <div>
+                    <label for="hero_photo" class="{{ $lbl }}">Foto principal <span class="normal-case text-marca-gris-oscuro/50">(se muestra bien arriba en la página de inicio)</span></label>
+                    @if ($settings->hero_photo_url)
+                        <img src="{{ $settings->hero_photo_url }}" alt="Foto principal" class="mb-2 h-24 w-auto rounded-lg bg-marca-gris-claro object-cover p-1">
+                        <label class="mb-2 flex items-center gap-2 text-sm text-marca-gris-oscuro">
+                            <input type="checkbox" name="remove_hero_photo" value="1" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-rojo focus:ring-marca-rojo">
+                            Eliminar la foto actual
+                        </label>
+                    @endif
+                    <input type="file" id="hero_photo" name="hero_photo" accept="image/*" class="{{ $field }}">
+                </div>
+
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                     <div>
                         <label for="telefono" class="{{ $lbl }}">Teléfono</label>
@@ -157,4 +169,37 @@
             <a href="{{ route('admin.dashboard') }}" class="text-sm font-semibold text-marca-gris-oscuro transition hover:text-marca-rojo">Cancelar</a>
         </div>
     </form>
+
+    {{-- Fotos del negocio: la más reciente se muestra en "Sobre nosotros" del Home. --}}
+    <div class="mt-6 space-y-4 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wide text-marca-negro">Fotos del negocio</h2>
+            <p class="mt-1 text-xs text-marca-gris-oscuro">La foto más reciente que subas es la que se muestra en "Sobre nosotros" del Home.</p>
+        </div>
+
+        @if ($photos->isNotEmpty())
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                @foreach ($photos as $photo)
+                    <div class="group relative overflow-hidden rounded-xl ring-1 ring-marca-gris-oscuro/10">
+                        <img src="{{ $photo->url }}" alt="Foto del negocio" class="aspect-square w-full object-cover">
+                        @if ($loop->first)
+                            <span class="absolute left-1.5 top-1.5 rounded-full bg-marca-amarillo px-2 py-0.5 text-[10px] font-bold text-marca-negro">En Sobre nosotros</span>
+                        @endif
+                        <form method="POST" action="{{ route('admin.settings.photos.destroy', $photo) }}" data-confirm="¿Eliminar esta foto?" class="absolute inset-x-0 bottom-0 bg-marca-negro/70 opacity-0 transition group-hover:opacity-100">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="w-full py-1.5 text-xs font-semibold text-marca-blanco">Eliminar</button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.settings.photos.store') }}" enctype="multipart/form-data" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            @csrf
+            <input type="file" name="photo" accept="image/*" required class="{{ $field }}">
+            <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                Subir foto
+            </button>
+        </form>
+    </div>
 @endsection

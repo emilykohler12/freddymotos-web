@@ -3,6 +3,7 @@
 
 @php
     $settings = $settings ?? \App\Models\SiteSetting::current();
+    $fotoLocal = \App\Models\BusinessPhoto::latest()->first();
 
     try {
         // "Atendido" = tiene al menos un pedido pago. Sube cada vez que un
@@ -26,15 +27,18 @@
 <section id="sobre-nosotros" class="w-full scroll-mt-4 bg-marca-amarillo py-14 sm:py-20">
     <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
 
-        {{-- Imagen del local --}}
+        {{-- Imagen del local: la última foto que subió el admin en Configuración, o un ícono genérico si todavía no cargó ninguna. --}}
         <div class="relative">
             <div aria-hidden="true" class="absolute -inset-3 -z-10 rounded-3xl bg-marca-bordo/15 blur-xl"></div>
-            {{-- PLACEHOLDER imagen: reemplazar por <img src="/images/local.jpg" alt="Nuestro local" class="w-full rounded-3xl object-cover shadow-2xl"> --}}
-            <div class="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-marca-negro/85 text-marca-blanco/40 shadow-2xl ring-1 ring-marca-negro/10">
-                <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"/>
-                </svg>
-            </div>
+            @if ($fotoLocal)
+                <img src="{{ $fotoLocal->url }}" alt="{{ $settings->nombre_local }}" class="aspect-[4/3] w-full rounded-3xl object-cover shadow-2xl">
+            @else
+                <div class="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-marca-negro/85 text-marca-blanco/40 shadow-2xl ring-1 ring-marca-negro/10">
+                    <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"/>
+                    </svg>
+                </div>
+            @endif
         </div>
 
         {{-- Texto --}}

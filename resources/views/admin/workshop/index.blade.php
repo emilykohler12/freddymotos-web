@@ -46,7 +46,7 @@
                                             <p class="text-xs text-marca-gris-oscuro/70">{{ $categoria->formatted_price }}</p>
                                         @endif
                                     </div>
-                                    <form method="POST" action="{{ route('admin.workshop.categories.destroy', $categoria) }}" onsubmit="return confirm('¿Eliminar {{ $categoria->name }}?');" class="inline-flex shrink-0">
+                                    <form method="POST" action="{{ route('admin.workshop.categories.destroy', $categoria) }}" data-confirm="¿Eliminar {{ $categoria->name }}?" class="inline-flex shrink-0">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
                                     </form>
@@ -90,7 +90,7 @@
                                             @if ($mechanic->email) · {{ $mechanic->email }} @endif
                                         </p>
                                     </div>
-                                    <form method="POST" action="{{ route('admin.mechanics.destroy', $mechanic) }}" onsubmit="return confirm('¿Eliminar a {{ $mechanic->name }} y todos sus trabajos registrados?');" class="shrink-0">
+                                    <form method="POST" action="{{ route('admin.mechanics.destroy', $mechanic) }}" data-confirm="¿Eliminar a {{ $mechanic->name }} y todos sus trabajos registrados?" class="shrink-0">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
                                     </form>
@@ -105,15 +105,15 @@
                                                 <div class="flex items-start justify-between gap-2">
                                                     <p class="font-semibold text-marca-negro">{{ $job->moto }}</p>
                                                     <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase {{ $job->pagado ? 'bg-marca-amarillo/20 text-marca-negro' : 'bg-marca-rojo/10 text-marca-rojo' }}">
-                                                        {{ $job->pagado ? 'Pagado' : 'A pagar' }}
+                                                        {{ $job->pagado ? 'Pagado' : 'Debe' }}
                                                     </span>
                                                 </div>
                                                 <dl class="mt-1 space-y-1 text-sm text-marca-gris-oscuro">
-                                                    <div><span class="font-medium text-marca-negro">Problema:</span> {{ $job->problema }}</div>
-                                                    @if ($job->repuestos)
-                                                        <div><span class="font-medium text-marca-negro">Repuestos:</span> {{ $job->repuestos }}</div>
+                                                    <div><span class="font-medium text-marca-negro">Motivo:</span> {{ $job->problema }}</div>
+                                                    @if ($job->product)
+                                                        <div><span class="font-medium text-marca-negro">Producto:</span> {{ $job->product->name }} (x{{ $job->quantity }})</div>
                                                     @endif
-                                                    <div>Debe cobrar: <span class="font-medium text-marca-negro">{{ $job->formatted_monto }}</span></div>
+                                                    <div>Debe al local: <span class="font-medium text-marca-negro">{{ $job->formatted_monto }}</span></div>
                                                     <div class="text-xs">{{ $job->created_at->diffForHumans() }}</div>
                                                 </dl>
                                                 <div class="mt-2 flex flex-wrap items-center gap-3">
@@ -124,8 +124,14 @@
                                                             <input type="hidden" name="mechanic_id" value="{{ $mechanic->id }}">
                                                             <input type="text" name="moto" value="{{ $job->moto }}" required placeholder="Moto" class="sm:col-span-2 {{ $field }}">
                                                             <textarea name="problema" rows="2" required placeholder="Qué necesitaba y por qué" class="sm:col-span-2 {{ $field }}">{{ $job->problema }}</textarea>
-                                                            <textarea name="repuestos" rows="2" placeholder="Repuestos que necesitó" class="sm:col-span-2 {{ $field }}">{{ $job->repuestos }}</textarea>
-                                                            <input type="number" step="0.01" min="0" name="monto_a_pagar" value="{{ $job->monto_a_pagar }}" required placeholder="Monto" class="{{ $field }}">
+                                                            <select name="product_id" class="{{ $field }}" data-product-select>
+                                                                <option value="">Sin producto</option>
+                                                                @foreach ($products as $product)
+                                                                    <option value="{{ $product->id }}" data-price="{{ $product->price }}" @selected($job->product_id === $product->id)>{{ $product->name }} — {{ $product->formatted_price }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <input type="number" min="1" name="quantity" value="{{ $job->quantity }}" placeholder="Cantidad" class="{{ $field }}" data-product-qty>
+                                                            <input type="number" step="0.01" min="0" name="monto_a_pagar" value="{{ $job->monto_a_pagar }}" required placeholder="Monto" class="sm:col-span-2 {{ $field }}" data-product-amount>
                                                             <button type="submit" class="rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-xs font-semibold hover:border-marca-amarillo">Guardar</button>
                                                         </form>
                                                     </details>
@@ -135,7 +141,7 @@
                                                             {{ $job->pagado ? 'Marcar como pendiente' : 'Marcar pagado' }}
                                                         </button>
                                                     </form>
-                                                    <form method="POST" action="{{ route('admin.mechanic-jobs.destroy', $job) }}" onsubmit="return confirm('¿Eliminar este trabajo?');" class="ml-auto inline-flex">
+                                                    <form method="POST" action="{{ route('admin.mechanic-jobs.destroy', $job) }}" data-confirm="¿Eliminar este trabajo?" class="ml-auto inline-flex">
                                                         @csrf @method('DELETE')
                                                         <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
                                                     </form>
@@ -176,8 +182,14 @@
                                 </select>
                                 <input type="text" name="moto" placeholder="Moto (ej: Honda Wave 110)" required class="{{ $field }}">
                                 <textarea name="problema" rows="2" placeholder="Qué necesitaba arreglarse y por qué" required class="{{ $field }}"></textarea>
-                                <textarea name="repuestos" rows="2" placeholder="Repuestos que necesitó (opcional)" class="{{ $field }}"></textarea>
-                                <input type="number" step="0.01" min="0" name="monto_a_pagar" placeholder="Monto" required class="{{ $field }}">
+                                <select name="product_id" class="{{ $field }}" data-product-select>
+                                    <option value="">Producto que compró (opcional)</option>
+                                    @foreach ($products as $product)
+                                        <option value="{{ $product->id }}" data-price="{{ $product->price }}">{{ $product->name }} — {{ $product->formatted_price }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="number" min="1" value="1" name="quantity" placeholder="Cantidad" class="{{ $field }}" data-product-qty>
+                                <input type="number" step="0.01" min="0" name="monto_a_pagar" placeholder="Monto que debe al local" required class="{{ $field }}" data-product-amount>
                                 <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                                     Registrar
                                 </button>

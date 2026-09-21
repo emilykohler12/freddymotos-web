@@ -64,7 +64,7 @@
                             <button type="submit" class="rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-xs font-semibold hover:border-marca-amarillo">Guardar</button>
                         </div>
                     </form>
-                    <form method="POST" action="{{ route('admin.shipping.companies.destroy', $company) }}" onsubmit="return confirm('¿Eliminar {{ $company->name }}?');" class="mt-2">
+                    <form method="POST" action="{{ route('admin.shipping.companies.destroy', $company) }}" data-confirm="¿Eliminar {{ $company->name }}?" class="mt-2">
                         @csrf @method('DELETE')
                         <button type="submit" class="w-full rounded-lg border border-marca-rojo/30 px-4 py-2 text-xs font-semibold text-marca-rojo hover:bg-marca-rojo hover:text-marca-blanco">Eliminar</button>
                     </form>
@@ -127,7 +127,7 @@
                             <button type="submit" class="rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-xs font-semibold hover:border-marca-amarillo">Guardar</button>
                         </div>
                     </form>
-                    <form method="POST" action="{{ route('admin.shipping.zones.destroy', $zone) }}" onsubmit="return confirm('¿Eliminar {{ $zone->name }}?');" class="mt-2">
+                    <form method="POST" action="{{ route('admin.shipping.zones.destroy', $zone) }}" data-confirm="¿Eliminar {{ $zone->name }}?" class="mt-2">
                         @csrf @method('DELETE')
                         <button type="submit" class="w-full rounded-lg border border-marca-rojo/30 px-4 py-2 text-xs font-semibold text-marca-rojo hover:bg-marca-rojo hover:text-marca-blanco">Eliminar</button>
                     </form>

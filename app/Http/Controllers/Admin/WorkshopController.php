@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mechanic;
+use App\Models\Product;
 use App\Models\WorkshopCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +17,8 @@ class WorkshopController extends Controller
         return view('admin.workshop.index', [
             'activeTab' => $request->string('tab', 'categorias')->toString(),
             'categories' => WorkshopCategory::orderBy('name')->get(),
-            'mechanics' => Mechanic::with(['jobs' => fn ($q) => $q->latest()])->orderBy('name')->get(),
+            'mechanics' => Mechanic::with(['jobs' => fn ($q) => $q->with('product')->latest()])->orderBy('name')->get(),
+            'products' => Product::orderBy('name')->get(['id', 'name', 'price']),
         ]);
     }
 

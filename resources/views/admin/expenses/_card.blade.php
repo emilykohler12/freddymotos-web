@@ -53,7 +53,7 @@
             </form>
         @endif
 
-        <form method="POST" action="{{ route('admin.expenses.destroy', $item) }}" onsubmit="return confirm('¿Eliminar este registro?');" class="ml-auto inline-flex">
+        <form method="POST" action="{{ route('admin.expenses.destroy', $item) }}" data-confirm="¿Eliminar este registro?" class="ml-auto inline-flex">
             @csrf @method('DELETE')
             <input type="hidden" name="tab" value="{{ $cardTab }}">
             <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>

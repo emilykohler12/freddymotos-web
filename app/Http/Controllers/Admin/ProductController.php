@@ -157,7 +157,6 @@ class ProductController extends Controller
             'brand' => ['required', 'string', 'max:80'],
             'compatible_model' => ['nullable', 'string', 'max:2000'],
             'supplier_id' => ['nullable', 'exists:suppliers,id'],
-            'is_featured' => ['sometimes', 'boolean'],
             'active' => ['sometimes', 'boolean'],
             'image' => ['nullable', 'image', 'max:4096'],
             'attributes' => ['nullable', 'array'],
@@ -166,7 +165,6 @@ class ProductController extends Controller
 
         unset($data['attributes']);
 
-        $data['is_featured'] = $request->boolean('is_featured');
         $data['active'] = $request->boolean('active');
 
         unset($data['image']);

@@ -31,7 +31,11 @@
                     <div class="flex items-center justify-center bg-gradient-to-br from-marca-rojo to-marca-bordo px-4 py-8 text-center">
                         <span class="text-3xl font-extrabold tracking-tight text-marca-blanco">{{ $promo->label }}</span>
                     </div>
-                    @php $singleProduct = $promo->scope === \App\Models\Promotion::SCOPE_PRODUCTS && $promo->products->count() === 1 ? $promo->products->first() : null; @endphp
+                    @php
+                        $singleProduct = $promo->scope === \App\Models\Promotion::SCOPE_PRODUCTS && $promo->products->count() === 1 ? $promo->products->first() : null;
+                        // Para 2x1/3x2 hay que agregar la cantidad completa del combo, si no el descuento nunca se activa.
+                        $promoQty = $promo->type === \App\Models\Promotion::TYPE_NXM ? max(1, (int) $promo->buy_quantity) : 1;
+                    @endphp
                     <div class="flex flex-1 flex-col gap-3 p-5">
                         <h3 class="font-bold text-marca-negro">{{ $promo->title }}</h3>
                         <p class="text-sm text-marca-gris-oscuro">Aplica a: {{ $promo->scope_label }}</p>
@@ -39,12 +43,13 @@
                             <form action="{{ route('cart.add') }}" method="POST" data-cart-add class="mt-auto">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $singleProduct->id }}">
+                                <input type="hidden" name="quantity" value="{{ $promoQty }}">
                                 <button type="submit" @disabled(! $singleProduct->in_stock)
                                         class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco disabled:cursor-not-allowed disabled:bg-marca-gris-claro disabled:text-marca-gris-oscuro/50 disabled:hover:bg-marca-gris-claro">
                                     <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 4.6A1 1 0 005.6 19H17m0 0a2 2 0 100 4 2 2 0 000-4zm-9 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                     </svg>
-                                    {{ $singleProduct->in_stock ? 'Agregar al carrito' : 'Sin stock' }}
+                                    {{ $singleProduct->in_stock ? ($promoQty > 1 ? "Agregar {$promoQty} al carrito" : 'Agregar al carrito') : 'Sin stock' }}
                                 </button>
                             </form>
                         @else

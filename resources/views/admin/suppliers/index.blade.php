@@ -37,7 +37,7 @@
                             <td class="px-5 py-3 text-right">
                                 <div class="flex items-center justify-end gap-3">
                                     <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Editar</a>
-                                    <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" onsubmit="return confirm('¿Eliminar {{ $supplier->name }}?');" class="inline-flex">
+                                    <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" data-confirm="¿Eliminar {{ $supplier->name }}?" class="inline-flex">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>

@@ -331,7 +331,7 @@
                         @forelse ($ingresoCategories as $category)
                             <li class="flex items-center justify-between py-2">
                                 <span class="text-marca-negro">{{ $category->name }}</span>
-                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" onsubmit="return confirm('¿Eliminar la categoría {{ $category->name }}?');" class="inline-flex">
+                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
                                 </form>
@@ -382,7 +382,7 @@
                                     {{ $inquiry->status === 'atendida' ? 'Marcar como nueva' : 'Marcar atendida' }}
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.inquiries.destroy', $inquiry) }}" onsubmit="return confirm('¿Eliminar esta consulta?');" class="ml-auto inline-flex">
+                            <form method="POST" action="{{ route('admin.inquiries.destroy', $inquiry) }}" data-confirm="¿Eliminar esta consulta?" class="ml-auto inline-flex">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
                             </form>

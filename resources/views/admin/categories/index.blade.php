@@ -60,7 +60,7 @@
                                 Guardar
                             </button>
                         </form>
-                        <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" onsubmit="return confirm('¿Eliminar la categoría {{ $category->name }}?');">
+                        <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="w-full rounded-lg border border-marca-rojo/30 px-3 py-2 text-xs font-semibold text-marca-rojo transition hover:bg-marca-rojo hover:text-marca-blanco">
@@ -76,7 +76,7 @@
                                     @foreach ($category->attributes as $attribute)
                                         <li class="flex items-center justify-between gap-2 rounded-lg bg-marca-gris-claro px-3 py-1.5 text-xs">
                                             <span class="text-marca-negro">{{ $attribute->name }}</span>
-                                            <form method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}" onsubmit="return confirm('¿Eliminar el detalle {{ $attribute->name }}?');">
+                                            <form method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}" data-confirm="¿Eliminar el detalle {{ $attribute->name }}?">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
                                             </form>

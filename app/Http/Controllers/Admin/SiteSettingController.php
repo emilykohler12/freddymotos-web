@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BusinessPhoto;
 use App\Models\SiteSetting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,29 @@ class SiteSettingController extends Controller
     {
         return view('admin.settings.edit', [
             'settings' => SiteSetting::current(),
+            'photos' => BusinessPhoto::latest()->get(),
         ]);
+    }
+
+    public function storePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'photo' => ['required', 'image', 'max:4096'],
+        ]);
+
+        BusinessPhoto::create([
+            'path' => $request->file('photo')->store('business', 'public'),
+        ]);
+
+        return redirect()->route('admin.settings.edit', ['tab' => 'negocio'])->with('status', 'Foto agregada.');
+    }
+
+    public function destroyPhoto(BusinessPhoto $photo): RedirectResponse
+    {
+        Storage::disk('public')->delete($photo->path);
+        $photo->delete();
+
+        return redirect()->route('admin.settings.edit', ['tab' => 'negocio'])->with('status', 'Foto eliminada.');
     }
 
     public function update(Request $request): RedirectResponse
@@ -33,6 +56,8 @@ class SiteSettingController extends Controller
             'facebook_url' => ['nullable', 'url', 'max:200'],
             'logo' => ['nullable', 'image', 'max:2048'],
             'remove_logo' => ['sometimes', 'boolean'],
+            'hero_photo' => ['nullable', 'image', 'max:4096'],
+            'remove_hero_photo' => ['sometimes', 'boolean'],
             'moneda' => ['nullable', 'string', 'max:10'],
             'tax_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'payment_methods' => ['nullable', 'array'],
@@ -56,6 +81,17 @@ class SiteSettingController extends Controller
             $data['logo_path'] = null;
         }
         unset($data['logo'], $data['remove_logo']);
+
+        if ($request->hasFile('hero_photo')) {
+            if ($settings->hero_photo_path) {
+                Storage::disk('public')->delete($settings->hero_photo_path);
+            }
+            $data['hero_photo_path'] = $request->file('hero_photo')->store('branding', 'public');
+        } elseif ($request->boolean('remove_hero_photo') && $settings->hero_photo_path) {
+            Storage::disk('public')->delete($settings->hero_photo_path);
+            $data['hero_photo_path'] = null;
+        }
+        unset($data['hero_photo'], $data['remove_hero_photo']);
 
         $settings->fill($data)->save();
 

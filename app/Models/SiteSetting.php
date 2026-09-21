@@ -42,6 +42,7 @@ class SiteSetting extends Model
             'instagram_url' => null,
             'facebook_url' => null,
             'logo_path' => null,
+            'hero_photo_path' => null,
             'moneda' => 'ARS',
             'tax_rate' => null,
             'payment_methods' => [],
@@ -82,6 +83,12 @@ class SiteSetting extends Model
     public function getLogoUrlAttribute(): ?string
     {
         return $this->logo_path ? Storage::url($this->logo_path) : null;
+    }
+
+    /** Foto real que se muestra en el Hero del Home, o null para el placeholder ilustrado. */
+    public function getHeroPhotoUrlAttribute(): ?string
+    {
+        return $this->hero_photo_path ? Storage::url($this->hero_photo_path) : null;
     }
 
     /** Link directo de WhatsApp con el número configurado. */

@@ -12,7 +12,10 @@
     'nombre' => 'Freddy Motos',
 ])
 
-@php $cartCount = $cartCount ?? 0; @endphp
+@php
+    $cartCount = $cartCount ?? 0;
+    $settings = $settings ?? \App\Models\SiteSetting::current();
+@endphp
 
 <section class="relative flex w-full flex-col overflow-hidden bg-gradient-to-br from-marca-mostaza via-marca-amarillo to-marca-amarillo lg:min-h-[92vh]">
 
@@ -118,27 +121,26 @@
                 </svg>
             </div>
 
-            {{-- PLACEHOLDER imagen (ver nota abajo para usar <img>) --}}
-            <svg viewBox="0 0 640 380" class="relative mx-auto w-full max-w-xl drop-shadow-2xl" role="img" aria-label="Moto destacada (placeholder)">
-                <ellipse cx="320" cy="352" rx="250" ry="18" fill="#141414" opacity="0.15"/>
-                <circle cx="150" cy="270" r="78" fill="#141414"/>
-                <circle cx="150" cy="270" r="40" fill="none" stroke="#F5C518" stroke-width="12"/>
-                <circle cx="150" cy="270" r="10" fill="#F5C518"/>
-                <circle cx="500" cy="270" r="78" fill="#141414"/>
-                <circle cx="500" cy="270" r="40" fill="none" stroke="#F5C518" stroke-width="12"/>
-                <circle cx="500" cy="270" r="10" fill="#F5C518"/>
-                <path d="M120 262 L250 190 L370 182 L440 140 L482 152 L512 268 Z" fill="#2A2A2A"/>
-                <path d="M245 196 Q345 122 470 156 L472 182 Q372 168 300 214 Z" fill="#F5C518"/>
-                <path d="M120 258 Q170 214 260 206 L262 232 Q180 244 148 266 Z" fill="#141414"/>
-                <rect x="476" y="150" width="16" height="118" rx="8" fill="#2A2A2A" transform="rotate(13 484 209)"/>
-                <path d="M448 140 l46 -10" stroke="#141414" stroke-width="12" stroke-linecap="round"/>
-                <path d="M300 214 L360 262 L470 262 L470 240 L360 240 Z" fill="#6E1423"/>
-            </svg>
-
-            {{-- Para foto real, reemplaza el <svg> de arriba por:
-                 <img src="/images/hero-moto.png" alt="Moto destacada"
-                      class="relative mx-auto w-full max-w-xl drop-shadow-2xl">
-                 (o usa la ruta con el helper asset() de Laravel) --}}
+            {{-- Foto real cargada por el admin en Configuración; si no hay, se ve el ícono de placeholder. --}}
+            @if ($settings->hero_photo_url)
+                <img src="{{ $settings->hero_photo_url }}" alt="{{ $nombre }}" class="relative mx-auto aspect-[16/10] w-full max-w-xl rounded-3xl object-cover drop-shadow-2xl">
+            @else
+                <svg viewBox="0 0 640 380" class="relative mx-auto w-full max-w-xl drop-shadow-2xl" role="img" aria-label="Moto destacada (placeholder)">
+                    <ellipse cx="320" cy="352" rx="250" ry="18" fill="#141414" opacity="0.15"/>
+                    <circle cx="150" cy="270" r="78" fill="#141414"/>
+                    <circle cx="150" cy="270" r="40" fill="none" stroke="#F5C518" stroke-width="12"/>
+                    <circle cx="150" cy="270" r="10" fill="#F5C518"/>
+                    <circle cx="500" cy="270" r="78" fill="#141414"/>
+                    <circle cx="500" cy="270" r="40" fill="none" stroke="#F5C518" stroke-width="12"/>
+                    <circle cx="500" cy="270" r="10" fill="#F5C518"/>
+                    <path d="M120 262 L250 190 L370 182 L440 140 L482 152 L512 268 Z" fill="#2A2A2A"/>
+                    <path d="M245 196 Q345 122 470 156 L472 182 Q372 168 300 214 Z" fill="#F5C518"/>
+                    <path d="M120 258 Q170 214 260 206 L262 232 Q180 244 148 266 Z" fill="#141414"/>
+                    <rect x="476" y="150" width="16" height="118" rx="8" fill="#2A2A2A" transform="rotate(13 484 209)"/>
+                    <path d="M448 140 l46 -10" stroke="#141414" stroke-width="12" stroke-linecap="round"/>
+                    <path d="M300 214 L360 262 L470 262 L470 240 L360 240 Z" fill="#6E1423"/>
+                </svg>
+            @endif
         </div>
     </div>
 

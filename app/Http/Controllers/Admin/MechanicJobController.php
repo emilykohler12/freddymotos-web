@@ -43,7 +43,8 @@ class MechanicJobController extends Controller
             'mechanic_id' => ['required', 'exists:mechanics,id'],
             'moto' => ['required', 'string', 'max:150'],
             'problema' => ['required', 'string', 'max:1000'],
-            'repuestos' => ['nullable', 'string', 'max:1000'],
+            'product_id' => ['nullable', 'exists:products,id'],
+            'quantity' => ['nullable', 'integer', 'min:1'],
             'monto_a_pagar' => ['required', 'numeric', 'min:0'],
         ]);
     }

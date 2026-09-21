@@ -47,7 +47,7 @@
                         @forelse ($categories as $category)
                             <li class="flex items-center justify-between py-3">
                                 <span class="text-marca-negro">{{ $category->name }}</span>
-                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" onsubmit="return confirm('¿Eliminar la categoría {{ $category->name }}?');" class="inline-flex">
+                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
                                     @csrf @method('DELETE')
                                     <input type="hidden" name="type" value="gasto">
                                     <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>

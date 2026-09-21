@@ -15,7 +15,7 @@
             ->take(12)
             ->pluck('product_id');
 
-        $productos = \App\Models\Product::query()->whereIn('id', $topIds)->where('active', true)->get()
+        $productos = \App\Models\Product::query()->whereIn('id', $topIds)->where('active', true)->where('stock', '>', 0)->get()
             ->sortBy(fn ($p) => array_search($p->id, $topIds->all()))
             ->values();
     } catch (\Throwable $e) {

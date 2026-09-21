@@ -83,7 +83,7 @@
 
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
             <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-marca-negro">Cuánto se le debe a cada mecánico</h2>
+                <h2 class="text-sm font-bold text-marca-negro">Cuánto deben los mecánicos</h2>
                 <a href="{{ route('admin.workshop.index', ['tab' => 'mecanicos']) }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ver taller</a>
             </div>
             @if ($hasMechanicsDebt)
@@ -163,25 +163,31 @@
             @endif
         </div>
 
-        {{-- Pagos pendientes: gastos vencidos --}}
+        {{-- Pagos pendientes: todos los gastos sin pagar, separados por frecuencia --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes · Gastos vencidos</h2>
+            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes · Gastos</h2>
             @if ($pendingExpensePayments->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos recurrentes vencidos.</p>
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos pendientes de pago.</p>
             @else
-                <ul class="mt-4 divide-y divide-marca-gris-claro text-sm">
-                    @foreach ($pendingExpensePayments as $expense)
-                        <li class="py-2">
-                            <div class="flex items-center justify-between gap-3">
-                                <span class="font-medium text-marca-negro">{{ $expense->description }}</span>
-                                <span class="shrink-0 text-marca-gris-oscuro">{{ $expense->formatted_amount }}</span>
+                <div class="mt-4 max-h-96 space-y-4 overflow-y-auto">
+                    @foreach (\App\Models\Expense::FREQUENCIES as $freqKey => $freqLabel)
+                        @if ($pendingExpensePayments->has($freqKey))
+                            <div>
+                                <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-marca-gris-oscuro">{{ $freqLabel }}</p>
+                                <ul class="divide-y divide-marca-gris-claro text-sm">
+                                    @foreach ($pendingExpensePayments->get($freqKey) as $expense)
+                                        <li class="py-2">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <span class="font-medium text-marca-negro">{{ $expense->description }}</span>
+                                                <span class="shrink-0 text-marca-gris-oscuro">{{ $expense->formatted_amount }}</span>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
                             </div>
-                            <p class="mt-0.5 text-xs text-marca-gris-oscuro">
-                                {{ \App\Models\Expense::FREQUENCIES[$expense->frequency] ?? $expense->frequency }} · venció el {{ $expense->next_due_on->format('d/m/Y') }}
-                            </p>
-                        </li>
+                        @endif
                     @endforeach
-                </ul>
+                </div>
             @endif
             <a href="{{ route('admin.expenses.index', ['tab' => 'pendientes']) }}" class="mt-4 block text-center text-xs font-semibold text-marca-rojo hover:underline">Ver gastos pendientes</a>
         </div>

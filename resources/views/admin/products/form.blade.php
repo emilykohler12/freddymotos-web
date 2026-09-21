@@ -172,10 +172,6 @@
                     <input type="checkbox" name="active" value="1" @checked(old('active', $product->exists ? $product->active : true)) class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
                     Activo
                 </label>
-                <label class="flex items-center gap-2 text-sm font-medium text-marca-negro">
-                    <input type="checkbox" name="is_featured" value="1" @checked(old('is_featured', $product->is_featured)) class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
-                    Destacado (Home)
-                </label>
             </div>
 
             <div class="flex items-center gap-3 border-t border-marca-gris-claro pt-5">

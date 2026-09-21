@@ -11,7 +11,8 @@ class MechanicJob extends Model
         'mechanic_id',
         'moto',
         'problema',
-        'repuestos',
+        'product_id',
+        'quantity',
         'monto_a_pagar',
         'pagado',
     ];
@@ -19,6 +20,7 @@ class MechanicJob extends Model
     protected function casts(): array
     {
         return [
+            'quantity' => 'integer',
             'monto_a_pagar' => 'decimal:2',
             'pagado' => 'boolean',
         ];
@@ -27,6 +29,11 @@ class MechanicJob extends Model
     public function mechanic(): BelongsTo
     {
         return $this->belongsTo(Mechanic::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 
     public function getFormattedMontoAttribute(): string

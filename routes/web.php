@@ -172,5 +172,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('configuracion', [AdminSiteSettingController::class, 'edit'])->name('settings.edit');
         Route::put('configuracion', [AdminSiteSettingController::class, 'update'])->name('settings.update');
+        Route::post('configuracion/fotos', [AdminSiteSettingController::class, 'storePhoto'])->name('settings.photos.store');
+        Route::delete('configuracion/fotos/{photo}', [AdminSiteSettingController::class, 'destroyPhoto'])->name('settings.photos.destroy');
     });
 });

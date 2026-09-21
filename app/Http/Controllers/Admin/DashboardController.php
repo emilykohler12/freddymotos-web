@@ -82,7 +82,12 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
-        $pendingExpensePayments = Expense::due();
+        // Todos los gastos sin marcar como pagados (no solo los vencidos), agrupados por frecuencia.
+        $pendingExpensePayments = Expense::where('type', Expense::TYPE_GASTO)
+            ->where('paid', false)
+            ->orderByDesc('incurred_on')
+            ->get()
+            ->groupBy(fn (Expense $e) => $e->frequency ?? 'unica');
 
         // ---- Gastos por categoría ----
         $expensesByCategory = Expense::with('expenseCategory')
@@ -93,7 +98,7 @@ class DashboardController extends Controller
             ->map(fn ($group) => (float) $group->sum('amount'))
             ->sortDesc();
 
-        // ---- Deuda con mecánicos ----
+        // ---- Cuánto deben los mecánicos por productos que compraron y no pagaron ----
         $mechanicsDebt = Mechanic::with(['jobs' => fn ($q) => $q->where('pagado', false)])
             ->get()
             ->map(fn (Mechanic $m) => ['name' => $m->name, 'total' => (float) $m->jobs->sum('monto_a_pagar')])
@@ -176,7 +181,7 @@ class DashboardController extends Controller
         ];
     }
 
-    /** Cuánto se le debe a cada mecánico (trabajos sin pagar). */
+    /** Cuánto debe cada mecánico por productos que compró y todavía no pagó. */
     private function mechanicsDebtChart($mechanicsDebt): array
     {
         return [
