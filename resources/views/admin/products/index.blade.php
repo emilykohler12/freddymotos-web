@@ -13,21 +13,20 @@
     @endphp
 
     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <form method="GET" class="flex flex-1 flex-wrap gap-2">
+        <form method="GET" data-autosubmit class="flex flex-1 flex-wrap gap-2">
             <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por nombre..."
                    class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
-            <select name="category_id" onchange="this.form.submit()" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+            <select name="category_id" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
                 <option value="">Todas las categorías</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}" @selected(request('category_id') == $category->id)>{{ $category->name }}</option>
                 @endforeach
             </select>
-            <select name="sort" onchange="this.form.submit()" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+            <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
                 @foreach ($sorts as $value => $label)
                     <option value="{{ $value }}" @selected($sort === $value)>{{ $label }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-sm font-semibold text-marca-negro hover:border-marca-amarillo">Filtrar</button>
         </form>
         <a href="{{ route('admin.products.create') }}" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
             + Añadir producto

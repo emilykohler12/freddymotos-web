@@ -20,10 +20,24 @@
         </button>
     </form>
 
-    {{-- Listado, orden A-Z --}}
+    {{-- Búsqueda + orden: se mandan solas, sin Enter ni botón --}}
+    <form method="GET" action="{{ route('admin.categories.index') }}" data-autosubmit
+          class="mb-6 flex flex-col gap-3 rounded-2xl bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Buscar categoría..." class="{{ $field }} sm:max-w-xs">
+        <select name="sort" class="{{ $field }} sm:max-w-[10rem]">
+            <option value="name_asc" @selected($sort === 'name_asc')>Nombre A-Z</option>
+            <option value="name_desc" @selected($sort === 'name_desc')>Nombre Z-A</option>
+        </select>
+    </form>
+
+    {{-- Listado --}}
     @if ($categories->isEmpty())
         <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            Todavía no hay categorías.
+            @if ($search !== '')
+                No hay categorías que coincidan con "{{ $search }}".
+            @else
+                Todavía no hay categorías.
+            @endif
         </p>
     @else
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

@@ -4,16 +4,42 @@
 @section('page-heading', 'Promociones')
 
 @section('content')
-    <div class="mb-5 flex justify-end">
-        <a href="{{ route('admin.promotions.create') }}" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+    @php
+        $field = 'rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none';
+    @endphp
+
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <form method="GET" data-autosubmit class="flex flex-1 flex-wrap gap-2">
+            <input type="text" name="search" value="{{ $search }}" placeholder="Buscar promoción..." class="min-w-[180px] flex-1 {{ $field }}">
+            <select name="status" class="{{ $field }}">
+                <option value="" @selected($status === '')>Activas e inactivas</option>
+                <option value="active" @selected($status === 'active')>Solo activas</option>
+                <option value="inactive" @selected($status === 'inactive')>Solo inactivas</option>
+            </select>
+            <select name="type" class="{{ $field }}">
+                <option value="" @selected($type === '')>Todos los descuentos</option>
+                <option value="percentage" @selected($type === 'percentage')>Porcentaje (%)</option>
+                <option value="fixed" @selected($type === 'fixed')>Monto fijo</option>
+                <option value="nxm" @selected($type === 'nxm')>Combo (2x1, 3x2...)</option>
+            </select>
+            <select name="sort" class="{{ $field }}">
+                <option value="recent" @selected($sort === 'recent')>Más recientes</option>
+                <option value="title_asc" @selected($sort === 'title_asc')>Nombre A-Z</option>
+                <option value="title_desc" @selected($sort === 'title_desc')>Nombre Z-A</option>
+            </select>
+        </form>
+        <a href="{{ route('admin.promotions.create') }}" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
             + Nueva promoción
         </a>
     </div>
 
-
     @if ($promotions->isEmpty())
         <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            Todavía no hay promociones. Las que actives van a aparecer en la sección "Promociones" del Home.
+            @if ($search !== '' || $status !== '' || $type !== '')
+                No hay promociones que coincidan con el filtro.
+            @else
+                Todavía no hay promociones. Las que actives van a aparecer en la sección "Promociones" del Home.
+            @endif
         </p>
     @else
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

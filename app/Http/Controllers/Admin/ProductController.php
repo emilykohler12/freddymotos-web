@@ -148,7 +148,7 @@ class ProductController extends Controller
     private function validated(Request $request, ?Product $product = null): array
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
+            'name' => ['required', 'string', 'max:150', 'unique:products,name' . ($product ? ",{$product->id}" : '')],
             'sku' => ['nullable', 'string', 'max:60', 'unique:products,sku' . ($product ? ",{$product->id}" : '')],
             'description' => ['nullable', 'string'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -161,6 +161,9 @@ class ProductController extends Controller
             'image' => ['nullable', 'image', 'max:4096'],
             'attributes' => ['nullable', 'array'],
             'attributes.*' => ['nullable', 'string', 'max:255'],
+        ], [
+            'name.unique' => 'Ya existe un producto con ese nombre.',
+            'sku.unique' => 'Ya existe un producto con ese SKU.',
         ]);
 
         unset($data['attributes']);

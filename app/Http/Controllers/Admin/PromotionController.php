@@ -12,11 +12,24 @@ use Illuminate\View\View;
 
 class PromotionController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $promotions = Promotion::with(['category', 'products'])->latest()->get();
+        $search = trim((string) $request->query('search', ''));
+        $sort = $request->query('sort', 'recent');
+        $status = $request->query('status', '');
+        $type = $request->query('type', '');
 
-        return view('admin.promotions.index', compact('promotions'));
+        $promotions = Promotion::with(['category', 'products'])
+            ->when($search !== '', fn ($q) => $q->where('title', 'like', "%{$search}%"))
+            ->when($status === 'active', fn ($q) => $q->where('active', true))
+            ->when($status === 'inactive', fn ($q) => $q->where('active', false))
+            ->when($type !== '', fn ($q) => $q->where('type', $type))
+            ->when($sort === 'title_asc', fn ($q) => $q->orderBy('title'))
+            ->when($sort === 'title_desc', fn ($q) => $q->orderByDesc('title'))
+            ->when($sort === 'recent', fn ($q) => $q->latest())
+            ->get();
+
+        return view('admin.promotions.index', compact('promotions', 'search', 'sort', 'status', 'type'));
     }
 
     public function create(): View
@@ -67,8 +80,10 @@ class PromotionController extends Controller
 
     private function validated(Request $request): array
     {
+        $promotion = $request->route('promotion');
+
         $data = $request->validate([
-            'title' => ['required', 'string', 'max:120'],
+            'title' => ['required', 'string', 'max:120', 'unique:promotions,title' . ($promotion ? ",{$promotion->id}" : '')],
             'type' => ['required', 'in:percentage,fixed,nxm'],
             'value' => ['nullable', 'numeric', 'min:0', 'required_if:type,percentage,fixed'],
             'buy_quantity' => ['nullable', 'integer', 'min:2', 'required_if:type,nxm'],
@@ -80,6 +95,8 @@ class PromotionController extends Controller
             'active' => ['sometimes', 'boolean'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
+        ], [
+            'title.unique' => 'Ya existe una promoción con ese nombre.',
         ]);
 
         $data['active'] = $request->boolean('active');

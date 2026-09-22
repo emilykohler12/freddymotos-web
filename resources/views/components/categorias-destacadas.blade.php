@@ -1,9 +1,13 @@
 {{-- Seccion "Categorias destacadas" - Home, debajo del Hero. --}}
 {{-- Grilla de tarjetas con las categorías reales que carga el admin (/admin/categorias), hasta 7. --}}
 {{-- Si todavía no cargó ninguna, la sección no se muestra (nada de datos de ejemplo). --}}
+{{-- Solo categorías con al menos un producto activo y con stock: si queda vacía o sin stock, no tiene sentido mostrarla. --}}
 
 @php
-    $categorias = \App\Models\Category::orderBy('name')->take(7)->get();
+    $categorias = \App\Models\Category::whereHas('products', fn ($q) => $q->where('active', true)->where('stock', '>', 0))
+        ->orderBy('name')
+        ->take(7)
+        ->get();
     $iconoCategoria = 'M20.5 11.5L12 3 3.5 11.5M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9';
 @endphp
 

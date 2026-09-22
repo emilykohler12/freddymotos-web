@@ -12,18 +12,27 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $categories = Category::withCount('products')->with('attributes')->orderBy('name')->get();
+        $sort = $request->query('sort', 'name_asc');
+        $search = trim((string) $request->query('search', ''));
 
-        return view('admin.categories.index', compact('categories'));
+        $categories = Category::withCount('products')
+            ->with('attributes')
+            ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+            ->orderBy('name', $sort === 'name_desc' ? 'desc' : 'asc')
+            ->get();
+
+        return view('admin.categories.index', compact('categories', 'sort', 'search'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:80'],
+            'name' => ['required', 'string', 'max:80', 'unique:categories,name'],
             'image' => ['nullable', 'image', 'max:2048'],
+        ], [
+            'name.unique' => 'Ya existe una categoría con ese nombre.',
         ]);
 
         $category = Category::create([
@@ -38,8 +47,10 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:80'],
+            'name' => ['required', 'string', 'max:80', 'unique:categories,name,' . $category->id],
             'image' => ['nullable', 'image', 'max:2048'],
+        ], [
+            'name.unique' => 'Ya existe una categoría con ese nombre.',
         ]);
 
         $update = ['name' => $data['name'], 'slug' => Str::slug($data['name'])];

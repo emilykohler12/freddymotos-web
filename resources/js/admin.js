@@ -26,6 +26,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+/**
+ * Formularios de búsqueda/orden/filtro del admin (listados de categorías,
+ * productos, promociones, etc.): con data-autosubmit, los inputs de texto
+ * mandan el form solos 400ms después de que el admin deja de tipear (sin
+ * Enter ni botón), y los select/checkbox lo mandan apenas cambian.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('form[data-autosubmit]').forEach((form) => {
+        let timer = null;
+
+        form.querySelectorAll('input[type="text"], input[type="search"], input[type="number"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => form.requestSubmit(), 400);
+            });
+        });
+
+        form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach((field) => {
+            field.addEventListener('change', () => form.requestSubmit());
+        });
+    });
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-chart]').forEach((canvas) => {
         try {
