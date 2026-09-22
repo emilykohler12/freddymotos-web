@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     <title>@yield('title', ($settings->nombre_local ?? 'Freddy Motos') . ' — Repuestos de motos')</title>
 
     {{-- Tailwind + assets via Vite. Ejecutar: npm run dev (o npm run build) --}}
