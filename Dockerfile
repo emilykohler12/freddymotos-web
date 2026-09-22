@@ -28,10 +28,11 @@ COPY --from=assets /app/public/build ./public/build
 
 RUN composer dump-autoload --optimize \
     && mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    && chmod -R 775 storage bootstrap/cache \
+    && chmod +x start.sh
 
 EXPOSE 10000
 
 # Corre las migraciones (Postgres en Render) y levanta el server de Laravel en el puerto que da Render.
-CMD php artisan migrate --force && php artisan storage:link --force || true; \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+# Si migrate falla, el contenedor corta acá y se ve el error real en los logs (antes quedaba tapado).
+CMD ["./start.sh"]
