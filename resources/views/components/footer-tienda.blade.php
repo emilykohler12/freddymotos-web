@@ -78,13 +78,7 @@
                             <a href="mailto:{{ $settings->email }}" class="transition hover:text-marca-amarillo">{{ $settings->email }}</a>
                         </li>
                     @endif
-                    @if ($settings->horario_atencion)
-                        <li class="flex items-start gap-2">
-                            <svg class="mt-0.5 h-4 w-4 shrink-0 text-marca-amarillo" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span>{{ $settings->horario_atencion }}</span>
-                        </li>
-                    @endif
-                    @if (! $settings->direccion && ! $settings->telefono && ! $settings->email && ! $settings->horario_atencion)
+                    @if (! $settings->direccion && ! $settings->telefono && ! $settings->email)
                         <li class="text-marca-blanco/50">Próximamente</li>
                     @endif
                 </ul>

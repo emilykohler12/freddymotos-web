@@ -28,19 +28,19 @@
         {{-- El hidden "tab" recuerda cuál estaba abierta para que, al guardar, la redirección vuelva a la misma. --}}
         <input type="hidden" name="tab" id="active-tab-field" value="{{ request('tab', 'general') }}">
         <div class="flex flex-wrap items-start gap-2">
-        <input type="radio" name="settings-tab" id="tab-general" class="peer/general hidden" @checked(request('tab', 'general') === 'general') onchange="document.getElementById('active-tab-field').value='general'">
+        <input type="radio" name="settings-tab" id="tab-general" class="peer/general hidden" @checked(request('tab', 'general') === 'general') onchange="document.getElementById('active-tab-field').value='general'; window.__syncSettingsTab && window.__syncSettingsTab('general')">
         <label for="tab-general" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/general:bg-marca-negro peer-checked/general:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             General
         </label>
 
-        <input type="radio" name="settings-tab" id="tab-negocio" class="peer/negocio hidden" @checked(request('tab') === 'negocio') onchange="document.getElementById('active-tab-field').value='negocio'">
+        <input type="radio" name="settings-tab" id="tab-negocio" class="peer/negocio hidden" @checked(request('tab') === 'negocio') onchange="document.getElementById('active-tab-field').value='negocio'; window.__syncSettingsTab && window.__syncSettingsTab('negocio')">
         <label for="tab-negocio" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/negocio:bg-marca-negro peer-checked/negocio:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M4 21V9l8-5 8 5v12M9 21v-6h6v6"/></svg>
             Sobre el negocio
         </label>
 
-        <input type="radio" name="settings-tab" id="tab-pagos" class="peer/pagos hidden" @checked(request('tab') === 'pagos') onchange="document.getElementById('active-tab-field').value='pagos'">
+        <input type="radio" name="settings-tab" id="tab-pagos" class="peer/pagos hidden" @checked(request('tab') === 'pagos') onchange="document.getElementById('active-tab-field').value='pagos'; window.__syncSettingsTab && window.__syncSettingsTab('pagos')">
         <label for="tab-pagos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/pagos:bg-marca-negro peer-checked/pagos:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18v10H3V7zm0 4h18M7 15h4"/></svg>
             Pagos
@@ -160,7 +160,6 @@
                 </div>
             </div>
         </div>
-        </div>
 
         <div class="mt-6 flex items-center gap-3 border-t border-marca-gris-claro pt-5">
             <button type="submit" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
@@ -171,35 +170,49 @@
     </form>
 
     {{-- Fotos del negocio: la más reciente se muestra en "Sobre nosotros" del Home. --}}
-    <div class="mt-6 space-y-4 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-        <div>
-            <h2 class="text-sm font-bold uppercase tracking-wide text-marca-negro">Fotos del negocio</h2>
-            <p class="mt-1 text-xs text-marca-gris-oscuro">La foto más reciente que subas es la que se muestra en "Sobre nosotros" del Home.</p>
-        </div>
-
-        @if ($photos->isNotEmpty())
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-                @foreach ($photos as $photo)
-                    <div class="group relative overflow-hidden rounded-xl ring-1 ring-marca-gris-oscuro/10">
-                        <img src="{{ $photo->url }}" alt="Foto del negocio" class="aspect-square w-full object-cover">
-                        @if ($loop->first)
-                            <span class="absolute left-1.5 top-1.5 rounded-full bg-marca-amarillo px-2 py-0.5 text-[10px] font-bold text-marca-negro">En Sobre nosotros</span>
-                        @endif
-                        <form method="POST" action="{{ route('admin.settings.photos.destroy', $photo) }}" data-confirm="¿Eliminar esta foto?" class="absolute inset-x-0 bottom-0 bg-marca-negro/70 opacity-0 transition group-hover:opacity-100">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="w-full py-1.5 text-xs font-semibold text-marca-blanco">Eliminar</button>
-                        </form>
-                    </div>
-                @endforeach
+    {{-- Solo en la pestaña "Sobre el negocio". Este bloque tiene su propio <form> (sube un --}}
+    {{-- archivo con otra acción) y no puede ir anidado dentro del <form> principal, así que
+         el peer-checked de Tailwind no le llega (necesita ser hermano directo del radio). Por
+         eso el show/hide de acá es a mano por JS, sincronizado con los mismos radios de arriba. --}}
+    <div id="fotos-negocio-section" class="{{ request('tab') === 'negocio' ? '' : 'hidden' }} w-full">
+        <div class="mt-6 space-y-4 rounded-2xl bg-marca-blanco p-6 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <div>
+                <h2 class="text-sm font-bold uppercase tracking-wide text-marca-negro">Fotos del negocio</h2>
+                <p class="mt-1 text-xs text-marca-gris-oscuro">La foto más reciente que subas es la que se muestra en "Sobre nosotros" del Home.</p>
             </div>
-        @endif
 
-        <form method="POST" action="{{ route('admin.settings.photos.store') }}" enctype="multipart/form-data" class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            @csrf
-            <input type="file" name="photo" accept="image/*" required class="{{ $field }}">
-            <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                Subir foto
-            </button>
-        </form>
+            @if ($photos->isNotEmpty())
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                    @foreach ($photos as $photo)
+                        <div class="group relative overflow-hidden rounded-xl ring-1 ring-marca-gris-oscuro/10">
+                            <img src="{{ $photo->url }}" alt="Foto del negocio" class="aspect-square w-full object-cover">
+                            @if ($loop->first)
+                                <span class="absolute left-1.5 top-1.5 rounded-full bg-marca-amarillo px-2 py-0.5 text-[10px] font-bold text-marca-negro">En Sobre nosotros</span>
+                            @endif
+                            <form method="POST" action="{{ route('admin.settings.photos.destroy', $photo) }}" data-confirm="¿Eliminar esta foto?" class="absolute inset-x-0 bottom-0 bg-marca-negro/70 opacity-0 transition group-hover:opacity-100">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="w-full py-1.5 text-xs font-semibold text-marca-blanco">Eliminar</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('admin.settings.photos.store') }}" enctype="multipart/form-data" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                @csrf
+                <input type="file" name="photo" accept="image/*" required class="{{ $field }}">
+                <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                    Subir foto
+                </button>
+            </form>
+        </div>
     </div>
+
+    <script>
+        window.__syncSettingsTab = function (tab) {
+            var section = document.getElementById('fotos-negocio-section');
+            if (!section) return;
+            section.classList.toggle('hidden', tab !== 'negocio');
+        };
+    </script>
 @endsection
