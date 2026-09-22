@@ -12,8 +12,18 @@ FROM php:8.3-cli
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git unzip libpq-dev libzip-dev libpng-dev libonig-dev \
-    && docker-php-ext-install pdo pdo_pgsql zip gd \
+    && docker-php-ext-install pdo pdo_pgsql zip gd opcache \
     && rm -rf /var/lib/apt/lists/*
+
+# Sin esto, PHP recompila TODO Laravel en cada petición — en la CPU limitada
+# del plan gratis de Render, eso es lo que causaba los 8-16 segundos por página.
+RUN { \
+        echo 'opcache.enable=1'; \
+        echo 'opcache.enable_cli=1'; \
+        echo 'opcache.memory_consumption=128'; \
+        echo 'opcache.max_accelerated_files=20000'; \
+        echo 'opcache.validate_timestamps=0'; \
+    } > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
