@@ -43,7 +43,13 @@ return [
         // en vez del disco del servidor, que en el plan gratuito se borra en cada deploy.
         'public' => [
             'driver' => env('FILESYSTEM_PUBLIC_DRIVER', 'local'),
-            'root' => storage_path('app/public'),
+            // "root" es una carpeta del SERVIDOR: tiene sentido para el driver "local", pero
+            // con "s3" (R2) Laravel lo usa igual, como prefijo de la key del archivo en el
+            // bucket. Sin este condicional, las imágenes se subían a R2 con una key tipo
+            // "/var/www/html/storage/app/public/categories/foto.jpg" en vez de
+            // "categories/foto.jpg", así que la URL pública generada después no coincidía
+            // con nada real en el bucket (imagen rota).
+            'root' => env('FILESYSTEM_PUBLIC_DRIVER', 'local') === 's3' ? '' : storage_path('app/public'),
             'url' => env('AWS_URL', rtrim(env('APP_URL', 'http://localhost'), '/').'/storage'),
             'visibility' => 'public',
             'throw' => false,
