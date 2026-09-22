@@ -10,6 +10,17 @@
     @endphp
 
 
+    {{-- Búsqueda + orden: aplica a empresas y zonas por igual --}}
+    <form method="GET" data-autosubmit class="mb-4 flex flex-wrap gap-2">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por nombre..." class="min-w-[200px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+        <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+            <option value="name_asc" @selected($sort === 'name_asc')>Nombre A-Z</option>
+            <option value="name_desc" @selected($sort === 'name_desc')>Nombre Z-A</option>
+            <option value="price_asc" @selected($sort === 'price_asc')>Precio: menor a mayor</option>
+            <option value="price_desc" @selected($sort === 'price_desc')>Precio: mayor a menor</option>
+        </select>
+    </form>
+
     {{-- Tabs: radios, labels y paneles como hermanos directos (así el CSS peer-checked --}}
     {{-- funciona tanto para resaltar el tab activo como para mostrar/ocultar el panel). --}}
     <div class="flex flex-wrap items-start gap-2">

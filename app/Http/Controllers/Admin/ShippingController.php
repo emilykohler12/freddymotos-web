@@ -11,11 +11,25 @@ use Illuminate\View\View;
 
 class ShippingController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $search = trim((string) $request->query('search', ''));
+        $sort = $request->query('sort', 'name_asc');
+
+        $sortColumn = str_starts_with($sort, 'price') ? 'price' : 'name';
+        $sortDirection = str_ends_with($sort, 'desc') ? 'desc' : 'asc';
+
         return view('admin.shipping.index', [
-            'zones' => ShippingZone::with('company')->orderBy('name')->get(),
-            'companies' => ShippingCompany::orderBy('name')->get(),
+            'zones' => ShippingZone::with('company')
+                ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                ->orderBy($sortColumn, $sortDirection)
+                ->get(),
+            'companies' => ShippingCompany::query()
+                ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
+                ->orderBy($sortColumn, $sortDirection)
+                ->get(),
+            'search' => $search,
+            'sort' => $sort,
         ]);
     }
 

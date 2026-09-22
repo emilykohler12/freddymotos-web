@@ -5,10 +5,9 @@
 
 @section('content')
     <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <form method="GET" class="flex flex-1 gap-2">
+        <form method="GET" data-autosubmit class="flex flex-1 gap-2">
             <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por nombre, teléfono o email..."
                    class="min-w-[220px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
-            <button type="submit" class="rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-sm font-semibold text-marca-negro hover:border-marca-amarillo">Buscar</button>
         </form>
         <a href="{{ route('admin.customers.create') }}" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
             + Añadir cliente

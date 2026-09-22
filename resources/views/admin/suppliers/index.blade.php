@@ -4,8 +4,16 @@
 @section('page-heading', 'Proveedores')
 
 @section('content')
-    <div class="mb-5 flex justify-end">
-        <a href="{{ route('admin.suppliers.create') }}" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+    <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <form method="GET" data-autosubmit class="flex flex-1 flex-wrap gap-2">
+            <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por nombre o email..."
+                   class="min-w-[220px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+            <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+                <option value="name_asc" @selected($sort === 'name_asc')>Nombre A-Z</option>
+                <option value="name_desc" @selected($sort === 'name_desc')>Nombre Z-A</option>
+            </select>
+        </form>
+        <a href="{{ route('admin.suppliers.create') }}" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
             + Añadir proveedor
         </a>
     </div>

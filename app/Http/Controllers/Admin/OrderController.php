@@ -18,10 +18,26 @@ class OrderController extends Controller
 {
     public function index(Request $request): View
     {
+        $search = trim((string) $request->query('search', ''));
+        $date = $request->query('date', '');
+        $sort = $request->query('sort', 'date_desc');
+
         $orders = Order::with('customer')
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('payment_status'), fn ($q) => $q->where('payment_status', $request->string('payment_status')))
-            ->latest()
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('id', 'like', "%{$search}%")
+                        ->orWhereHas('customer', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                });
+            })
+            ->when($date !== '', fn ($q) => $q->whereDate('created_at', $date))
+            ->when($sort === 'date_desc', fn ($q) => $q->latest())
+            ->when($sort === 'date_asc', fn ($q) => $q->oldest())
+            ->when($sort === 'customer_asc', fn ($q) => $q->orderBy(Customer::select('name')->whereColumn('customers.id', 'orders.customer_id')))
+            ->when($sort === 'customer_desc', fn ($q) => $q->orderByDesc(Customer::select('name')->whereColumn('customers.id', 'orders.customer_id')))
+            ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
+            ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
             ->paginate(15)
             ->withQueryString();
 
@@ -37,6 +53,9 @@ class OrderController extends Controller
             'statuses' => $this->statuses(),
             'paymentStatuses' => $this->paymentStatuses(),
             'income' => $income,
+            'search' => $search,
+            'date' => $date,
+            'sort' => $sort,
         ]);
     }
 

@@ -39,18 +39,28 @@
 
     {{-- ===== Pedidos (vista operativa: envío, estado) ===== --}}
     <div class="hidden w-full space-y-5 pt-4 peer-checked/pedidos:block">
-        <form method="GET" class="flex flex-wrap gap-2">
-            <select name="status" onchange="this.form.submit()" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+        <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
+            <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por N° o cliente..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+            <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+            <select name="status" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
                 <option value="">Estado del pedido: todos</option>
                 @foreach ($statuses as $value => $label)
                     <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
                 @endforeach
             </select>
-            <select name="payment_status" onchange="this.form.submit()" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+            <select name="payment_status" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
                 <option value="">Estado del pago: todos</option>
                 @foreach ($paymentStatuses as $value => $label)
                     <option value="{{ $value }}" @selected(request('payment_status') === $value)>{{ $label }}</option>
                 @endforeach
+            </select>
+            <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+                <option value="date_desc" @selected($sort === 'date_desc')>Fecha: más reciente</option>
+                <option value="date_asc" @selected($sort === 'date_asc')>Fecha: más antigua</option>
+                <option value="customer_asc" @selected($sort === 'customer_asc')>Cliente A-Z</option>
+                <option value="customer_desc" @selected($sort === 'customer_desc')>Cliente Z-A</option>
+                <option value="total_desc" @selected($sort === 'total_desc')>Total: mayor a menor</option>
+                <option value="total_asc" @selected($sort === 'total_asc')>Total: menor a mayor</option>
             </select>
         </form>
 

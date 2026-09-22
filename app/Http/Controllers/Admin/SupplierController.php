@@ -10,11 +10,21 @@ use Illuminate\View\View;
 
 class SupplierController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $suppliers = Supplier::withCount('products')->orderBy('name')->paginate(15);
+        $search = trim((string) $request->query('search', ''));
+        $sort = $request->query('sort', 'name_asc');
 
-        return view('admin.suppliers.index', compact('suppliers'));
+        $suppliers = Supplier::withCount('products')
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%"));
+            })
+            ->orderBy('name', $sort === 'name_desc' ? 'desc' : 'asc')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.suppliers.index', compact('suppliers', 'search', 'sort'));
     }
 
     public function create(): View
@@ -43,7 +53,7 @@ class SupplierController extends Controller
 
     public function update(Request $request, Supplier $supplier): RedirectResponse
     {
-        $supplier->update($this->validated($request));
+        $supplier->update($this->validated($request, $supplier));
 
         return redirect()->route('admin.suppliers.index')->with('status', 'Proveedor actualizado.');
     }
@@ -74,17 +84,20 @@ class SupplierController extends Controller
         return back()->with('status', 'Compra registrada.');
     }
 
-    private function validated(Request $request): array
+    private function validated(Request $request, ?Supplier $supplier = null): array
     {
         return $request->validate([
-            'name' => ['required', 'string', 'max:150'],
+            'name' => ['required', 'string', 'max:150', 'unique:suppliers,name' . ($supplier ? ",{$supplier->id}" : '')],
             'company' => ['nullable', 'string', 'max:150'],
             'cuit' => ['nullable', 'string', 'max:30', 'regex:/^[0-9-]{6,20}$/'],
             'phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
-            'email' => ['nullable', 'email', 'max:160'],
+            'email' => ['nullable', 'email', 'max:160', 'unique:suppliers,email' . ($supplier ? ",{$supplier->id}" : '')],
             'address' => ['nullable', 'string', 'max:200'],
             'payment_terms' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'name.unique' => 'Ya existe un proveedor con ese nombre.',
+            'email.unique' => 'Ya existe un proveedor con ese correo.',
         ]);
     }
 }

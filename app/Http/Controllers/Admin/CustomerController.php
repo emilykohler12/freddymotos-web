@@ -75,14 +75,17 @@ class CustomerController extends Controller
     private function validated(Request $request, ?Customer $customer = null): array
     {
         return $request->validate([
-            'name' => ['required', 'string', 'max:150'],
+            'name' => ['required', 'string', 'max:150', 'unique:customers,name' . ($customer ? ",{$customer->id}" : '')],
             'phone' => ['required', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
-            'email' => ['nullable', 'email', 'max:160'],
+            'email' => ['nullable', 'email', 'max:160', 'unique:customers,email' . ($customer ? ",{$customer->id}" : '')],
             'dni_cuit' => ['nullable', 'string', 'max:30', 'regex:/^[0-9-]{6,20}$/'],
             'address' => ['nullable', 'string', 'max:200'],
             'city' => ['nullable', 'string', 'max:100'],
             'province' => ['nullable', 'string', 'max:100'],
             'postal_code' => ['nullable', 'string', 'max:20', 'regex:/^[0-9A-Za-z-\s]{3,20}$/'],
+        ], [
+            'name.unique' => 'Ya existe un cliente con ese nombre.',
+            'email.unique' => 'Ya existe un cliente con ese correo.',
         ]);
     }
 }
