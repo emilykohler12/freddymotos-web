@@ -82,13 +82,13 @@ class SiteSetting extends Model
 
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo_path ? Storage::url($this->logo_path) : null;
+        return $this->logo_path ? Storage::disk('public')->url($this->logo_path) : null;
     }
 
     /** Foto real que se muestra en el Hero del Home, o null para el placeholder ilustrado. */
     public function getHeroPhotoUrlAttribute(): ?string
     {
-        return $this->hero_photo_path ? Storage::url($this->hero_photo_path) : null;
+        return $this->hero_photo_path ? Storage::disk('public')->url($this->hero_photo_path) : null;
     }
 
     /** Link directo de WhatsApp con el número configurado. */

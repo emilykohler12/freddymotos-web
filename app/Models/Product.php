@@ -141,7 +141,7 @@ class Product extends Model
     /** URL de la imagen subida por el admin, o null para mostrar el placeholder. */
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image_path ? Storage::url($this->image_path) : null;
+        return $this->image_path ? Storage::disk('public')->url($this->image_path) : null;
     }
 
     /** Precio formateado estilo AR: $ 12.500 */

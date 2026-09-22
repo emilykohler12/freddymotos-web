@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ShippingCompany;
 use App\Models\ShippingZone;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -28,14 +29,14 @@ class OrderController extends Controller
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('id', 'like', "%{$search}%")
-                        ->orWhereHas('customer', fn ($q) => $q->where('name', 'like', "%{$search}%"));
+                        ->orWhereHas('customer', fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']));
                 });
             })
             ->when($date !== '', fn ($q) => $q->whereDate('created_at', $date))
             ->when($sort === 'date_desc', fn ($q) => $q->latest())
             ->when($sort === 'date_asc', fn ($q) => $q->oldest())
-            ->when($sort === 'customer_asc', fn ($q) => $q->orderBy(Customer::select('name')->whereColumn('customers.id', 'orders.customer_id')))
-            ->when($sort === 'customer_desc', fn ($q) => $q->orderByDesc(Customer::select('name')->whereColumn('customers.id', 'orders.customer_id')))
+            ->when($sort === 'customer_asc', fn ($q) => $q->orderBy(Customer::selectRaw(Sorting::foldedName('name'))->whereColumn('customers.id', 'orders.customer_id')))
+            ->when($sort === 'customer_desc', fn ($q) => $q->orderByDesc(Customer::selectRaw(Sorting::foldedName('name'))->whereColumn('customers.id', 'orders.customer_id')))
             ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
             ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
             ->paginate(15)

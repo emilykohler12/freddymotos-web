@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -23,15 +24,15 @@ class ExpenseController extends Controller
         $items = Expense::with('expenseCategory')
             ->where('type', Expense::TYPE_GASTO)
             ->when($frequency, fn ($q) => $q->where('frequency', $frequency))
-            ->when($search !== '', fn ($q) => $q->where('description', 'like', "%{$search}%"))
+            ->when($search !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('description') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']))
             ->orderByDesc('incurred_on')
             ->get();
 
-        $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderBy('name')->get();
+        $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderByRaw(Sorting::foldedName('name'))->get();
 
         $categoryList = $categories
-            ->when($categorySearch !== '', fn ($c) => $c->filter(fn (ExpenseCategory $cat) => str_contains(strtolower($cat->name), strtolower($categorySearch))))
-            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE, $categorySort === 'name_desc')
+            ->when($categorySearch !== '', fn ($c) => $c->filter(fn (ExpenseCategory $cat) => str_contains(Sorting::fold($cat->name), Sorting::fold($categorySearch))))
+            ->sortBy(fn (ExpenseCategory $cat) => Sorting::fold($cat->name), SORT_STRING, $categorySort === 'name_desc')
             ->values();
 
         $groupByCategory = function (Collection $collection) use ($categories) {

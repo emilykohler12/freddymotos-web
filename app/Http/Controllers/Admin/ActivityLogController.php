@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\SupplierPurchase;
 use App\Models\WorkshopInquiry;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,8 +28,8 @@ class ActivityLogController extends Controller
             ->when($logsRead === 'read', fn ($q) => $q->whereNotNull('read_at'))
             ->when($logsSort === 'recent', fn ($q) => $q->latest())
             ->when($logsSort === 'oldest', fn ($q) => $q->oldest())
-            ->when($logsSort === 'text_asc', fn ($q) => $q->orderBy('description'))
-            ->when($logsSort === 'text_desc', fn ($q) => $q->orderByDesc('description'))
+            ->when($logsSort === 'text_asc', fn ($q) => $q->orderByRaw(Sorting::foldedName('description') . ' ASC'))
+            ->when($logsSort === 'text_desc', fn ($q) => $q->orderByRaw(Sorting::foldedName('description') . ' DESC'))
             ->paginate(30)
             ->withQueryString();
 
@@ -41,15 +42,15 @@ class ActivityLogController extends Controller
         $ingresosSearch = trim((string) $request->query('ingresos_search', ''));
         $ingresosSort = $request->query('ingresos_sort', 'recent');
 
-        $ingresoCategories = ExpenseCategory::where('type', Expense::TYPE_INGRESO)->orderBy('name')->get();
+        $ingresoCategories = ExpenseCategory::where('type', Expense::TYPE_INGRESO)->orderByRaw(Sorting::foldedName('name'))->get();
 
         $otrosIngresos = Expense::with('expenseCategory')
             ->where('type', Expense::TYPE_INGRESO)
-            ->when($ingresosSearch !== '', fn ($q) => $q->where('description', 'like', "%{$ingresosSearch}%"))
+            ->when($ingresosSearch !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('description') . ' LIKE ?', ['%' . Sorting::fold($ingresosSearch) . '%']))
             ->when($ingresosSort === 'recent', fn ($q) => $q->orderByDesc('incurred_on'))
             ->when($ingresosSort === 'oldest', fn ($q) => $q->orderBy('incurred_on'))
-            ->when($ingresosSort === 'text_asc', fn ($q) => $q->orderBy('description'))
-            ->when($ingresosSort === 'text_desc', fn ($q) => $q->orderByDesc('description'))
+            ->when($ingresosSort === 'text_asc', fn ($q) => $q->orderByRaw(Sorting::foldedName('description') . ' ASC'))
+            ->when($ingresosSort === 'text_desc', fn ($q) => $q->orderByRaw(Sorting::foldedName('description') . ' DESC'))
             ->when($ingresosSort === 'price_asc', fn ($q) => $q->orderBy('amount'))
             ->when($ingresosSort === 'price_desc', fn ($q) => $q->orderByDesc('amount'))
             ->get();

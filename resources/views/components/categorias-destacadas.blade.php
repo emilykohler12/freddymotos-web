@@ -5,7 +5,7 @@
 
 @php
     $categorias = \App\Models\Category::whereHas('products', fn ($q) => $q->where('active', true)->where('stock', '>', 0))
-        ->orderBy('name')
+        ->orderByRaw(\App\Support\Sorting::foldedName('name'))
         ->take(7)
         ->get();
     $iconoCategoria = 'M20.5 11.5L12 3 3.5 11.5M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9';

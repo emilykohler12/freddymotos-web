@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,12 +16,12 @@ class CustomerController extends Controller
         $customers = Customer::query()
             ->when($request->filled('search'), function ($q) use ($request) {
                 $search = $request->string('search');
-                $q->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
+                $q->where(fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%'])
                     ->orWhere('phone', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%"));
             })
             ->withCount('orders')
-            ->orderBy('name')
+            ->orderByRaw(Sorting::foldedName('name'))
             ->paginate(15)
             ->withQueryString();
 

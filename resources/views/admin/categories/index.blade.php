@@ -22,9 +22,9 @@
 
     {{-- Búsqueda + orden: se mandan solas, sin Enter ni botón --}}
     <form method="GET" action="{{ route('admin.categories.index') }}" data-autosubmit
-          class="mb-6 flex flex-col gap-3 rounded-2xl bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
-        <input type="text" name="search" value="{{ $search }}" placeholder="Buscar categoría..." class="{{ $field }} sm:max-w-xs">
-        <select name="sort" class="{{ $field }} sm:max-w-[10rem]">
+          class="mb-6 flex w-fit flex-col gap-3 rounded-2xl bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Buscar categoría..." class="{{ $field }} sm:w-56">
+        <select name="sort" class="{{ $field }} sm:w-40">
             <option value="name_asc" @selected($sort === 'name_asc')>Nombre A-Z</option>
             <option value="name_desc" @selected($sort === 'name_desc')>Nombre Z-A</option>
         </select>

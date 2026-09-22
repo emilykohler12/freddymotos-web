@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,8 +20,8 @@ class CategoryController extends Controller
 
         $categories = Category::withCount('products')
             ->with('attributes')
-            ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
-            ->orderBy('name', $sort === 'name_desc' ? 'desc' : 'asc')
+            ->when($search !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']))
+            ->orderByRaw(Sorting::foldedName('name') . ($sort === 'name_desc' ? ' DESC' : ' ASC'))
             ->get();
 
         return view('admin.categories.index', compact('categories', 'sort', 'search'));
@@ -29,11 +30,13 @@ class CategoryController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:80', 'unique:categories,name'],
+            'name' => ['required', 'string', 'max:80'],
             'image' => ['nullable', 'image', 'max:2048'],
-        ], [
-            'name.unique' => 'Ya existe una categoría con ese nombre.',
         ]);
+
+        if ($this->duplicateName($data['name'])) {
+            return back()->with('error', 'Ya creaste esa categoría.')->withInput();
+        }
 
         $category = Category::create([
             'name' => $data['name'],
@@ -47,11 +50,13 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:80', 'unique:categories,name,' . $category->id],
+            'name' => ['required', 'string', 'max:80'],
             'image' => ['nullable', 'image', 'max:2048'],
-        ], [
-            'name.unique' => 'Ya existe una categoría con ese nombre.',
         ]);
+
+        if ($this->duplicateName($data['name'], $category->id)) {
+            return back()->with('error', 'Ya creaste esa categoría.')->withInput();
+        }
 
         $update = ['name' => $data['name'], 'slug' => Str::slug($data['name'])];
 
@@ -80,5 +85,21 @@ class CategoryController extends Controller
         $category->delete();
 
         return back()->with('status', 'Categoría eliminada.');
+    }
+
+    /**
+     * Compara ignorando mayúsculas/tildes (ej. "Discos de embrague" y "Discos
+     * de Embrague" son la misma categoría) y también por slug: dos nombres
+     * distintos pueden generar el mismo slug, y ese campo es único en la base,
+     * así que sin este chequeo el guardado explota con un 500 en vez de avisar.
+     */
+    private function duplicateName(string $name, ?int $exceptId = null): bool
+    {
+        return Category::where(function ($q) use ($name) {
+                $q->whereRaw(Sorting::foldedName('name') . ' = ?', [Sorting::fold($name)])
+                    ->orWhere('slug', Str::slug($name));
+            })
+            ->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId))
+            ->exists();
     }
 }

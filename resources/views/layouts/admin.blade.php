@@ -103,7 +103,7 @@
     </main>
 </div>
 
-{{-- Aviso flotante abajo a la derecha, se saca solo a los 20 segundos --}}
+{{-- Aviso flotante abajo a la derecha, se saca solo a los 30 segundos --}}
 @if (session('status') || session('error'))
     @php $isError = (bool) session('error'); @endphp
     <div id="admin-toast" role="status"
@@ -117,7 +117,7 @@
             if (!toast) return;
             toast.style.opacity = '0';
             setTimeout(function () { toast.remove(); }, 300);
-        }, 20000);
+        }, 30000);
     </script>
 @endif
 

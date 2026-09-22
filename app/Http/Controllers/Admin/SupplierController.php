@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Supplier;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -17,10 +18,10 @@ class SupplierController extends Controller
 
         $suppliers = Supplier::withCount('products')
             ->when($search !== '', function ($q) use ($search) {
-                $q->where(fn ($q) => $q->where('name', 'like', "%{$search}%")
+                $q->where(fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%'])
                     ->orWhere('email', 'like', "%{$search}%"));
             })
-            ->orderBy('name', $sort === 'name_desc' ? 'desc' : 'asc')
+            ->orderByRaw(Sorting::foldedName('name') . ($sort === 'name_desc' ? ' DESC' : ' ASC'))
             ->paginate(15)
             ->withQueryString();
 

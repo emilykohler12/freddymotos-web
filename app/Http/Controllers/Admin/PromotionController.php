@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Promotion;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,12 +21,12 @@ class PromotionController extends Controller
         $type = $request->query('type', '');
 
         $promotions = Promotion::with(['category', 'products'])
-            ->when($search !== '', fn ($q) => $q->where('title', 'like', "%{$search}%"))
+            ->when($search !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('title') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']))
             ->when($status === 'active', fn ($q) => $q->where('active', true))
             ->when($status === 'inactive', fn ($q) => $q->where('active', false))
             ->when($type !== '', fn ($q) => $q->where('type', $type))
-            ->when($sort === 'title_asc', fn ($q) => $q->orderBy('title'))
-            ->when($sort === 'title_desc', fn ($q) => $q->orderByDesc('title'))
+            ->when($sort === 'title_asc', fn ($q) => $q->orderByRaw(Sorting::foldedName('title') . ' ASC'))
+            ->when($sort === 'title_desc', fn ($q) => $q->orderByRaw(Sorting::foldedName('title') . ' DESC'))
             ->when($sort === 'recent', fn ($q) => $q->latest())
             ->get();
 

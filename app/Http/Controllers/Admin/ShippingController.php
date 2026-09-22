@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ShippingCompany;
 use App\Models\ShippingZone;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,18 +17,20 @@ class ShippingController extends Controller
         $search = trim((string) $request->query('search', ''));
         $sort = $request->query('sort', 'name_asc');
 
-        $sortColumn = str_starts_with($sort, 'price') ? 'price' : 'name';
+        $sortByPrice = str_starts_with($sort, 'price');
         $sortDirection = str_ends_with($sort, 'desc') ? 'desc' : 'asc';
 
+        $applySort = fn ($q) => $sortByPrice
+            ? $q->orderBy('price', $sortDirection)
+            : $q->orderByRaw(Sorting::foldedName('name') . ' ' . strtoupper($sortDirection));
+
         return view('admin.shipping.index', [
-            'zones' => ShippingZone::with('company')
-                ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
-                ->orderBy($sortColumn, $sortDirection)
-                ->get(),
-            'companies' => ShippingCompany::query()
-                ->when($search !== '', fn ($q) => $q->where('name', 'like', "%{$search}%"))
-                ->orderBy($sortColumn, $sortDirection)
-                ->get(),
+            'zones' => $applySort(ShippingZone::with('company')
+                ->when($search !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']))
+            )->get(),
+            'companies' => $applySort(ShippingCompany::query()
+                ->when($search !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']))
+            )->get(),
             'search' => $search,
             'sort' => $sort,
         ]);

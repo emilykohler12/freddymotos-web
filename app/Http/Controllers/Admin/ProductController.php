@@ -8,6 +8,7 @@ use App\Models\CategoryAttribute;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
 use App\Models\Supplier;
+use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -26,15 +27,24 @@ class ProductController extends Controller
         'brand' => ['brand', 'asc'],
     ];
 
+    /** Columnas de texto: se ordenan ignorando mayúsculas/tildes. El resto (precio, stock) va tal cual. */
+    private const FOLDED_COLUMNS = ['name', 'category', 'brand'];
+
     public function index(Request $request): View
     {
         $sort = $request->string('sort')->toString();
         [$column, $direction] = self::SORTS[$sort] ?? self::SORTS['name_asc'];
 
         $products = Product::query()
-            ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%' . $request->string('search') . '%'))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($request->string('search')) . '%']);
+            })
             ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
-            ->orderBy($column, $direction)
+            ->when(
+                in_array($column, self::FOLDED_COLUMNS, true),
+                fn ($q) => $q->orderByRaw(Sorting::foldedName($column) . ' ' . strtoupper($direction)),
+                fn ($q) => $q->orderBy($column, $direction)
+            )
             ->paginate(15)
             ->withQueryString();
 
