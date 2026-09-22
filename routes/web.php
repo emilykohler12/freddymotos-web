@@ -153,6 +153,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /* Movimientos / actividad */
         Route::get('movimientos', [AdminActivityLogController::class, 'index'])->name('activity.index');
+        Route::post('movimientos/notificaciones/{log}/leida', [AdminActivityLogController::class, 'toggleRead'])->name('activity.logs.toggle-read');
         Route::post('movimientos/inventario', [AdminStockMovementController::class, 'store'])->name('stock-movements.store');
         Route::post('movimientos/consultas/{inquiry}/atendida', [AdminInquiryController::class, 'toggle'])->name('inquiries.toggle');
         Route::delete('movimientos/consultas/{inquiry}', [AdminInquiryController::class, 'destroy'])->name('inquiries.destroy');

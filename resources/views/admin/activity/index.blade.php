@@ -186,22 +186,48 @@
                     </div>
                 @endif
 
+                <form method="GET" data-autosubmit class="flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="tab" value="notificaciones">
+                    <select name="logs_read" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs">
+                        <option value="" @selected($logsRead === '')>Todas</option>
+                        <option value="unread" @selected($logsRead === 'unread')>No leídas</option>
+                        <option value="read" @selected($logsRead === 'read')>Leídas</option>
+                    </select>
+                    <select name="logs_sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs">
+                        <option value="recent" @selected($logsSort === 'recent')>Más recientes</option>
+                        <option value="oldest" @selected($logsSort === 'oldest')>Más antiguas</option>
+                        <option value="text_asc" @selected($logsSort === 'text_asc')>A-Z</option>
+                        <option value="text_desc" @selected($logsSort === 'text_desc')>Z-A</option>
+                    </select>
+                </form>
+
                 <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
                     @if ($logs->isEmpty())
                         <p class="px-5 py-10 text-center text-sm text-marca-gris-oscuro">Todavía no hay compras registradas.</p>
                     @else
                         <ul class="divide-y divide-marca-gris-claro">
                             @foreach ($logs as $log)
-                                <li class="flex items-start gap-4 px-5 py-4">
+                                <li class="flex items-start gap-4 px-5 py-4 {{ $log->read_at ? '' : 'bg-marca-amarillo/5' }}">
                                     <span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-marca-gris-claro text-xs font-bold uppercase text-marca-gris-oscuro">
                                         {{ Str::substr($log->type, 0, 1) }}
                                     </span>
                                     <div class="flex-1">
-                                        <p class="text-sm font-medium text-marca-negro">{{ $log->description }}</p>
+                                        <p class="text-sm {{ $log->read_at ? 'font-medium' : 'font-bold' }} text-marca-negro">
+                                            @unless ($log->read_at)
+                                                <span class="mr-1 inline-block h-2 w-2 rounded-full bg-marca-rojo align-middle"></span>
+                                            @endunless
+                                            {{ $log->description }}
+                                        </p>
                                         <p class="mt-0.5 text-xs text-marca-gris-oscuro">
                                             {{ $log->user->name ?? 'Sistema' }} · {{ $log->created_at->diffForHumans() }}
                                         </p>
                                     </div>
+                                    <form method="POST" action="{{ route('admin.activity.logs.toggle-read', $log) }}" class="shrink-0">
+                                        @csrf
+                                        <button type="submit" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">
+                                            {{ $log->read_at ? 'Marcar no leída' : 'Marcar leída' }}
+                                        </button>
+                                    </form>
                                 </li>
                             @endforeach
                         </ul>
@@ -290,16 +316,55 @@
     <div class="hidden w-full pt-4 peer-checked/ingresos:block">
         <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
             <div class="space-y-4 lg:col-span-2">
-                <h2 class="text-sm font-bold text-marca-negro">Registros de otros ingresos</h2>
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h2 class="text-sm font-bold text-marca-negro">Registros de otros ingresos</h2>
+                    <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
+                        <input type="hidden" name="tab" value="ingresos">
+                        <input type="text" name="ingresos_search" value="{{ $ingresosSearch }}" placeholder="Buscar..." class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs focus:border-marca-amarillo focus:outline-none">
+                        <select name="ingresos_sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs">
+                            <option value="recent" @selected($ingresosSort === 'recent')>Fecha: más reciente</option>
+                            <option value="oldest" @selected($ingresosSort === 'oldest')>Fecha: más antigua</option>
+                            <option value="text_asc" @selected($ingresosSort === 'text_asc')>A-Z</option>
+                            <option value="text_desc" @selected($ingresosSort === 'text_desc')>Z-A</option>
+                            <option value="price_asc" @selected($ingresosSort === 'price_asc')>Monto: menor a mayor</option>
+                            <option value="price_desc" @selected($ingresosSort === 'price_desc')>Monto: mayor a menor</option>
+                        </select>
+                    </form>
+                </div>
+
                 @if ($otrosIngresos->isEmpty())
                     <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                        Todavía no hay otros ingresos registrados.
+                        @if ($ingresosSearch !== '')
+                            No hay ingresos que coincidan con "{{ $ingresosSearch }}".
+                        @else
+                            Todavía no hay otros ingresos registrados.
+                        @endif
                     </p>
                 @else
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        @foreach ($otrosIngresos as $item)
-                            @include('admin.expenses._card', ['item' => $item, 'categories' => $ingresoCategories, 'activeTab' => 'ingresos'])
+                    <div class="space-y-6">
+                        @foreach ($otrosIngresosByCategory as $group)
+                            @if ($group['items']->isNotEmpty())
+                                <div>
+                                    <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-marca-gris-oscuro">{{ $group['category']->name }}</h3>
+                                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                        @foreach ($group['items'] as $item)
+                                            @include('admin.expenses._card', ['item' => $item, 'categories' => $ingresoCategories, 'activeTab' => 'ingresos'])
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         @endforeach
+
+                        @if ($otrosIngresosWithoutCategory->isNotEmpty())
+                            <div>
+                                <h3 class="mb-3 text-xs font-bold uppercase tracking-wide text-marca-gris-oscuro">Sin categoría</h3>
+                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    @foreach ($otrosIngresosWithoutCategory as $item)
+                                        @include('admin.expenses._card', ['item' => $item, 'categories' => $ingresoCategories, 'activeTab' => 'ingresos'])
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endif
             </div>

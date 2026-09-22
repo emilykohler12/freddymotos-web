@@ -16,14 +16,23 @@ class ExpenseController extends Controller
     {
         // Esta pantalla es solo de Gastos. "Otros ingresos" se registra desde Movimientos.
         $frequency = $request->string('frequency')->toString();
+        $search = trim((string) $request->query('search', ''));
+        $categorySearch = trim((string) $request->query('category_search', ''));
+        $categorySort = $request->query('category_sort', 'name_asc');
 
         $items = Expense::with('expenseCategory')
             ->where('type', Expense::TYPE_GASTO)
             ->when($frequency, fn ($q) => $q->where('frequency', $frequency))
+            ->when($search !== '', fn ($q) => $q->where('description', 'like', "%{$search}%"))
             ->orderByDesc('incurred_on')
             ->get();
 
         $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderBy('name')->get();
+
+        $categoryList = $categories
+            ->when($categorySearch !== '', fn ($c) => $c->filter(fn (ExpenseCategory $cat) => str_contains(strtolower($cat->name), strtolower($categorySearch))))
+            ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE, $categorySort === 'name_desc')
+            ->values();
 
         $groupByCategory = function (Collection $collection) use ($categories) {
             return $categories->map(fn (ExpenseCategory $category) => [
@@ -48,8 +57,12 @@ class ExpenseController extends Controller
             'paidWithoutCategory' => $paid->whereNull('expense_category_id')->values(),
             'totalThisMonth' => $totalThisMonth,
             'categories' => $categories,
+            'categoryList' => $categoryList,
+            'categorySearch' => $categorySearch,
+            'categorySort' => $categorySort,
             'frequencies' => Expense::FREQUENCIES,
             'frequency' => $frequency,
+            'search' => $search,
         ]);
     }
 

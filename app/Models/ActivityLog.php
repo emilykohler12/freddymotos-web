@@ -13,7 +13,13 @@ class ActivityLog extends Model
         'description',
         'subject_type',
         'subject_id',
+        'read_at',
     ];
+
+    protected function casts(): array
+    {
+        return ['read_at' => 'datetime'];
+    }
 
     public function user(): BelongsTo
     {

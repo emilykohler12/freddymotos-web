@@ -29,9 +29,17 @@
             </p>
             <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
                 <div class="lg:col-span-2">
+                    <form method="GET" data-autosubmit class="mb-4">
+                        <input type="hidden" name="tab" value="categorias">
+                        <input type="text" name="category_search" value="{{ $categorySearch }}" placeholder="Buscar categoría..." class="{{ $field }}">
+                    </form>
                     @if ($categories->isEmpty())
                         <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                            Todavía no hay categorías de taller.
+                            @if ($categorySearch !== '')
+                                No hay categorías que coincidan con "{{ $categorySearch }}".
+                            @else
+                                Todavía no hay categorías de taller.
+                            @endif
                         </p>
                     @else
                         <ul class="divide-y divide-marca-gris-claro rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
@@ -75,9 +83,17 @@
         <div class="hidden w-full pt-4 peer-checked/mecanicos:block">
             <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
                 <div class="space-y-4 lg:col-span-2">
+                    <form method="GET" data-autosubmit>
+                        <input type="hidden" name="tab" value="mecanicos">
+                        <input type="text" name="mechanic_search" value="{{ $mechanicSearch }}" placeholder="Buscar mecánico..." class="{{ $field }}">
+                    </form>
                     @if ($mechanics->isEmpty())
                         <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                            Todavía no hay mecánicos cargados.
+                            @if ($mechanicSearch !== '')
+                                No hay mecánicos que coincidan con "{{ $mechanicSearch }}".
+                            @else
+                                Todavía no hay mecánicos cargados.
+                            @endif
                         </p>
                     @else
                         @foreach ($mechanics as $mechanic)
@@ -169,14 +185,14 @@
                         </form>
                     </div>
 
-                    @if ($mechanics->isNotEmpty())
+                    @if ($allMechanics->isNotEmpty())
                         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                             <h2 class="mb-3 text-sm font-bold text-marca-negro">Registrar trabajo</h2>
                             <form method="POST" action="{{ route('admin.mechanic-jobs.store') }}" class="space-y-3">
                                 @csrf
                                 <select name="mechanic_id" required class="{{ $field }}">
                                     <option value="">Mecánico…</option>
-                                    @foreach ($mechanics as $mechanic)
+                                    @foreach ($allMechanics as $mechanic)
                                         <option value="{{ $mechanic->id }}">{{ $mechanic->name }}</option>
                                     @endforeach
                                 </select>

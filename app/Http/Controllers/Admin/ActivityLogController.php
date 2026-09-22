@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\SupplierPurchase;
 use App\Models\WorkshopInquiry;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -18,7 +19,18 @@ class ActivityLogController extends Controller
 {
     public function index(Request $request): View
     {
-        $logs = ActivityLog::with('user')->latest()->paginate(30);
+        $logsRead = $request->query('logs_read', '');
+        $logsSort = $request->query('logs_sort', 'recent');
+
+        $logs = ActivityLog::with('user')
+            ->when($logsRead === 'unread', fn ($q) => $q->whereNull('read_at'))
+            ->when($logsRead === 'read', fn ($q) => $q->whereNotNull('read_at'))
+            ->when($logsSort === 'recent', fn ($q) => $q->latest())
+            ->when($logsSort === 'oldest', fn ($q) => $q->oldest())
+            ->when($logsSort === 'text_asc', fn ($q) => $q->orderBy('description'))
+            ->when($logsSort === 'text_desc', fn ($q) => $q->orderByDesc('description'))
+            ->paginate(30)
+            ->withQueryString();
 
         $openOrders = Order::with('customer')
             ->whereNotIn('status', [Order::STATUS_ENTREGADO, Order::STATUS_CANCELADO])
@@ -26,9 +38,27 @@ class ActivityLogController extends Controller
             ->take(20)
             ->get();
 
+        $ingresosSearch = trim((string) $request->query('ingresos_search', ''));
+        $ingresosSort = $request->query('ingresos_sort', 'recent');
+
+        $ingresoCategories = ExpenseCategory::where('type', Expense::TYPE_INGRESO)->orderBy('name')->get();
+
+        $otrosIngresos = Expense::with('expenseCategory')
+            ->where('type', Expense::TYPE_INGRESO)
+            ->when($ingresosSearch !== '', fn ($q) => $q->where('description', 'like', "%{$ingresosSearch}%"))
+            ->when($ingresosSort === 'recent', fn ($q) => $q->orderByDesc('incurred_on'))
+            ->when($ingresosSort === 'oldest', fn ($q) => $q->orderBy('incurred_on'))
+            ->when($ingresosSort === 'text_asc', fn ($q) => $q->orderBy('description'))
+            ->when($ingresosSort === 'text_desc', fn ($q) => $q->orderByDesc('description'))
+            ->when($ingresosSort === 'price_asc', fn ($q) => $q->orderBy('amount'))
+            ->when($ingresosSort === 'price_desc', fn ($q) => $q->orderByDesc('amount'))
+            ->get();
+
         return view('admin.activity.index', [
             'activeTab' => $request->string('tab', 'notificaciones')->toString(),
             'logs' => $logs,
+            'logsRead' => $logsRead,
+            'logsSort' => $logsSort,
             'whatsappOrders' => $openOrders->where('origin', Order::ORIGIN_WHATSAPP)->values(),
             'webOrders' => $openOrders->where('origin', Order::ORIGIN_WEB)->values(),
             'orderStatuses' => [
@@ -44,12 +74,26 @@ class ActivityLogController extends Controller
             'pendingSupplierPayments' => $this->pendingSupplierPayments(),
             'pendingRefunds' => $this->pendingRefunds(),
             'dueExpenses' => Expense::due(),
-            'ingresoCategories' => ExpenseCategory::where('type', Expense::TYPE_INGRESO)->orderBy('name')->get(),
-            'otrosIngresos' => Expense::with('expenseCategory')->where('type', Expense::TYPE_INGRESO)->orderByDesc('incurred_on')->get(),
+            'ingresoCategories' => $ingresoCategories,
+            'otrosIngresos' => $otrosIngresos,
+            'otrosIngresosByCategory' => $ingresoCategories->map(fn (ExpenseCategory $category) => [
+                'category' => $category,
+                'items' => $otrosIngresos->where('expense_category_id', $category->id)->values(),
+            ]),
+            'otrosIngresosWithoutCategory' => $otrosIngresos->whereNull('expense_category_id')->values(),
+            'ingresosSearch' => $ingresosSearch,
+            'ingresosSort' => $ingresosSort,
             'inventoryProducts' => Product::orderBy('name')->get(['id', 'name', 'stock']),
             'stockReasons' => StockMovement::REASONS,
             'stockMovements' => StockMovement::with(['product', 'user'])->latest()->take(20)->get(),
         ]);
+    }
+
+    public function toggleRead(ActivityLog $log): RedirectResponse
+    {
+        $log->update(['read_at' => $log->read_at ? null : now()]);
+
+        return back();
     }
 
     /** Compras a proveedores con saldo pendiente de pago (deuda > 0). */

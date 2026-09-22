@@ -42,9 +42,19 @@
         <div class="hidden w-full pt-4 peer-checked/categoria:block">
             <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
                 <div class="lg:col-span-2">
-                    <h2 class="mb-3 text-sm font-bold text-marca-negro">Categorías existentes</h2>
+                    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h2 class="text-sm font-bold text-marca-negro">Categorías existentes</h2>
+                        <form method="GET" data-autosubmit class="flex gap-2">
+                            <input type="hidden" name="tab" value="categoria">
+                            <input type="text" name="category_search" value="{{ $categorySearch }}" placeholder="Buscar..." class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs focus:border-marca-amarillo focus:outline-none">
+                            <select name="category_sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs">
+                                <option value="name_asc" @selected($categorySort === 'name_asc')>A-Z</option>
+                                <option value="name_desc" @selected($categorySort === 'name_desc')>Z-A</option>
+                            </select>
+                        </form>
+                    </div>
                     <ul class="divide-y divide-marca-gris-claro rounded-2xl bg-marca-blanco px-5 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                        @forelse ($categories as $category)
+                        @forelse ($categoryList as $category)
                             <li class="flex items-center justify-between py-3">
                                 <span class="text-marca-negro">{{ $category->name }}</span>
                                 <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
@@ -54,7 +64,9 @@
                                 </form>
                             </li>
                         @empty
-                            <li class="py-6 text-center text-marca-gris-oscuro">Sin categorías todavía.</li>
+                            <li class="py-6 text-center text-marca-gris-oscuro">
+                                {{ $categorySearch !== '' ? 'No hay categorías que coincidan con "'.$categorySearch.'".' : 'Sin categorías todavía.' }}
+                            </li>
                         @endforelse
                     </ul>
                 </div>
@@ -103,10 +115,11 @@
                 <div class="space-y-4 lg:col-span-2">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <h2 class="text-sm font-bold text-marca-negro">Registro de gastos</h2>
-                        <form method="GET" class="flex items-center gap-2">
+                        <form method="GET" data-autosubmit class="flex flex-wrap items-center gap-2">
                             <input type="hidden" name="tab" value="nuevo-gasto">
+                            <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por descripción..." class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs focus:border-marca-amarillo focus:outline-none">
                             <label for="frequency" class="text-xs text-marca-gris-oscuro">Frecuencia:</label>
-                            <select id="frequency" name="frequency" onchange="this.form.submit()" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs">
+                            <select id="frequency" name="frequency" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs">
                                 <option value="">Todas</option>
                                 @foreach ($frequencies as $value => $label)
                                     <option value="{{ $value }}" @selected($frequency === $value)>{{ $label }}</option>
