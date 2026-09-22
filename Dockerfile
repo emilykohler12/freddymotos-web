@@ -33,6 +33,11 @@ RUN composer dump-autoload --optimize \
 
 EXPOSE 10000
 
+# php artisan serve (por dentro es el server embebido de PHP) atiende una sola
+# petición a la vez por defecto: si una se traba, frena todo el sitio. Con esto
+# levanta varios procesos en paralelo.
+ENV PHP_CLI_SERVER_WORKERS=4
+
 # Corre las migraciones (Postgres en Render) y levanta el server de Laravel en el puerto que da Render.
 # Si migrate falla, el contenedor corta acá y se ve el error real en los logs (antes quedaba tapado).
 CMD ["./start.sh"]
