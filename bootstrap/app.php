@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
+
+        // Render (como casi todo PaaS) descifra el HTTPS en su proxy y le manda la
+        // petición al contenedor en HTTP simple. Sin esto, Laravel no se entera de
+        // que en realidad es HTTPS y genera todos los links (CSS, JS, forms) como
+        // http://, que el navegador bloquea por "contenido mixto" en una página https.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
