@@ -1,0 +1,89 @@
+{
+  "version": "1.0.0",
+  "agents": [
+    {
+      "id": "laravel-appointment-controller",
+      "name": "Laravel Appointment Controller Optimization",
+      "description": "Evolve appointment handling in Laravel controllers for reliability and speed",
+      "target": "app/Http/Controllers/AppointmentController.php",
+      "genes": [
+        {
+          "name": "queryOptimization",
+          "type": "enum",
+          "values": ["none", "eager-loading", "caching", "both"],
+          "current": "none",
+          "reason": "Reduce database queries via eager loading and caching"
+        },
+        {
+          "name": "concurrencyMode",
+          "type": "enum",
+          "values": ["sequential", "parallel", "queue-based"],
+          "current": "sequential",
+          "reason": "Optimize for high-traffic scenarios"
+        },
+        {
+          "name": "cacheLifetime",
+          "type": "number",
+          "range": [0, 3600],
+          "current": 0,
+          "reason": "Cache appointment data (in seconds)"
+        },
+        {
+          "name": "validationStrategy",
+          "type": "enum",
+          "values": ["model-level", "form-request", "combined"],
+          "current": "model-level",
+          "reason": "Clarify where validation happens"
+        },
+        {
+          "name": "errorHandlingVerbosity",
+          "type": "enum",
+          "values": ["silent", "logged", "detailed"],
+          "current": "logged",
+          "reason": "Balance debugging info with production cleanliness"
+        }
+      ],
+      "capsules": [
+        {
+          "name": "api-response-time",
+          "test": "php artisan test --filter=AppointmentControllerTest",
+          "metric": "response_time_ms",
+          "target": "< 500",
+          "weight": 0.4,
+          "description": "API endpoints must respond in < 500ms"
+        },
+        {
+          "name": "test-pass-rate",
+          "test": "php artisan test --filter=AppointmentControllerTest",
+          "metric": "pass_rate",
+          "target": "> 100%",
+          "weight": 0.35,
+          "description": "All tests must pass"
+        },
+        {
+          "name": "database-queries",
+          "test": "php artisan test --filter=QueryCountTest",
+          "metric": "query_count",
+          "target": "< 5",
+          "weight": 0.15,
+          "description": "Keep queries per request under 5 (N+1 prevention)"
+        },
+        {
+          "name": "code-quality",
+          "test": "vendor/bin/phpstan analyse app/Http/Controllers/AppointmentController.php",
+          "metric": "errors",
+          "target": "= 0",
+          "weight": 0.1,
+          "description": "No static analysis errors"
+        }
+      ],
+      "iterations": {
+        "max": 18,
+        "populationSize": 7,
+        "mutationRate": 0.35,
+        "elitismRate": 0.2,
+        "strategy": "genetic-algorithm"
+      }
+    }
+  ]
+}
