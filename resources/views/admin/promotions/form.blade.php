@@ -76,8 +76,7 @@
                     </div>
                 </div>
                 <p class="mt-2 text-xs text-marca-gris-oscuro">
-                    Usá "Valor" si el tipo es Porcentaje o Monto fijo. Usá "Paga" / "Lleva" si el tipo es Cantidad x cantidad
-                    (ej. 2x1: paga 2, lleva 1 gratis más — o cargalo como te resulte más claro para tu promo).
+                    Usá "Valor" si el tipo es Porcentaje o Monto fijo. Usá "Paga" / "Lleva" si el tipo es Cantidad x cantidad (ej. 2x1).
                 </p>
             </div>
 

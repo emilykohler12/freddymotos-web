@@ -39,7 +39,6 @@ class ProductController extends Controller
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($request->string('search')) . '%']);
             })
-            ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
             ->when(
                 in_array($column, self::FOLDED_COLUMNS, true),
                 fn ($q) => $q->orderByRaw(Sorting::foldedName($column) . ' ' . strtoupper($direction)),
@@ -50,7 +49,7 @@ class ProductController extends Controller
 
         return view('admin.products.index', [
             'products' => $products,
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::orderByRaw(Sorting::foldedName('name'))->get(),
             'sort' => $sort ?: 'name_asc',
             'search' => $request->string('search')->toString(),
         ]);
@@ -60,7 +59,7 @@ class ProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => new Product(),
-            'categories' => Category::with('attributes')->orderBy('name')->get(),
+            'categories' => Category::with('attributes')->orderByRaw(Sorting::foldedName('name'))->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'attributeValues' => collect(),
         ]);
@@ -88,7 +87,7 @@ class ProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => $product,
-            'categories' => Category::with('attributes')->orderBy('name')->get(),
+            'categories' => Category::with('attributes')->orderByRaw(Sorting::foldedName('name'))->get(),
             'suppliers' => Supplier::orderBy('name')->get(),
             'attributeValues' => $product->attributeValues->pluck('value', 'category_attribute_id'),
         ]);

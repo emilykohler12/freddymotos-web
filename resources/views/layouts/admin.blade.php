@@ -15,7 +15,7 @@
 @php
     $nav = [
         ['label' => 'Dashboard',     'route' => 'admin.dashboard',     'active' => 'admin.dashboard',   'icon' => 'M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z'],
-        ['label' => 'Productos',      'route' => 'admin.products.index', 'active' => 'admin.products.*', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+        ['label' => 'Repuestos',      'route' => 'admin.products.index', 'active' => 'admin.products.*', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
         ['label' => 'Categorías',     'route' => 'admin.categories.index', 'active' => 'admin.categories.*', 'icon' => 'M4 6h16M4 12h16M4 18h10'],
         ['label' => 'Promociones',    'route' => 'admin.promotions.index', 'active' => 'admin.promotions.*', 'icon' => 'M7 7h.01M3 11l8-8h6a2 2 0 012 2v6l-8 8a2 2 0 01-2.83 0l-5.17-5.17A2 2 0 013 11z'],
         ['label' => 'Pedidos',        'route' => 'admin.orders.index',  'active' => 'admin.orders.*',    'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z'],
@@ -81,6 +81,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </label>
+            <button onclick="history.back()" class="rounded-lg p-2 text-marca-gris-oscuro hover:bg-marca-gris-claro hover:text-marca-negro transition" aria-label="Retroceder" title="Retroceder">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
             <h1 class="text-base font-bold text-marca-negro sm:text-lg">@yield('page-heading', 'Panel')</h1>
         </div>
 

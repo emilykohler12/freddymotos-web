@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', $product->exists ? 'Editar producto' : 'Nuevo producto')
-@section('page-heading', $product->exists ? 'Editar producto' : 'Nuevo producto')
+@section('title', $product->exists ? 'Editar repuesto' : 'Nuevo repuesto')
+@section('page-heading', $product->exists ? 'Editar repuesto' : 'Nuevo repuesto')
 
 @section('content')
     @php
@@ -78,13 +78,14 @@
 
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
-                    <label for="category_id" class="{{ $lbl }}">Categoría</label>
-                    <select id="category_id" name="category_id" required class="{{ $field }}">
-                        <option value="">Elegir…</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}" @selected(old('category_id', $product->category_id) == $category->id)>{{ $category->name }}</option>
-                        @endforeach
-                    </select>
+                    <label for="category_input" class="{{ $lbl }}">Categoría</label>
+                    <input type="text" id="category_input" placeholder="Buscar o escribir…" autocomplete="off"
+                           class="{{ $field }}" data-category-search>
+                    <input type="hidden" id="category_id" name="category_id" required
+                           value="{{ old('category_id', $product->category_id) }}">
+                    <div class="absolute z-10 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 bg-marca-blanco shadow-md"
+                         data-category-dropdown style="display: none; position: absolute;">
+                    </div>
                 </div>
                 <div>
                     <label for="supplier_id" class="{{ $lbl }}">Proveedor</label>
@@ -97,6 +98,63 @@
                 </div>
             </div>
 
+            <script>
+                (function () {
+                    var categories = @json($categories->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values());
+                    var input = document.getElementById('category_input');
+                    var hiddenInput = document.getElementById('category_id');
+                    var dropdown = document.querySelector('[data-category-dropdown]');
+                    var currentSelected = parseInt(hiddenInput.value) || null;
+
+                    function updateDropdown() {
+                        var query = input.value.toLowerCase();
+                        var filtered = categories.filter(function (cat) {
+                            return cat.name.toLowerCase().includes(query);
+                        });
+
+                        dropdown.innerHTML = '';
+
+                        if (filtered.length === 0) {
+                            dropdown.style.display = 'none';
+                            return;
+                        }
+
+                        filtered.forEach(function (cat) {
+                            var option = document.createElement('div');
+                            option.className = 'px-3 py-2 cursor-pointer hover:bg-marca-amarillo/20 text-sm';
+                            option.textContent = cat.name;
+                            option.addEventListener('click', function () {
+                                input.value = cat.name;
+                                hiddenInput.value = cat.id;
+                                currentSelected = cat.id;
+                                dropdown.style.display = 'none';
+                            });
+                            dropdown.appendChild(option);
+                        });
+
+                        dropdown.style.display = 'block';
+                    }
+
+                    function setDisplayValue() {
+                        if (currentSelected) {
+                            var selected = categories.find(function (c) { return c.id === currentSelected; });
+                            if (selected) input.value = selected.name;
+                        }
+                    }
+
+                    input.addEventListener('focus', updateDropdown);
+                    input.addEventListener('input', updateDropdown);
+
+                    document.addEventListener('click', function (e) {
+                        if (e.target !== input && e.target !== dropdown && !dropdown.contains(e.target)) {
+                            dropdown.style.display = 'none';
+                        }
+                    });
+
+                    setDisplayValue();
+                })();
+            </script>
+
             <div>
                 <label for="compatible_model" class="{{ $lbl }}">Modelo de moto compatible <span class="normal-case text-marca-gris-oscuro/50">(uno por línea — se muestran como items)</span></label>
                 <textarea id="compatible_model" name="compatible_model" rows="3" placeholder="Ej: Honda CB 250 Twister&#10;Honda XR 250&#10;Yamaha YBR 125" class="{{ $field }}">{{ old('compatible_model', $product->compatible_model) }}</textarea>
@@ -105,7 +163,7 @@
             {{-- Detalles de la categoría (ej: Colores en Cascos, Medidas en Neumáticos). Se muestran solo los de la categoría elegida. --}}
             @if ($categories->pluck('attributes')->flatten()->isNotEmpty())
                 <div data-category-attributes-wrapper>
-                    <p class="{{ $lbl }}">Detalles de la categoría <span class="normal-case text-marca-gris-oscuro/50">(se completan solo los que apliquen; el resto no se muestra en el producto)</span></p>
+                    <p class="{{ $lbl }}">Detalles de la categoría</p>
                     <div class="grid grid-cols-1 gap-4 rounded-xl bg-marca-gris-claro p-4 sm:grid-cols-2">
                         @forelse ($categories as $category)
                             @if ($category->attributes->isNotEmpty())
@@ -176,7 +234,7 @@
 
             <div class="flex items-center gap-3 border-t border-marca-gris-claro pt-5">
                 <button type="submit" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                    {{ $product->exists ? 'Guardar cambios' : 'Crear producto' }}
+                    {{ $product->exists ? 'Guardar cambios' : 'Crear repuesto' }}
                 </button>
                 <a href="{{ route('admin.products.index') }}" class="text-sm font-semibold text-marca-gris-oscuro transition hover:text-marca-rojo">Cancelar</a>
             </div>
