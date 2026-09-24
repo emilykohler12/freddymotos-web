@@ -267,7 +267,6 @@
                                 @endif
                             @endforeach
                         </div>
-                        <p class="mt-1 text-xs text-marca-gris-oscuro">Compra suma stock. Venta lo resta (para ventas que no pasaron por la web).</p>
                     </div>
 
                     <div>

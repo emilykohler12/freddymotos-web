@@ -12,8 +12,8 @@ class StockMovement extends Model
     public const REASON_AJUSTE = 'ajuste';
 
     public const REASONS = [
-        self::REASON_COMPRA => 'Compra',
-        self::REASON_VENTA_LOCAL => 'Venta',
+        self::REASON_COMPRA => 'Suma',
+        self::REASON_VENTA_LOCAL => 'Resta',
         self::REASON_AJUSTE => 'Ajuste',
     ];
 

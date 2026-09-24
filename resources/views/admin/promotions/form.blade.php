@@ -166,12 +166,10 @@
                     buyInput.value = parts[1];
                     payInput.value = parts[2];
                     valueInput.value = '';
-                    if (!titleInput.value) titleInput.value = parts[1] + 'x' + parts[2];
                 } else {
                     valueInput.value = parts[1];
                     buyInput.value = '';
                     payInput.value = '';
-                    if (!titleInput.value) titleInput.value = parts[1] + '% OFF';
                 }
             });
         })();
