@@ -55,32 +55,30 @@
                     </div>
                     <ul class="divide-y divide-marca-gris-claro rounded-2xl bg-marca-blanco text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5">
                         @forelse ($categoryList as $category)
-                            @if ($category->parent_id === null)
-                                <li class="px-5 py-3">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-medium text-marca-negro">{{ $category->name }}</span>
-                                        <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
-                                            @csrf @method('DELETE')
-                                            <input type="hidden" name="type" value="gasto">
-                                            <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
-                                        </form>
-                                    </div>
-                                    @if ($category->children->isNotEmpty())
-                                        <ul class="mt-2 space-y-1">
-                                            @foreach ($category->children as $child)
-                                                <li class="flex items-center justify-between rounded-lg bg-marca-gris-claro py-2 px-3 text-xs">
-                                                    <span class="text-marca-gris-oscuro">→ {{ $child->name }}</span>
-                                                    <form method="POST" action="{{ route('admin.expense-categories.destroy', $child) }}" data-confirm="¿Eliminar {{ $child->name }}?" class="inline-flex">
-                                                        @csrf @method('DELETE')
-                                                        <input type="hidden" name="type" value="gasto">
-                                                        <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
-                                                    </form>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
-                                </li>
-                            @endif
+                            <li class="px-5 py-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-marca-negro">{{ $category->name }}</span>
+                                    <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
+                                        @csrf @method('DELETE')
+                                        <input type="hidden" name="type" value="gasto">
+                                        <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                    </form>
+                                </div>
+                                @if ($category->children->isNotEmpty())
+                                    <ul class="mt-2 space-y-1">
+                                        @foreach ($category->children as $child)
+                                            <li class="flex items-center justify-between rounded-lg bg-marca-gris-claro py-2 px-3 text-xs">
+                                                <span class="text-marca-gris-oscuro">→ {{ $child->name }}</span>
+                                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $child) }}" data-confirm="¿Eliminar {{ $child->name }}?" class="inline-flex">
+                                                    @csrf @method('DELETE')
+                                                    <input type="hidden" name="type" value="gasto">
+                                                    <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                                </form>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </li>
                         @empty
                             <li class="py-6 text-center text-marca-gris-oscuro px-5">
                                 {{ $categorySearch !== '' ? 'No hay categorías que coincidan con "'.$categorySearch.'".' : 'Sin categorías todavía.' }}

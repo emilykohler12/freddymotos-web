@@ -88,37 +88,19 @@
                             @if ($category->attributes->isNotEmpty())
                                 <ul class="mb-2 space-y-1">
                                     @foreach ($category->attributes as $attribute)
-                                        <li class="group flex items-center justify-between gap-2 rounded-lg bg-marca-gris-claro px-3 py-1.5 text-xs" data-attr-row="{{ $attribute->id }}">
-                                            <span class="flex-1 text-marca-negro font-medium cursor-pointer hover:underline" data-attr-name>{{ $attribute->name }}</span>
-                                            <div class="flex gap-1">
-                                                <button type="button" class="font-semibold text-marca-amarillo hover:text-marca-negro" data-edit-btn>Editar</button>
-                                                <form method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}" data-confirm="¿Eliminar el detalle {{ $attribute->name }}?" style="display: inline;">
-                                                    @csrf @method('DELETE')
-                                                    <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
-                                                </form>
-                                            </div>
+                                        <li class="flex items-center justify-between gap-2 rounded-lg bg-marca-gris-claro px-3 py-1.5 text-xs">
+                                            <form method="POST" action="{{ route('admin.categories.attributes.update', [$category, $attribute]) }}" class="flex flex-1 items-center gap-2">
+                                                @csrf @method('PUT')
+                                                <input type="text" name="name" value="{{ $attribute->name }}" class="flex-1 bg-transparent text-marca-negro font-medium border-0 p-0 focus:ring-0 focus:outline-none">
+                                                <button type="submit" class="shrink-0 font-semibold text-marca-amarillo hover:text-marca-negro">Guardar</button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}" data-confirm="¿Eliminar el detalle {{ $attribute->name }}?" style="display: inline;">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                            </form>
                                         </li>
                                     @endforeach
                                 </ul>
-                                <script>
-                                    document.querySelectorAll('[data-attr-row]').forEach(function(row) {
-                                        var editBtn = row.querySelector('[data-edit-btn]');
-                                        var nameSpan = row.querySelector('[data-attr-name]');
-                                        var attrId = row.getAttribute('data-attr-row');
-
-                                        editBtn.addEventListener('click', function() {
-                                            var newName = prompt('Nuevo nombre:', nameSpan.textContent.trim());
-                                            if (newName && newName.trim() !== '') {
-                                                var form = document.createElement('form');
-                                                form.method = 'POST';
-                                                form.action = '{{ route("admin.categories.attributes.update", [$category, ":id"]) }}'.replace(':id', attrId);
-                                                form.innerHTML = '@csrf @method("PUT")<input type="hidden" name="name" value="' + newName.trim() + '">';
-                                                document.body.appendChild(form);
-                                                form.submit();
-                                            }
-                                        });
-                                    });
-                                </script>
                             @endif
                             <form method="POST" action="{{ route('admin.categories.attributes.store', $category) }}" class="flex gap-2">
                                 @csrf
