@@ -108,6 +108,22 @@
     </main>
 </div>
 
+{{-- Modal de confirmación para eliminar --}}
+<div id="confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-marca-negro/50">
+    <div class="rounded-2xl bg-marca-blanco p-6 shadow-lg max-w-sm">
+        <h2 class="text-lg font-bold text-marca-negro mb-2">¿Estás seguro?</h2>
+        <p class="text-sm text-marca-gris-oscuro mb-6" id="confirm-message"></p>
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeConfirmModal()" class="px-4 py-2 text-sm font-semibold text-marca-gris-oscuro hover:text-marca-negro border border-marca-gris-oscuro/20 rounded-lg hover:border-marca-gris-oscuro">
+                Cancelar
+            </button>
+            <button onclick="submitDelete()" class="px-4 py-2 text-sm font-semibold bg-marca-rojo text-marca-blanco rounded-lg hover:bg-marca-rojo/90">
+                Eliminar
+            </button>
+        </div>
+    </div>
+</div>
+
 {{-- Aviso flotante abajo a la derecha, se saca solo a los 30 segundos --}}
 @if (session('status') || session('error'))
     @php $isError = (bool) session('error'); @endphp
@@ -125,6 +141,45 @@
         }, 30000);
     </script>
 @endif
+
+<script>
+    var deleteForm = null;
+
+    function confirmDelete(url, itemName) {
+        deleteForm = null;
+        document.getElementById('confirm-message').textContent = 'Eliminar "' + itemName + '"? Esta acción no se puede deshacer.';
+        document.getElementById('confirm-modal').classList.remove('hidden');
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = url;
+        form.innerHTML = '@csrf @method("DELETE")';
+        deleteForm = form;
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirm-modal').classList.add('hidden');
+        deleteForm = null;
+    }
+
+    function submitDelete() {
+        if (!deleteForm) return;
+        document.body.appendChild(deleteForm);
+        deleteForm.submit();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var forms = document.querySelectorAll('form[data-confirm]');
+        forms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var message = form.getAttribute('data-confirm');
+                deleteForm = form;
+                document.getElementById('confirm-message').textContent = message;
+                document.getElementById('confirm-modal').classList.remove('hidden');
+            });
+        });
+    });
+</script>
 
 </body>
 </html>

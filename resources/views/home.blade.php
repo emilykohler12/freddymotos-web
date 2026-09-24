@@ -6,10 +6,10 @@
     {{-- El home siempre muestra el nombre de marca en texto (no el logo subido). --}}
     <x-hero :nombre="$settings->nombre_local" />
 
-    {{-- 1. Productos más vendidos (ranking real por ventas pagas) --}}
+    {{-- 1. Repuestos más vendidos (ranking real por ventas pagas) --}}
     <x-productos-destacados />
 
-    {{-- 2. Promociones (productos con precio de oferta cargado) --}}
+    {{-- 2. Promociones (repuestos con precio de oferta cargado) --}}
     <x-promociones />
 
     {{-- 3. Categorías destacadas + "ver todas" --}}

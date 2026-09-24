@@ -1,4 +1,4 @@
-{{-- Seccion "Productos mas vendidos" - Home, debajo de Categorias. --}}
+{{-- Seccion "Repuestos mas vendidos" - Home, debajo de Categorias. --}}
 {{-- Ranking 100% real por cantidad vendida en pedidos pagos (sin relleno de --}}
 {{-- destacados/ultimos): si todavia no hay ventas, la seccion no se muestra. --}}
 {{-- Colores invertidos respecto a "Categorías destacadas" (fondo negro, tarjetas blancas). --}}
@@ -36,7 +36,7 @@
                 Lo más vendido
             </p>
             <h2 class="text-3xl font-extrabold tracking-tight text-marca-blanco sm:text-4xl">
-                Productos más vendidos
+                Repuestos más vendidos
             </h2>
             <p class="mt-3 text-base text-marca-blanco/70">
                 Los repuestos y accesorios que más eligen nuestros clientes.
