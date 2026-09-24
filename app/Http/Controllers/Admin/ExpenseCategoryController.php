@@ -14,11 +14,24 @@ class ExpenseCategoryController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
             'type' => ['required', 'in:gasto,ingreso'],
+            'parent_id' => ['nullable', 'exists:expense_categories,id'],
         ]);
 
         ExpenseCategory::create($data);
 
         return $this->redirectFor($data['type'])->with('status', 'Categoría creada.');
+    }
+
+    public function update(Request $request, ExpenseCategory $expenseCategory): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:80'],
+            'parent_id' => ['nullable', 'exists:expense_categories,id'],
+        ]);
+
+        $expenseCategory->update($data);
+
+        return $this->redirectFor($expenseCategory->type)->with('status', 'Categoría actualizada.');
     }
 
     public function destroy(ExpenseCategory $expenseCategory): RedirectResponse

@@ -150,6 +150,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('gastos/{expense}', [AdminExpenseController::class, 'destroy'])->name('expenses.destroy');
         Route::post('gastos/{expense}/pagado', [AdminExpenseController::class, 'togglePaid'])->name('expenses.toggle-paid');
         Route::post('gastos/categorias', [AdminExpenseCategoryController::class, 'store'])->name('expense-categories.store');
+        Route::put('gastos/categorias/{expenseCategory}', [AdminExpenseCategoryController::class, 'update'])->name('expense-categories.update');
         Route::delete('gastos/categorias/{expenseCategory}', [AdminExpenseCategoryController::class, 'destroy'])->name('expense-categories.destroy');
 
         /* Movimientos / actividad */

@@ -53,38 +53,96 @@
                             </select>
                         </form>
                     </div>
-                    <ul class="divide-y divide-marca-gris-claro rounded-2xl bg-marca-blanco text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    <div class="space-y-3">
                         @forelse ($categoryList as $category)
-                            <li class="px-5 py-3">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-medium text-marca-negro">{{ $category->name }}</span>
-                                    <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
-                                        @csrf @method('DELETE')
-                                        <input type="hidden" name="type" value="gasto">
-                                        <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                            <div class="rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                                <div class="flex items-center justify-between gap-3 mb-3">
+                                    <form method="POST" action="{{ route('admin.expense-categories.update', $category) }}" class="flex-1">
+                                        @csrf @method('PUT')
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" name="name" value="{{ $category->name }}" class="flex-1 bg-transparent text-marca-negro font-semibold border-0 p-0 focus:ring-0 focus:outline-none text-sm">
+                                        </div>
                                     </form>
+                                    <button type="button" class="text-xs font-semibold text-marca-rojo hover:underline category-delete-btn" data-category-id="{{ $category->id }}" data-category-name="{{ $category->name }}">Eliminar</button>
                                 </div>
                                 @if ($category->children->isNotEmpty())
-                                    <ul class="mt-2 space-y-1">
+                                    <ul class="space-y-2 pl-3 border-l-2 border-marca-gris-claro">
                                         @foreach ($category->children as $child)
-                                            <li class="flex items-center justify-between rounded-lg bg-marca-gris-claro py-2 px-3 text-xs">
-                                                <span class="text-marca-gris-oscuro">→ {{ $child->name }}</span>
-                                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $child) }}" data-confirm="¿Eliminar {{ $child->name }}?" class="inline-flex">
-                                                    @csrf @method('DELETE')
-                                                    <input type="hidden" name="type" value="gasto">
-                                                    <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
-                                                </form>
+                                            <li class="flex items-center justify-between gap-2 rounded px-2 py-2 bg-marca-gris-claro text-xs" draggable="true" data-child-id="{{ $child->id }}" data-parent-id="{{ $category->id }}" data-child-name="{{ $child->name }}">
+                                                <span class="text-marca-gris-oscuro font-medium">{{ $child->name }}</span>
+                                                <button type="button" class="text-xs font-semibold text-marca-rojo hover:underline category-delete-btn" data-category-id="{{ $child->id }}" data-category-name="{{ $child->name }}">Eliminar</button>
                                             </li>
                                         @endforeach
                                     </ul>
                                 @endif
-                            </li>
+                            </div>
                         @empty
-                            <li class="py-6 text-center text-marca-gris-oscuro px-5">
+                            <div class="py-6 text-center text-marca-gris-oscuro rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                                 {{ $categorySearch !== '' ? 'No hay categorías que coincidan con "'.$categorySearch.'".' : 'Sin categorías todavía.' }}
-                            </li>
+                            </div>
                         @endforelse
-                    </ul>
+                    </div>
+
+                    <script>
+                        document.querySelectorAll('.category-delete-btn').forEach(function(btn) {
+                            btn.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                var categoryId = this.getAttribute('data-category-id');
+                                var categoryName = this.getAttribute('data-category-name');
+
+                                var form = document.createElement('form');
+                                form.method = 'POST';
+                                form.action = '/admin/gastos-categorias/' + categoryId;
+                                form.innerHTML = '@csrf @method("DELETE")<input type="hidden" name="type" value="gasto">';
+                                form.setAttribute('data-confirm', '¿Eliminar ' + categoryName + '?');
+
+                                document.body.appendChild(form);
+                                form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                            });
+                        });
+
+                        var draggedElement = null;
+                        document.querySelectorAll('[data-child-id]').forEach(function(el) {
+                            el.addEventListener('dragstart', function(e) {
+                                draggedElement = this;
+                                this.style.opacity = '0.5';
+                            });
+                            el.addEventListener('dragend', function(e) {
+                                this.style.opacity = '1';
+                                draggedElement = null;
+                            });
+                        });
+
+                        document.querySelectorAll('[data-parent-id]').forEach(function(el) {
+                            el.addEventListener('dragover', function(e) {
+                                e.preventDefault();
+                                if (draggedElement && draggedElement !== this) {
+                                    this.style.backgroundColor = '#fff3cd';
+                                }
+                            });
+                            el.addEventListener('dragleave', function(e) {
+                                this.style.backgroundColor = '';
+                            });
+                            el.addEventListener('drop', function(e) {
+                                e.preventDefault();
+                                this.style.backgroundColor = '';
+                                if (draggedElement && draggedElement !== this) {
+                                    var childId = draggedElement.getAttribute('data-child-id');
+                                    var childName = draggedElement.getAttribute('data-child-name');
+                                    var newParentId = this.getAttribute('data-parent-id');
+
+                                    if (childId && newParentId) {
+                                        var form = document.createElement('form');
+                                        form.method = 'POST';
+                                        form.action = '/admin/gastos-categorias/' + childId;
+                                        form.innerHTML = '@csrf @method("PUT")<input type="hidden" name="parent_id" value="' + newParentId + '"><input type="hidden" name="type" value="gasto">';
+                                        document.body.appendChild(form);
+                                        form.submit();
+                                    }
+                                }
+                            });
+                        });
+                    </script>
                 </div>
 
                 <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
