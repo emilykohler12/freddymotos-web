@@ -167,16 +167,27 @@
         deleteForm.submit();
     }
 
-    document.addEventListener('submit', function(e) {
-        var form = e.target;
-        if (!form.hasAttribute('data-confirm')) return;
+    function attachConfirmToForm(form) {
+        if (form.hasAttribute('data-confirm-attached')) return;
+        form.setAttribute('data-confirm-attached', 'true');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var message = form.getAttribute('data-confirm');
+            deleteForm = form;
+            document.getElementById('confirm-message').textContent = message;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        });
+    }
 
-        e.preventDefault();
-        var message = form.getAttribute('data-confirm');
-        deleteForm = form;
-        document.getElementById('confirm-message').textContent = message;
-        document.getElementById('confirm-modal').classList.remove('hidden');
-    }, true);
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('form[data-confirm]').forEach(attachConfirmToForm);
+    });
+
+    var observer = new MutationObserver(function() {
+        document.querySelectorAll('form[data-confirm]:not([data-confirm-attached])').forEach(attachConfirmToForm);
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 </script>
 
 </body>

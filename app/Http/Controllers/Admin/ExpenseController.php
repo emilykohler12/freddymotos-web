@@ -28,7 +28,7 @@ class ExpenseController extends Controller
             ->orderByDesc('incurred_on')
             ->get();
 
-        $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->orderByRaw(Sorting::foldedName('name'))->get();
+        $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->with('children')->orderByRaw(Sorting::foldedName('name'))->get();
 
         $categoryList = $categories
             ->when($categorySearch !== '', fn ($c) => $c->filter(fn (ExpenseCategory $cat) => str_contains(Sorting::fold($cat->name), Sorting::fold($categorySearch))))

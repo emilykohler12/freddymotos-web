@@ -88,14 +88,10 @@
                             @if ($category->attributes->isNotEmpty())
                                 <ul class="mb-2 space-y-1">
                                     @foreach ($category->attributes as $attribute)
-                                        <li class="group flex items-center justify-between gap-2 rounded-lg bg-marca-gris-claro px-3 py-1.5 text-xs hover:bg-marca-gris-claro/70">
-                                            <input type="text" value="{{ $attribute->name }}" disabled class="flex-1 bg-transparent text-marca-negro font-medium border-0 p-0 focus:ring-0 group-hover:cursor-text" data-attribute-input="{{ $attribute->id }}">
-                                            <div class="flex gap-1 opacity-0 transition group-hover:opacity-100">
-                                                <form method="POST" action="{{ route('admin.categories.attributes.update', [$category, $attribute]) }}" style="display: inline;">
-                                                    @csrf @method('PUT')
-                                                    <input type="hidden" name="name" class="attribute-name-input" value="{{ $attribute->name }}">
-                                                    <button type="submit" class="font-semibold text-marca-amarillo hover:text-marca-negro">Guardar</button>
-                                                </form>
+                                        <li class="group flex items-center justify-between gap-2 rounded-lg bg-marca-gris-claro px-3 py-1.5 text-xs" data-attr-row="{{ $attribute->id }}">
+                                            <span class="flex-1 text-marca-negro font-medium cursor-pointer hover:underline" data-attr-name>{{ $attribute->name }}</span>
+                                            <div class="flex gap-1">
+                                                <button type="button" class="font-semibold text-marca-amarillo hover:text-marca-negro" data-edit-btn>Editar</button>
                                                 <form method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}" data-confirm="¿Eliminar el detalle {{ $attribute->name }}?" style="display: inline;">
                                                     @csrf @method('DELETE')
                                                     <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
@@ -105,19 +101,21 @@
                                     @endforeach
                                 </ul>
                                 <script>
-                                    document.querySelectorAll('[data-attribute-input]').forEach(function(input) {
-                                        input.addEventListener('click', function() {
-                                            this.disabled = false;
-                                            this.focus();
-                                            this.parentElement.parentElement.classList.add('editing');
-                                            this.nextElementSibling.querySelector('.attribute-name-input').value = this.value;
-                                        });
-                                        input.addEventListener('blur', function() {
-                                            this.disabled = true;
-                                            this.parentElement.parentElement.classList.remove('editing');
-                                        });
-                                        input.addEventListener('change', function() {
-                                            this.parentElement.parentElement.querySelector('.attribute-name-input').value = this.value;
+                                    document.querySelectorAll('[data-attr-row]').forEach(function(row) {
+                                        var editBtn = row.querySelector('[data-edit-btn]');
+                                        var nameSpan = row.querySelector('[data-attr-name]');
+                                        var attrId = row.getAttribute('data-attr-row');
+
+                                        editBtn.addEventListener('click', function() {
+                                            var newName = prompt('Nuevo nombre:', nameSpan.textContent.trim());
+                                            if (newName && newName.trim() !== '') {
+                                                var form = document.createElement('form');
+                                                form.method = 'POST';
+                                                form.action = '{{ route("admin.categories.attributes.update", [$category, ":id"]) }}'.replace(':id', attrId);
+                                                form.innerHTML = '@csrf @method("PUT")<input type="hidden" name="name" value="' + newName.trim() + '">';
+                                                document.body.appendChild(form);
+                                                form.submit();
+                                            }
                                         });
                                     });
                                 </script>
