@@ -53,18 +53,36 @@
                             </select>
                         </form>
                     </div>
-                    <ul class="divide-y divide-marca-gris-claro rounded-2xl bg-marca-blanco px-5 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    <ul class="divide-y divide-marca-gris-claro rounded-2xl bg-marca-blanco text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5">
                         @forelse ($categoryList as $category)
-                            <li class="flex items-center justify-between py-3">
-                                <span class="text-marca-negro">{{ $category->name }}</span>
-                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
-                                    @csrf @method('DELETE')
-                                    <input type="hidden" name="type" value="gasto">
-                                    <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
-                                </form>
-                            </li>
+                            @if ($category->parent_id === null)
+                                <li class="px-5 py-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-marca-negro">{{ $category->name }}</span>
+                                        <form method="POST" action="{{ route('admin.expense-categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?" class="inline-flex">
+                                            @csrf @method('DELETE')
+                                            <input type="hidden" name="type" value="gasto">
+                                            <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                        </form>
+                                    </div>
+                                    @if ($category->children->isNotEmpty())
+                                        <ul class="mt-2 space-y-1">
+                                            @foreach ($category->children as $child)
+                                                <li class="flex items-center justify-between rounded-lg bg-marca-gris-claro py-2 px-3 text-xs">
+                                                    <span class="text-marca-gris-oscuro">→ {{ $child->name }}</span>
+                                                    <form method="POST" action="{{ route('admin.expense-categories.destroy', $child) }}" data-confirm="¿Eliminar {{ $child->name }}?" class="inline-flex">
+                                                        @csrf @method('DELETE')
+                                                        <input type="hidden" name="type" value="gasto">
+                                                        <button type="submit" class="font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                                    </form>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </li>
+                            @endif
                         @empty
-                            <li class="py-6 text-center text-marca-gris-oscuro">
+                            <li class="py-6 text-center text-marca-gris-oscuro px-5">
                                 {{ $categorySearch !== '' ? 'No hay categorías que coincidan con "'.$categorySearch.'".' : 'Sin categorías todavía.' }}
                             </li>
                         @endforelse
@@ -77,6 +95,14 @@
                         @csrf
                         <input type="hidden" name="type" value="gasto">
                         <input type="text" name="name" placeholder="Nombre de la categoría" required class="{{ $field }}">
+                        <select name="parent_id" class="{{ $field }}">
+                            <option value="">Principal (sin padre)</option>
+                            @foreach ($categories as $cat)
+                                @if ($cat->parent_id === null)
+                                    <option value="{{ $cat->id }}">→ Subcategoría de: {{ $cat->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
                         <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">Crear</button>
                     </form>
                 </div>

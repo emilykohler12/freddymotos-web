@@ -167,18 +167,16 @@
         deleteForm.submit();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var forms = document.querySelectorAll('form[data-confirm]');
-        forms.forEach(function(form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var message = form.getAttribute('data-confirm');
-                deleteForm = form;
-                document.getElementById('confirm-message').textContent = message;
-                document.getElementById('confirm-modal').classList.remove('hidden');
-            });
-        });
-    });
+    document.addEventListener('submit', function(e) {
+        var form = e.target;
+        if (!form.hasAttribute('data-confirm')) return;
+
+        e.preventDefault();
+        var message = form.getAttribute('data-confirm');
+        deleteForm = form;
+        document.getElementById('confirm-message').textContent = message;
+        document.getElementById('confirm-modal').classList.remove('hidden');
+    }, true);
 </script>
 
 </body>

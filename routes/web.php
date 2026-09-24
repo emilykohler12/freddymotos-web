@@ -89,6 +89,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('categorias/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
         Route::delete('categorias/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
         Route::post('categorias/{category}/atributos', [AdminCategoryAttributeController::class, 'store'])->name('categories.attributes.store');
+        Route::put('categorias/{category}/atributos/{attribute}', [AdminCategoryAttributeController::class, 'update'])->name('categories.attributes.update');
         Route::delete('categorias/{category}/atributos/{attribute}', [AdminCategoryAttributeController::class, 'destroy'])->name('categories.attributes.destroy');
 
         /* Productos / Inventario */

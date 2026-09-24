@@ -21,6 +21,19 @@ class CategoryAttributeController extends Controller
         return back()->with('status', 'Detalle añadido a ' . $category->name . '.');
     }
 
+    public function update(Request $request, Category $category, CategoryAttribute $attribute): RedirectResponse
+    {
+        abort_unless($attribute->category_id === $category->id, 404);
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:60'],
+        ]);
+
+        $attribute->update($data);
+
+        return back()->with('status', 'Detalle actualizado.');
+    }
+
     public function destroy(Category $category, CategoryAttribute $attribute): RedirectResponse
     {
         abort_unless($attribute->category_id === $category->id, 404);
