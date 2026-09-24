@@ -74,8 +74,8 @@ class PromotionController extends Controller
     {
         return view('admin.promotions.form', [
             'promotion' => $promotion,
-            'categories' => Category::orderBy('name')->get(),
-            'products' => Product::orderBy('name')->get(),
+            'categories' => Category::orderByRaw(Sorting::foldedName('name'))->get(),
+            'products' => Product::orderByRaw(Sorting::foldedName('name'))->get(),
         ]);
     }
 

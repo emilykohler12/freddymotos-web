@@ -57,25 +57,6 @@
                 </div>
             </div>
 
-            @if ($product->exists)
-                <div class="flex items-center justify-between rounded-xl bg-marca-gris-claro px-4 py-3">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Stock actual</p>
-                        <p class="text-lg font-extrabold text-marca-negro">{{ $product->stock }} unidades</p>
-                    </div>
-                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="text-xs font-semibold text-marca-rojo hover:underline">Ajustar en Inventario →</a>
-                </div>
-            @else
-                <p class="-mt-2 text-xs text-marca-gris-oscuro">
-                    El stock inicial se carga después desde
-                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="font-semibold text-marca-rojo hover:underline">Movimientos → Inventario</a>.
-                </p>
-            @endif
-            <p class="-mt-4 text-xs text-marca-gris-oscuro">
-                Los descuentos y combos (2x1, % OFF, etc.) se cargan desde
-                <a href="{{ route('admin.promotions.index') }}" class="font-semibold text-marca-rojo hover:underline">Promociones</a>.
-            </p>
-
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <label for="category_input" class="{{ $lbl }}">Categoría</label>
@@ -224,6 +205,25 @@
                 @endif
                 <input type="file" id="image" name="image" accept="image/*" class="{{ $field }}">
             </div>
+
+            @if ($product->exists)
+                <div class="flex items-center justify-between rounded-xl bg-marca-gris-claro px-4 py-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Stock actual</p>
+                        <p class="text-lg font-extrabold text-marca-negro">{{ $product->stock }} unidades</p>
+                    </div>
+                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="text-xs font-semibold text-marca-rojo hover:underline">Ajustar en Inventario →</a>
+                </div>
+            @else
+                <p class="text-xs text-marca-gris-oscuro">
+                    El stock inicial se carga después desde
+                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="font-semibold text-marca-rojo hover:underline">Movimientos → Inventario</a>.
+                </p>
+            @endif
+            <p class="text-xs text-marca-gris-oscuro">
+                Los descuentos y combos (2x1, % OFF, etc.) se cargan desde
+                <a href="{{ route('admin.promotions.index') }}" class="font-semibold text-marca-rojo hover:underline">Promociones</a>.
+            </p>
 
             <div class="flex flex-wrap gap-6 border-t border-marca-gris-claro pt-5">
                 <label class="flex items-center gap-2 text-sm font-medium text-marca-negro">
