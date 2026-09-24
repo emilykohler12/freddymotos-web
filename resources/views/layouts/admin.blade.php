@@ -144,50 +144,32 @@
 
 <script>
     var deleteForm = null;
-
-    function confirmDelete(url, itemName) {
-        deleteForm = null;
-        document.getElementById('confirm-message').textContent = 'Eliminar "' + itemName + '"? Esta acción no se puede deshacer.';
-        document.getElementById('confirm-modal').classList.remove('hidden');
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = url;
-        form.innerHTML = '@csrf @method("DELETE")';
-        deleteForm = form;
-    }
+    var isModalShown = false;
 
     function closeConfirmModal() {
         document.getElementById('confirm-modal').classList.add('hidden');
         deleteForm = null;
+        isModalShown = false;
     }
 
     function submitDelete() {
         if (!deleteForm) return;
+        isModalShown = false;
         document.body.appendChild(deleteForm);
         deleteForm.submit();
     }
 
-    function attachConfirmToForm(form) {
-        if (form.hasAttribute('data-confirm-attached')) return;
-        form.setAttribute('data-confirm-attached', 'true');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var message = form.getAttribute('data-confirm');
-            deleteForm = form;
-            document.getElementById('confirm-message').textContent = message;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        });
-    }
+    document.addEventListener('submit', function(e) {
+        var form = e.target;
+        if (!form.hasAttribute('data-confirm') || isModalShown) return;
 
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('form[data-confirm]').forEach(attachConfirmToForm);
-    });
-
-    var observer = new MutationObserver(function() {
-        document.querySelectorAll('form[data-confirm]:not([data-confirm-attached])').forEach(attachConfirmToForm);
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
+        e.preventDefault();
+        var message = form.getAttribute('data-confirm');
+        deleteForm = form;
+        document.getElementById('confirm-message').textContent = message;
+        document.getElementById('confirm-modal').classList.remove('hidden');
+        isModalShown = true;
+    }, true);
 </script>
 
 </body>
