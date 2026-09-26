@@ -103,9 +103,10 @@
 
                 <div class="mt-4">
                     <label class="{{ $lbl }}">Productos <span class="normal-case text-marca-gris-oscuro/50">(si el alcance es "Productos puntuales")</span></label>
-                    <div class="max-h-48 columns-1 gap-4 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3 sm:columns-2 lg:columns-3">
+                    <input type="text" id="product_search" placeholder="Buscar producto..." class="{{ $field }} mb-3">
+                    <div class="max-h-48 columns-1 gap-4 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3 sm:columns-2 lg:columns-3" id="products_container">
                         @forelse ($products as $product)
-                            <label class="mb-1 flex items-center gap-2 break-inside-avoid text-sm text-marca-negro">
+                            <label class="mb-1 flex items-center gap-2 break-inside-avoid text-sm text-marca-negro product-checkbox" data-product-name="{{ strtolower($product->name) }}">
                                 <input type="checkbox" name="product_ids[]" value="{{ $product->id }}" @checked(in_array($product->id, $selectedProducts)) class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
                                 {{ $product->name }}
                             </label>
@@ -113,6 +114,19 @@
                             <p class="text-sm text-marca-gris-oscuro">Todavía no hay productos cargados.</p>
                         @endforelse
                     </div>
+                    <script>
+                        (function () {
+                            var searchInput = document.getElementById('product_search');
+                            var productLabels = document.querySelectorAll('.product-checkbox');
+                            searchInput.addEventListener('input', function () {
+                                var query = searchInput.value.toLowerCase();
+                                productLabels.forEach(function (label) {
+                                    var productName = label.getAttribute('data-product-name');
+                                    label.style.display = productName.includes(query) ? '' : 'none';
+                                });
+                            });
+                        })();
+                    </script>
                 </div>
             </div>
 

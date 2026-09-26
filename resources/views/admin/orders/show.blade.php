@@ -109,7 +109,7 @@
                 </button>
             </form>
 
-            <a href="{{ route('admin.orders.index') }}" class="block text-center text-sm font-semibold text-marca-gris-oscuro hover:text-marca-rojo">← Volver a pedidos</a>
+            <a href="{{ request('from') ? route('admin.sales.index', ['tab' => request('from')]) : route('admin.sales.index') }}" class="block text-center text-sm font-semibold text-marca-gris-oscuro hover:text-marca-rojo">← Volver</a>
         </div>
     </div>
 @endsection

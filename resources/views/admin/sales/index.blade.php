@@ -24,10 +24,10 @@
                 Cargar pedido
             </a>
         @elseif ($activeTab === 'otros')
-            <a href="{{ route('admin.expenses.index', ['tab' => 'otros']) }}" class="inline-flex items-center gap-2 rounded-lg bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+            <button type="button" onclick="document.getElementById('nuevoIngresoForm').classList.toggle('hidden')" class="inline-flex items-center gap-2 rounded-lg bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                 Cargar ingreso
-            </a>
+            </button>
         @endif
     </div>
 
@@ -65,6 +65,20 @@
                 <input type="hidden" name="tab" value="web">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por N° o cliente..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
                 <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+                <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="recent" @selected($sort === 'recent')>Más reciente</option>
+                    <option value="oldest" @selected($sort === 'oldest')>Más antiguo</option>
+                    <option value="name_asc" @selected($sort === 'name_asc')>Cliente A-Z</option>
+                    <option value="name_desc" @selected($sort === 'name_desc')>Cliente Z-A</option>
+                </select>
+                <select name="shipment" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="">Todos los envíos</option>
+                    <option value="pending" @selected($shipment === 'pending')>Envío pendiente</option>
+                </select>
+                <select name="payment" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="">Todos los pagos</option>
+                    <option value="pending" @selected($payment === 'pending')>Pago pendiente</option>
+                </select>
             </form>
 
             @if ($web->isEmpty())
@@ -124,6 +138,20 @@
                 <input type="hidden" name="tab" value="whatsapp">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por N° o cliente..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
                 <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+                <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="recent" @selected($sort === 'recent')>Más reciente</option>
+                    <option value="oldest" @selected($sort === 'oldest')>Más antiguo</option>
+                    <option value="name_asc" @selected($sort === 'name_asc')>Cliente A-Z</option>
+                    <option value="name_desc" @selected($sort === 'name_desc')>Cliente Z-A</option>
+                </select>
+                <select name="shipment" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="">Todos los envíos</option>
+                    <option value="pending" @selected($shipment === 'pending')>Envío pendiente</option>
+                </select>
+                <select name="payment" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="">Todos los pagos</option>
+                    <option value="pending" @selected($payment === 'pending')>Pago pendiente</option>
+                </select>
             </form>
 
             @if ($whatsapp->isEmpty())
@@ -190,7 +218,14 @@
         <div class="w-full space-y-5 pt-4">
             <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
                 <input type="hidden" name="tab" value="ingresos">
+                <input type="text" name="ingresos_search" value="{{ $ingresosSearch }}" placeholder="Buscar por cliente o N° pedido..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
                 <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+                <select name="ingresos_sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="recent" @selected($ingresosSort === 'recent')>Más reciente</option>
+                    <option value="oldest" @selected($ingresosSort === 'oldest')>Más antiguo</option>
+                    <option value="name_asc" @selected($ingresosSort === 'name_asc')>Cliente A-Z</option>
+                    <option value="name_desc" @selected($ingresosSort === 'name_desc')>Cliente Z-A</option>
+                </select>
             </form>
 
             <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
@@ -247,6 +282,18 @@
                 <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
             </form>
 
+            <form id="nuevoIngresoForm" method="POST" action="{{ route('admin.expenses.store') }}" class="hidden space-y-4 rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                @csrf
+                <input type="hidden" name="type" value="ingreso">
+                <h3 class="font-bold text-marca-negro">Nuevo ingreso</h3>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <input type="text" name="description" placeholder="Descripción" required class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <input type="date" name="incurred_on" value="{{ date('Y-m-d') }}" required class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <input type="number" name="amount" placeholder="Monto" step="0.01" required class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <button type="submit" class="rounded-lg bg-marca-amarillo px-4 py-2 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">Guardar</button>
+                </div>
+            </form>
+
             <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <span class="inline-block h-1.5 w-8 rounded-full bg-marca-amarillo"></span>
                 <p class="mt-3 text-sm text-marca-gris-oscuro">Total en otros ingresos</p>
@@ -278,7 +325,27 @@
                                         <td class="px-5 py-3 text-marca-gris-oscuro">{{ $income->incurred_on->format('d/m/Y') }}</td>
                                         <td class="px-5 py-3 font-semibold text-marca-negro">{{ $money($income->amount) }}</td>
                                         <td class="px-5 py-3 text-right text-xs font-semibold text-marca-amarillo">
-                                            <a href="{{ route('admin.expenses.index') }}" class="hover:text-marca-negro">Editar →</a>
+                                            <button type="button" onclick="document.getElementById('editIngresoForm{{ $income->id }}').classList.toggle('hidden')" class="hover:text-marca-negro">Editar →</button>
+                                        </td>
+                                    </tr>
+                                    <tr id="editIngresoForm{{ $income->id }}" class="hidden">
+                                        <td colspan="4" class="px-5 py-4">
+                                            <form method="POST" action="{{ route('admin.expenses.update', $income) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="text" name="description" value="{{ $income->description }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                                                <input type="date" name="incurred_on" value="{{ $income->incurred_on->format('Y-m-d') }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                                                <input type="number" name="amount" value="{{ $income->amount }}" step="0.01" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                                                <div class="col-span-full flex gap-2">
+                                                    <button type="submit" class="rounded-lg bg-marca-amarillo px-4 py-2 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">Guardar</button>
+                                                    <button type="button" onclick="document.getElementById('editIngresoForm{{ $income->id }}').classList.toggle('hidden')" class="rounded-lg bg-marca-gris-claro px-4 py-2 text-sm font-bold text-marca-gris-oscuro transition hover:bg-marca-rojo hover:text-marca-blanco">Cancelar</button>
+                                                    <form method="POST" action="{{ route('admin.expenses.destroy', $income) }}" class="inline" onsubmit="return confirm('¿Eliminar este ingreso?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="rounded-lg bg-marca-rojo px-4 py-2 text-sm font-bold text-marca-blanco transition hover:bg-marca-negro">Eliminar</button>
+                                                    </form>
+                                                </div>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach

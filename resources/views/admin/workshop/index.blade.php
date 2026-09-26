@@ -24,11 +24,11 @@
 
         {{-- ===== Categorías ===== --}}
         <div class="hidden w-full pt-4 peer-checked/categorias:block">
-            <p class="mb-4 max-w-2xl text-sm text-marca-gris-oscuro">
+            <p class="mb-4 max-w-2xl truncate text-sm text-marca-gris-oscuro">
                 Estas categorías se muestran en la página pública de Taller (accesible desde "Taller" en el menú del sitio).
             </p>
             <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 lg:order-last">
                     <form method="GET" data-autosubmit class="mb-4">
                         <input type="hidden" name="tab" value="categorias">
                         <input type="text" name="category_search" value="{{ $categorySearch }}" placeholder="Buscar categoría..." class="{{ $field }}">
@@ -64,7 +64,7 @@
                     @endif
                 </div>
 
-                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5 lg:order-first">
                     <h2 class="mb-3 text-sm font-bold text-marca-negro">Nueva categoría</h2>
                     <form method="POST" action="{{ route('admin.workshop.categories.store') }}" class="space-y-3">
                         @csrf

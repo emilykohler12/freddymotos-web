@@ -212,17 +212,17 @@
                         <p class="text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Stock actual</p>
                         <p class="text-lg font-extrabold text-marca-negro">{{ $product->stock }} unidades</p>
                     </div>
-                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="text-xs font-semibold text-marca-rojo hover:underline">Ajustar en Inventario →</a>
+                    <a href="{{ route('admin.products.index', ['tab' => 'stock']) }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ajustar en Stock →</a>
                 </div>
             @else
                 <p class="text-xs text-marca-gris-oscuro">
-                    El stock inicial se carga después desde
-                    <a href="{{ route('admin.activity.index') }}#tab-inventario" class="font-semibold text-marca-rojo hover:underline">Movimientos → Inventario</a>.
+                    El stock se carga desde
+                    <a href="{{ route('admin.products.index', ['tab' => 'stock']) }}" class="font-semibold text-marca-rojo hover:underline">Stock</a>.
                 </p>
             @endif
             <p class="text-xs text-marca-gris-oscuro">
                 Los descuentos y combos (2x1, % OFF, etc.) se cargan desde
-                <a href="{{ route('admin.promotions.index') }}" class="font-semibold text-marca-rojo hover:underline">Promociones</a>.
+                <a href="{{ route('admin.products.index', ['tab' => 'promociones']) }}" class="font-semibold text-marca-rojo hover:underline">Promociones</a>.
             </p>
 
             <div class="flex flex-wrap gap-6 border-t border-marca-gris-claro pt-5">

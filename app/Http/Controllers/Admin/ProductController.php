@@ -113,11 +113,16 @@ class ProductController extends Controller
 
     public function create(): View
     {
+        $categories = Category::with('attributes')->orderByRaw(Sorting::foldedName('name'))->get();
+        $selectedCategory = $categories->first();
+        $categoryAttributes = $selectedCategory?->attributes ?? collect();
+
         return view('admin.products.form', [
             'product' => new Product(),
-            'categories' => Category::with('attributes')->orderByRaw(Sorting::foldedName('name'))->get(),
+            'categories' => $categories,
             'suppliers' => Supplier::orderBy('name')->get(),
             'attributeValues' => collect(),
+            'categoryAttributes' => $categoryAttributes,
         ]);
     }
 
@@ -141,11 +146,15 @@ class ProductController extends Controller
 
     public function edit(Product $product): View
     {
+        $categories = Category::with('attributes')->orderByRaw(Sorting::foldedName('name'))->get();
+        $categoryAttributes = $product->category?->attributes ?? collect();
+
         return view('admin.products.form', [
             'product' => $product,
-            'categories' => Category::with('attributes')->orderByRaw(Sorting::foldedName('name'))->get(),
+            'categories' => $categories,
             'suppliers' => Supplier::orderBy('name')->get(),
             'attributeValues' => $product->attributeValues->pluck('value', 'category_attribute_id'),
+            'categoryAttributes' => $categoryAttributes,
         ]);
     }
 

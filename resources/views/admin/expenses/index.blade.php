@@ -197,8 +197,8 @@
 
         {{-- ===== Nuevo gasto ===== --}}
         <div class="hidden w-full pt-4 peer-checked/nuevogasto:block">
-            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <div class="grid grid-cols-1 items-start gap-6">
+                <div class="max-w-md rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                     <h2 class="mb-3 text-sm font-bold text-marca-negro">Registrar gasto</h2>
                     <form method="POST" action="{{ route('admin.expenses.store') }}" class="space-y-3">
                         @csrf
@@ -217,15 +217,14 @@
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
-                        <input type="date" name="incurred_on" value="{{ now()->toDateString() }}" required class="{{ $field }}">
-                        <input type="date" name="due_on" placeholder="Fecha de vencimiento (opcional)" class="{{ $field }}">
+                        <input type="date" name="due_on" required class="{{ $field }}" title="Fecha de vencimiento">
                         <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                             Registrar
                         </button>
                     </form>
                 </div>
 
-                <div class="space-y-4 lg:col-span-2">
+                <div class="space-y-4">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <h2 class="text-sm font-bold text-marca-negro">Registro de gastos</h2>
                         <form method="GET" data-autosubmit class="flex flex-wrap items-center gap-2">
