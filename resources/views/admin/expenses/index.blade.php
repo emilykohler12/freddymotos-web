@@ -83,14 +83,20 @@
                             <div class="rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5" draggable="true" data-category-id="{{ $category->id }}" data-category-name="{{ $category->name }}">
                                 <div class="flex items-center justify-between gap-3 mb-3">
                                     <input type="text" class="flex-1 bg-transparent text-marca-negro font-semibold border-0 p-0 focus:ring-0 focus:outline-none text-sm category-name-input" value="{{ $category->name }}" data-category-id="{{ $category->id }}">
-                                    <button type="button" class="text-xs font-semibold text-marca-rojo hover:underline category-delete-btn" data-category-id="{{ $category->id }}" data-category-name="{{ $category->name }}">Eliminar</button>
+                                    <form method="POST" action="{{ route('admin.expense-categories.destroy', $category->id) }}" data-confirm="¿Desactivar la categoría {{ $category->name }}?" style="display: inline;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                    </form>
                                 </div>
                                 @if ($category->children->isNotEmpty())
                                     <ul class="space-y-2 pl-3 border-l-2 border-marca-gris-claro">
                                         @foreach ($category->children as $child)
                                             <li class="flex items-center justify-between gap-2 rounded px-2 py-2 bg-marca-gris-claro text-xs" draggable="true" data-child-id="{{ $child->id }}" data-parent-id="{{ $category->id }}" data-child-name="{{ $child->name }}">
                                                 <input type="text" class="flex-1 bg-transparent text-marca-gris-oscuro font-medium border-0 p-0 focus:ring-0 focus:outline-none text-xs category-name-input" value="{{ $child->name }}" data-category-id="{{ $child->id }}">
-                                                <button type="button" class="text-xs font-semibold text-marca-rojo hover:underline category-delete-btn" data-category-id="{{ $child->id }}" data-category-name="{{ $child->name }}">Eliminar</button>
+                                                <form method="POST" action="{{ route('admin.expense-categories.destroy', $child->id) }}" data-confirm="¿Desactivar {{ $child->name }}?" style="display: inline;">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                                </form>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -126,29 +132,7 @@
                                 });
                             });
 
-                            // Eliminar categoría
-                            document.querySelectorAll('.category-delete-btn').forEach(function(btn) {
-                                btn.addEventListener('click', function(e) {
-                                    e.preventDefault();
-                                    if (!confirm('¿Eliminar ' + this.getAttribute('data-category-name') + '?')) return;
-
-                                    var categoryId = this.getAttribute('data-category-id');
-                                    var formData = new FormData();
-                                    formData.append('_method', 'DELETE');
-                                    formData.append('_token', '{{ csrf_token() }}');
-                                    formData.append('type', 'gasto');
-
-                                    fetch('/admin/gastos/categorias/' + categoryId, {
-                                        method: 'POST',
-                                        body: formData
-                                    }).then(r => {
-                                        if (!r.ok) alert('Error al eliminar');
-                                        else location.reload();
-                                    }).catch(e => alert('Error: ' + e.message));
-                                });
-                            });
-
-                            // Drag and drop para categorías y subcategorías
+                            // Drag and drop - NO recarga la página
                             const draggables = document.querySelectorAll('[data-category-id][draggable="true"], [data-child-id][draggable="true"]');
                             draggables.forEach(function(el) {
                                 el.addEventListener('dragstart', function(e) {
@@ -193,9 +177,20 @@
                                             method: 'POST',
                                             body: formData
                                         }).then(r => {
-                                            if (!r.ok) alert('Error al mover');
-                                            else location.reload();
-                                        }).catch(e => alert('Error: ' + e.message));
+                                            if (r.ok) {
+                                                // NO recarga - la categoría ya se quedó en el lugar
+                                                draggedElement.style.opacity = '1';
+                                                draggedElement = null;
+                                            } else {
+                                                alert('Error al mover la categoría');
+                                                draggedElement.style.opacity = '1';
+                                                draggedElement = null;
+                                            }
+                                        }).catch(e => {
+                                            alert('Error: ' + e.message);
+                                            draggedElement.style.opacity = '1';
+                                            draggedElement = null;
+                                        });
                                     }
                                 });
                             });
