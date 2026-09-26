@@ -111,6 +111,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /* Ventas / Pedidos */
         Route::get('ventas', [AdminSalesController::class, 'index'])->name('sales.index');
+        Route::get('pedidos', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('pedidos/nuevo', [AdminOrderController::class, 'create'])->name('orders.create');
         Route::post('pedidos', [AdminOrderController::class, 'store'])->name('orders.store');
         Route::get('pedidos/{order:uuid}', [AdminOrderController::class, 'show'])->name('orders.show');
