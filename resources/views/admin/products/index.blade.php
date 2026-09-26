@@ -15,32 +15,29 @@
 
     {{-- Tabs --}}
     <div class="flex flex-wrap items-start gap-2 mb-6">
-        <input type="radio" name="products-tab" id="tab-categorias" class="peer/categorias hidden" @checked($activeTab === 'categorias')>
-        <label for="tab-categorias" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/categorias:bg-marca-negro peer-checked/categorias:text-marca-blanco">
+        <a href="{{ route('admin.products.index', ['tab' => 'categorias']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'categorias' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h10"/></svg>
             Categorías
-        </label>
+        </a>
 
-        <input type="radio" name="products-tab" id="tab-repuestos" class="peer/repuestos hidden" @checked($activeTab === 'repuestos')>
-        <label for="tab-repuestos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/repuestos:bg-marca-negro peer-checked/repuestos:text-marca-blanco">
+        <a href="{{ route('admin.products.index', ['tab' => 'repuestos']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'repuestos' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
             Repuestos
-        </label>
+        </a>
 
-        <input type="radio" name="products-tab" id="tab-stock" class="peer/stock hidden" @checked($activeTab === 'stock')>
-        <label for="tab-stock" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/stock:bg-marca-negro peer-checked/stock:text-marca-blanco">
+        <a href="{{ route('admin.products.index', ['tab' => 'stock']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'stock' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
             Stock
-        </label>
+        </a>
 
-        <input type="radio" name="products-tab" id="tab-promociones" class="peer/promociones hidden" @checked($activeTab === 'promociones')>
-        <label for="tab-promociones" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/promociones:bg-marca-negro peer-checked/promociones:text-marca-blanco">
+        <a href="{{ route('admin.products.index', ['tab' => 'promociones']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'promociones' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M3 11l8-8h6a2 2 0 012 2v6l-8 8a2 2 0 01-2.83 0l-5.17-5.17A2 2 0 013 11z"/></svg>
             Promociones
-        </label>
+        </a>
 
         {{-- Categorías Tab --}}
-        <div class="hidden w-full pt-4 peer-checked/categorias:block">
+        @if ($activeTab === 'categorias')
+        <div class="w-full pt-4">
             <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data"
                   class="mb-6 flex max-w-xl flex-col gap-3 rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
                 @csrf
@@ -103,9 +100,11 @@
                 </div>
             @endif
         </div>
+        @endif
 
         {{-- Repuestos Tab --}}
-        <div class="hidden w-full pt-4 peer-checked/repuestos:block">
+        @if ($activeTab === 'repuestos')
+        <div class="w-full pt-4">
             <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <form method="GET" data-autosubmit class="flex flex-1 flex-wrap gap-2">
                     <input type="hidden" name="tab" value="repuestos">
@@ -170,9 +169,11 @@
 
             <div class="mt-4">{{ $products->links() }}</div>
         </div>
+        @endif
 
         {{-- Stock Tab --}}
-        <div class="hidden w-full pt-4 peer-checked/stock:block">
+        @if ($activeTab === 'stock')
+        <div class="w-full pt-4">
             <div class="grid grid-cols-1 gap-4">
                 @if ($outOfStock->isNotEmpty())
                     <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
@@ -215,12 +216,15 @@
                 @endif
             </div>
         </div>
+        @endif
 
         {{-- Promociones Tab --}}
-        <div class="hidden w-full pt-4 peer-checked/promociones:block">
+        @if ($activeTab === 'promociones')
+        <div class="w-full pt-4">
             <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 Promociones disponibles próximamente.
             </p>
         </div>
+        @endif
     </div>
 @endsection
