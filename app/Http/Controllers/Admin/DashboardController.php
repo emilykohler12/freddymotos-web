@@ -217,21 +217,35 @@ class DashboardController extends Controller
         return $colors;
     }
 
-    /** Ingresos (pedidos pagos + otros ingresos) vs gastos, agrupados según el filtro de período activo. */
+    /** Ingresos separados por canal vs gastos, agrupados según el filtro de período activo. */
     private function incomeVsExpensesChart(string $period, Carbon $start): array
     {
         $buckets = $this->buckets($period, $start);
 
         $labels = [];
-        $ingresos = [];
+        $webIngresos = [];
+        $whatsappIngresos = [];
+        $localIngresos = [];
+        $otrosIngresos = [];
         $gastos = [];
 
         foreach ($buckets as $bucket) {
             $labels[] = $bucket['label'];
 
-            $ingresos[] = round(
-                (float) Order::query()->paid()->whereBetween('created_at', [$bucket['start'], $bucket['end']])->sum('total')
-                + (float) Expense::where('type', Expense::TYPE_INGRESO)->whereBetween('incurred_on', [$bucket['start'], $bucket['end']])->sum('amount'),
+            $webIngresos[] = round(
+                (float) Order::query()->paid()->where('origin', Order::ORIGIN_WEB)->whereBetween('created_at', [$bucket['start'], $bucket['end']])->sum('total'),
+                2
+            );
+
+            $whatsappIngresos[] = round(
+                (float) Order::query()->paid()->where('origin', Order::ORIGIN_WHATSAPP)->whereBetween('created_at', [$bucket['start'], $bucket['end']])->sum('total'),
+                2
+            );
+
+            $localIngresos[] = 0;
+
+            $otrosIngresos[] = round(
+                (float) Expense::where('type', Expense::TYPE_INGRESO)->whereBetween('incurred_on', [$bucket['start'], $bucket['end']])->sum('amount'),
                 2
             );
 
@@ -247,9 +261,23 @@ class DashboardController extends Controller
                 'labels' => $labels,
                 'datasets' => [
                     [
-                        'label' => 'Ingresos',
-                        'data' => $ingresos,
+                        'label' => 'Web',
+                        'data' => $webIngresos,
                         'backgroundColor' => '#F5C518',
+                        'borderRadius' => 6,
+                        'maxBarThickness' => 48,
+                    ],
+                    [
+                        'label' => 'WhatsApp',
+                        'data' => $whatsappIngresos,
+                        'backgroundColor' => '#25D366',
+                        'borderRadius' => 6,
+                        'maxBarThickness' => 48,
+                    ],
+                    [
+                        'label' => 'Otros Ingresos',
+                        'data' => $otrosIngresos,
+                        'backgroundColor' => '#BC7C1A',
                         'borderRadius' => 6,
                         'maxBarThickness' => 48,
                     ],

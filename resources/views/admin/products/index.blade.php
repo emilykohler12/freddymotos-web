@@ -41,11 +41,22 @@
             <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data"
                   class="mb-6 flex max-w-xl flex-col gap-3 rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
                 @csrf
+                <input type="hidden" name="tab" value="categorias">
                 <input type="text" name="name" placeholder="Nombre de la nueva categoría" required class="{{ $field }}">
                 <input type="file" name="image" accept="image/*" class="text-xs {{ $field }}">
                 <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-5 py-2 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                     Crear
                 </button>
+            </form>
+
+            <form method="GET" action="{{ route('admin.products.index') }}" data-autosubmit
+                  class="mb-6 flex w-fit flex-col gap-3 rounded-2xl bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5 sm:flex-row sm:items-center">
+                <input type="hidden" name="tab" value="categorias">
+                <input type="text" name="search" placeholder="Buscar categoría..." class="{{ $field }} sm:w-56">
+                <select name="sort" class="{{ $field }} sm:w-40">
+                    <option value="name_asc">Nombre A-Z</option>
+                    <option value="name_desc">Nombre Z-A</option>
+                </select>
             </form>
 
             @if ($categories->isEmpty())

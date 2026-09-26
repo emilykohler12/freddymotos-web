@@ -107,7 +107,7 @@
 
         {{-- 4. Envío pendientes --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <a href="{{ route('admin.shipping.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+            <a href="{{ route('admin.sales.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Envíos pendientes</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

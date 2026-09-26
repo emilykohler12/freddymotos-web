@@ -48,7 +48,20 @@ class ProductController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $categories = Category::withCount('products')->orderByRaw(Sorting::foldedName('name'))->get();
+        $categoriesQuery = Category::withCount('products');
+
+        if ($activeTab === 'categorias' && $request->filled('search')) {
+            $categoriesQuery->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($request->string('search')) . '%']);
+        }
+
+        $categorySort = $request->string('sort', 'name_asc')->toString();
+        if ($activeTab === 'categorias' && $categorySort === 'name_desc') {
+            $categoriesQuery->orderByRaw(Sorting::foldedName('name') . ' DESC');
+        } else {
+            $categoriesQuery->orderByRaw(Sorting::foldedName('name') . ' ASC');
+        }
+
+        $categories = $categoriesQuery->get();
         $lowStock = Product::where('active', true)->where('stock', '>', 0)->where('stock', '<=', 5)->orderBy('stock')->get();
         $outOfStock = Product::where('active', true)->where('stock', '<=', 0)->get();
 

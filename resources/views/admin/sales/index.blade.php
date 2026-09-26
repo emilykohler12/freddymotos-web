@@ -18,10 +18,17 @@
     @endphp
 
     <div class="mb-4 flex justify-end">
-        <a href="{{ route('admin.orders.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            Cargar pedido
-        </a>
+        @if ($activeTab === 'local')
+            <a href="{{ route('admin.orders.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Cargar pedido
+            </a>
+        @elseif ($activeTab === 'otros')
+            <a href="{{ route('admin.expenses.index', ['tab' => 'otros']) }}" class="inline-flex items-center gap-2 rounded-lg bg-marca-amarillo px-4 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Cargar ingreso
+            </a>
+        @endif
     </div>
 
     {{-- Tabs --}}
