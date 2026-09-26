@@ -188,7 +188,7 @@
                                             body: formData,
                                             headers: { 'Accept': 'application/json' }
                                         }).then(r => {
-                                            draggedElement.style.opacity = '1';
+                                            if (draggedElement) draggedElement.style.opacity = '1';
                                             if (r.ok) {
                                                 location.reload();
                                             } else {
@@ -197,7 +197,7 @@
                                             draggedElement = null;
                                         }).catch(e => {
                                             alert('Error: ' + e.message);
-                                            draggedElement.style.opacity = '1';
+                                            if (draggedElement) draggedElement.style.opacity = '1';
                                             draggedElement = null;
                                         });
                                     }
