@@ -20,6 +20,29 @@
             Categoría
         </label>
 
+        <dialog id="newCategoryModal" class="w-full max-w-sm rounded-2xl p-0 backdrop:bg-marca-negro/50">
+            <div class="p-5">
+                <h2 class="mb-4 text-sm font-bold text-marca-negro">Nueva categoría</h2>
+                <form method="POST" action="{{ route('admin.expense-categories.store') }}" class="space-y-3">
+                    @csrf
+                    <input type="hidden" name="type" value="gasto">
+                    <input type="text" name="name" placeholder="Nombre de la categoría" required class="w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <select name="parent_id" class="w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                        <option value="">Principal (sin padre)</option>
+                        @foreach ($categories as $cat)
+                            @if ($cat->parent_id === null)
+                                <option value="{{ $cat->id }}">→ Subcategoría de: {{ $cat->name }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('newCategoryModal').close()" class="rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-xs font-semibold text-marca-negro transition hover:border-marca-amarillo">Cancelar</button>
+                        <button type="submit" class="rounded-lg bg-marca-amarillo px-4 py-2 text-xs font-semibold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">Crear</button>
+                    </div>
+                </form>
+            </div>
+        </dialog>
+
         <input type="radio" name="expenses-tab" id="tab-nuevo-gasto" class="peer/nuevogasto hidden" @checked($activeTab === 'nuevo-gasto')>
         <label for="tab-nuevo-gasto" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/nuevogasto:bg-marca-negro peer-checked/nuevogasto:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -43,7 +66,10 @@
             <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
                 <div class="lg:col-span-2">
                     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-                        <h2 class="text-sm font-bold text-marca-negro">Categorías existentes</h2>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="text-sm font-bold text-marca-negro">Categorías existentes</h2>
+                            <button type="button" onclick="document.getElementById('newCategoryModal').showModal()" class="rounded-lg bg-marca-amarillo px-3 py-1.5 text-xs font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">+ Nueva</button>
+                        </div>
                         <form method="GET" data-autosubmit class="flex gap-2">
                             <input type="hidden" name="tab" value="categoria">
                             <input type="text" name="category_search" value="{{ $categorySearch }}" placeholder="Buscar..." class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-1.5 text-xs focus:border-marca-amarillo focus:outline-none">
@@ -53,23 +79,18 @@
                             </select>
                         </form>
                     </div>
-                    <div class="space-y-3">
+                    <div class="space-y-3" id="categoriesList">
                         @forelse ($categoryList as $category)
-                            <div class="rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                            <div class="rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5" draggable="true" data-category-id="{{ $category->id }}" data-category-name="{{ $category->name }}">
                                 <div class="flex items-center justify-between gap-3 mb-3">
-                                    <form method="POST" action="{{ route('admin.expense-categories.update', $category) }}" class="flex-1">
-                                        @csrf @method('PUT')
-                                        <div class="flex items-center gap-2">
-                                            <input type="text" name="name" value="{{ $category->name }}" class="flex-1 bg-transparent text-marca-negro font-semibold border-0 p-0 focus:ring-0 focus:outline-none text-sm">
-                                        </div>
-                                    </form>
+                                    <input type="text" class="flex-1 bg-transparent text-marca-negro font-semibold border-0 p-0 focus:ring-0 focus:outline-none text-sm category-name-input" value="{{ $category->name }}" data-category-id="{{ $category->id }}">
                                     <button type="button" class="text-xs font-semibold text-marca-rojo hover:underline category-delete-btn" data-category-id="{{ $category->id }}" data-category-name="{{ $category->name }}">Eliminar</button>
                                 </div>
                                 @if ($category->children->isNotEmpty())
                                     <ul class="space-y-2 pl-3 border-l-2 border-marca-gris-claro">
                                         @foreach ($category->children as $child)
                                             <li class="flex items-center justify-between gap-2 rounded px-2 py-2 bg-marca-gris-claro text-xs" draggable="true" data-child-id="{{ $child->id }}" data-parent-id="{{ $category->id }}" data-child-name="{{ $child->name }}">
-                                                <span class="text-marca-gris-oscuro font-medium">{{ $child->name }}</span>
+                                                <input type="text" class="flex-1 bg-transparent text-marca-gris-oscuro font-medium border-0 p-0 focus:ring-0 focus:outline-none text-xs category-name-input" value="{{ $child->name }}" data-category-id="{{ $child->id }}">
                                                 <button type="button" class="text-xs font-semibold text-marca-rojo hover:underline category-delete-btn" data-category-id="{{ $child->id }}" data-category-name="{{ $child->name }}">Eliminar</button>
                                             </li>
                                         @endforeach
@@ -84,6 +105,26 @@
                     </div>
 
                     <script>
+                        // Editar nombre de categoría inline
+                        document.querySelectorAll('.category-name-input').forEach(function(input) {
+                            const originalValue = input.value;
+                            input.addEventListener('blur', function() {
+                                if (this.value !== originalValue && this.value.trim()) {
+                                    const categoryId = this.getAttribute('data-category-id');
+                                    const formData = new FormData();
+                                    formData.append('_method', 'PUT');
+                                    formData.append('_token', '{{ csrf_token() }}');
+                                    formData.append('name', this.value);
+
+                                    fetch('/admin/gastos-categorias/' + categoryId, {
+                                        method: 'POST',
+                                        body: formData
+                                    }).then(r => r.ok ? location.reload() : alert('Error al actualizar'));
+                                }
+                            });
+                        });
+
+                        // Eliminar categoría
                         document.querySelectorAll('.category-delete-btn').forEach(function(btn) {
                             btn.addEventListener('click', function(e) {
                                 e.preventDefault();
@@ -97,12 +138,14 @@
                                 form.setAttribute('data-confirm', '¿Eliminar ' + categoryName + '?');
 
                                 document.body.appendChild(form);
-                                form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                                form.requestSubmit();
                             });
                         });
 
+                        // Drag and drop para categorías y subcategorías
                         var draggedElement = null;
-                        document.querySelectorAll('[data-child-id]').forEach(function(el) {
+
+                        document.querySelectorAll('[data-category-id], [data-child-id]').forEach(function(el) {
                             el.addEventListener('dragstart', function(e) {
                                 draggedElement = this;
                                 this.style.opacity = '0.5';
@@ -113,7 +156,8 @@
                             });
                         });
 
-                        document.querySelectorAll('[data-parent-id]').forEach(function(el) {
+                        // Permitir drop en categorías padre (para mover subcategorías o categorías)
+                        document.querySelectorAll('[data-category-id]').forEach(function(el) {
                             el.addEventListener('dragover', function(e) {
                                 e.preventDefault();
                                 if (draggedElement && draggedElement !== this) {
@@ -126,42 +170,28 @@
                             el.addEventListener('drop', function(e) {
                                 e.preventDefault();
                                 this.style.backgroundColor = '';
-                                if (draggedElement && draggedElement !== this) {
-                                    var childId = draggedElement.getAttribute('data-child-id');
-                                    var childName = draggedElement.getAttribute('data-child-name');
-                                    var newParentId = this.getAttribute('data-parent-id');
 
-                                    if (childId && newParentId) {
-                                        var form = document.createElement('form');
-                                        form.method = 'POST';
-                                        form.action = '/admin/gastos-categorias/' + childId;
-                                        form.innerHTML = '@csrf @method("PUT")<input type="hidden" name="parent_id" value="' + newParentId + '"><input type="hidden" name="type" value="gasto">';
-                                        document.body.appendChild(form);
-                                        form.submit();
-                                    }
+                                if (!draggedElement || draggedElement === this) return;
+
+                                var newParentId = this.getAttribute('data-category-id');
+                                var childId = draggedElement.getAttribute('data-child-id') || draggedElement.getAttribute('data-category-id');
+
+                                if (childId && newParentId && childId !== newParentId) {
+                                    var formData = new FormData();
+                                    formData.append('_method', 'PUT');
+                                    formData.append('_token', '{{ csrf_token() }}');
+                                    formData.append('parent_id', newParentId);
+
+                                    fetch('/admin/gastos-categorias/' + childId, {
+                                        method: 'POST',
+                                        body: formData
+                                    }).then(r => r.ok ? location.reload() : alert('Error al mover'));
                                 }
                             });
                         });
                     </script>
                 </div>
 
-                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    <h2 class="mb-3 text-sm font-bold text-marca-negro">Nueva categoría</h2>
-                    <form method="POST" action="{{ route('admin.expense-categories.store') }}" class="space-y-3">
-                        @csrf
-                        <input type="hidden" name="type" value="gasto">
-                        <input type="text" name="name" placeholder="Nombre de la categoría" required class="{{ $field }}">
-                        <select name="parent_id" class="{{ $field }}">
-                            <option value="">Principal (sin padre)</option>
-                            @foreach ($categories as $cat)
-                                @if ($cat->parent_id === null)
-                                    <option value="{{ $cat->id }}">→ Subcategoría de: {{ $cat->name }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                        <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">Crear</button>
-                    </form>
-                </div>
             </div>
         </div>
 

@@ -36,10 +36,14 @@ class DashboardController extends Controller
         $paidOrdersInPeriod = fn () => Order::query()->paid()->where('created_at', '>=', $start);
 
         // ---- KPIs ----
-        $productsSold = (int) OrderItem::query()
-            ->whereIn('order_id', $paidOrdersInPeriod()->pluck('id'))
-            ->sum('quantity');
+        // Ventas: dinero de pedidos pagados Y entregados
+        $salesTotal = (float) Order::query()
+            ->paid()
+            ->whereIn('status', [Order::STATUS_ENVIADO, Order::STATUS_ENTREGADO])
+            ->where('created_at', '>=', $start)
+            ->sum('total');
 
+        // Ingresos: todos los pedidos pagados + otros ingresos
         $otrosIngresosTotal = (float) Expense::query()
             ->where('type', Expense::TYPE_INGRESO)
             ->where('incurred_on', '>=', $start)
@@ -47,11 +51,11 @@ class DashboardController extends Controller
 
         $revenue = (float) $paidOrdersInPeriod()->sum('total') + $otrosIngresosTotal;
 
-        $shippedAndPaidCount = Order::query()
-            ->paid()
-            ->whereIn('status', [Order::STATUS_ENVIADO, Order::STATUS_ENTREGADO])
-            ->where('created_at', '>=', $start)
-            ->count();
+        // Deuda de mecánicos: total en dinero
+        $mechanicsTotalDebt = (float) Mechanic::with(['jobs' => fn ($q) => $q->where('pagado', false)])
+            ->get()
+            ->flatMap(fn (Mechanic $m) => $m->jobs)
+            ->sum('monto_a_pagar');
 
         $expensesTotal = (float) Expense::query()
             ->where('type', Expense::TYPE_GASTO)
@@ -109,9 +113,9 @@ class DashboardController extends Controller
         return view('admin.dashboard', [
             'periods' => self::PERIODS,
             'period' => $period,
-            'productsSold' => $productsSold,
+            'salesTotal' => $salesTotal,
             'revenue' => $revenue,
-            'shippedAndPaidCount' => $shippedAndPaidCount,
+            'mechanicsTotalDebt' => $mechanicsTotalDebt,
             'expensesTotal' => $expensesTotal,
             'lowStock' => $lowStock,
             'outOfStock' => $outOfStock,

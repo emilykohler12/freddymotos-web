@@ -7,14 +7,14 @@
     @php
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
         $cards = [
-            ['label' => 'Ventas (productos vendidos)', 'value' => $productsSold, 'bg' => 'bg-marca-mostaza', 'text' => 'text-marca-blanco',
-                'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+            ['label' => 'Ventas', 'value' => $money($salesTotal), 'bg' => 'bg-marca-mostaza', 'text' => 'text-marca-blanco',
+                'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'href' => route('admin.orders.index')],
             ['label' => 'Ingresos', 'value' => $money($revenue), 'bg' => 'bg-marca-amarillo', 'text' => 'text-marca-negro',
-                'icon' => 'M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z'],
-            ['label' => 'Pedidos enviados y pagados', 'value' => $shippedAndPaidCount, 'bg' => 'bg-marca-negro', 'text' => 'text-marca-blanco',
-                'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z'],
+                'icon' => 'M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z', 'href' => route('admin.orders.index')],
+            ['label' => 'Deuda de mecánicos', 'value' => $money($mechanicsTotalDebt), 'bg' => 'bg-marca-negro', 'text' => 'text-marca-blanco',
+                'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z', 'href' => route('admin.workshop.index', ['tab' => 'mecanicos'])],
             ['label' => 'Gastos', 'value' => $money($expensesTotal), 'bg' => 'bg-marca-bordo', 'text' => 'text-marca-blanco',
-                'icon' => 'M3 10h18M7 15h4m-4 0v.01M3 6h18v12H3z'],
+                'icon' => 'M3 10h18M7 15h4m-4 0v.01M3 6h18v12H3z', 'href' => route('admin.expenses.index')],
         ];
     @endphp
 
@@ -31,7 +31,7 @@
     {{-- Tarjetas de KPIs --}}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach ($cards as $card)
-            <div class="relative overflow-hidden rounded-2xl {{ $card['bg'] }} p-5 shadow-sm">
+            <a href="{{ $card['href'] ?? '#' }}" class="relative overflow-hidden rounded-2xl {{ $card['bg'] }} p-5 shadow-sm transition hover:shadow-lg hover:scale-105">
                 <svg class="pointer-events-none absolute -bottom-3 -right-3 h-20 w-20 opacity-10 {{ $card['text'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="{{ $card['icon'] }}"/>
                 </svg>
@@ -42,7 +42,7 @@
                 </span>
                 <p class="relative mt-3 text-sm {{ $card['text'] }} opacity-80">{{ $card['label'] }}</p>
                 <p class="relative mt-1 text-2xl font-extrabold {{ $card['text'] }}">{{ $card['value'] }}</p>
-            </div>
+            </a>
         @endforeach
     </div>
 
