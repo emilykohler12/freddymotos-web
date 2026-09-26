@@ -206,10 +206,74 @@
 
         {{-- Local Tab --}}
         @if ($activeTab === 'local')
-        <div class="w-full pt-4">
-            <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                Ventas locales disponibles próximamente.
-            </p>
+        <div class="w-full space-y-5 pt-4">
+            <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
+                <input type="hidden" name="tab" value="local">
+                <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por N° o cliente..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
+                <select name="sort" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="recent" @selected($sort === 'recent')>Más reciente</option>
+                    <option value="oldest" @selected($sort === 'oldest')>Más antiguo</option>
+                    <option value="name_asc" @selected($sort === 'name_asc')>Cliente A-Z</option>
+                    <option value="name_desc" @selected($sort === 'name_desc')>Cliente Z-A</option>
+                </select>
+                <select name="shipment" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="">Todos los envíos</option>
+                    <option value="pending" @selected($shipment === 'pending')>Envío pendiente</option>
+                </select>
+                <select name="payment" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
+                    <option value="">Todos los pagos</option>
+                    <option value="pending" @selected($payment === 'pending')>Pago pendiente</option>
+                </select>
+            </form>
+
+            @if ($local->isEmpty())
+                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    No hay ventas locales cargadas.
+                </p>
+            @else
+                <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-xs uppercase tracking-wide text-marca-gris-oscuro/60">
+                                <tr>
+                                    <th class="px-5 py-3 font-semibold">N°</th>
+                                    <th class="px-5 py-3 font-semibold">Fecha</th>
+                                    <th class="px-5 py-3 font-semibold">Cliente</th>
+                                    <th class="px-5 py-3 font-semibold">Total</th>
+                                    <th class="px-5 py-3 font-semibold">Pago</th>
+                                    <th class="px-5 py-3 font-semibold">Estado del pago</th>
+                                    <th class="px-5 py-3 font-semibold">Estado del pedido</th>
+                                    <th class="px-5 py-3 font-semibold"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-marca-gris-claro">
+                                @foreach ($local as $order)
+                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', [$order, 'from' => 'local']) }}'">
+                                        <td class="px-5 py-3 font-medium text-marca-negro">#{{ $order->id }}</td>
+                                        <td class="px-5 py-3 text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                        <td class="px-5 py-3 text-marca-negro">{{ $order->customer->name ?? '—' }}</td>
+                                        <td class="px-5 py-3 font-semibold text-marca-negro">{{ $order->formatted_total }}</td>
+                                        <td class="px-5 py-3 text-marca-gris-oscuro">{{ $paymentMethodLabels[$order->payment_method] ?? ucfirst($order->payment_method) }}</td>
+                                        <td class="px-5 py-3">
+                                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $estados[$order->payment_status] ?? 'bg-marca-gris-claro text-marca-gris-oscuro' }}">
+                                                {{ $paymentStatuses[$order->payment_status] ?? $order->payment_status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-5 py-3">
+                                            <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $estados[$order->status] ?? 'bg-marca-gris-claro text-marca-gris-oscuro' }}">
+                                                {{ $statuses[$order->status] ?? $order->status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-5 py-3 text-right text-xs font-semibold text-marca-rojo">Ver →</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>{{ $local->links() }}</div>
+            @endif
         </div>
         @endif
 
@@ -333,18 +397,20 @@
                                             <form method="POST" action="{{ route('admin.expenses.update', $income) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
                                                 @csrf
                                                 @method('PUT')
+                                                <input type="hidden" name="tab" value="otros">
                                                 <input type="text" name="description" value="{{ $income->description }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
                                                 <input type="date" name="incurred_on" value="{{ $income->incurred_on->format('Y-m-d') }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
                                                 <input type="number" name="amount" value="{{ $income->amount }}" step="0.01" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
                                                 <div class="col-span-full flex gap-2">
                                                     <button type="submit" class="rounded-lg bg-marca-amarillo px-4 py-2 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">Guardar</button>
                                                     <button type="button" onclick="document.getElementById('editIngresoForm{{ $income->id }}').classList.toggle('hidden')" class="rounded-lg bg-marca-gris-claro px-4 py-2 text-sm font-bold text-marca-gris-oscuro transition hover:bg-marca-rojo hover:text-marca-blanco">Cancelar</button>
-                                                    <form method="POST" action="{{ route('admin.expenses.destroy', $income) }}" class="inline" onsubmit="return confirm('¿Eliminar este ingreso?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="rounded-lg bg-marca-rojo px-4 py-2 text-sm font-bold text-marca-blanco transition hover:bg-marca-negro">Eliminar</button>
-                                                    </form>
                                                 </div>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.expenses.destroy', $income) }}" data-confirm="¿Eliminar este ingreso?" class="mt-2">
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="tab" value="otros">
+                                                <button type="submit" class="rounded-lg bg-marca-rojo px-4 py-2 text-sm font-bold text-marca-blanco transition hover:bg-marca-negro">Eliminar</button>
                                             </form>
                                         </td>
                                     </tr>

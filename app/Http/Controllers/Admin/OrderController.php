@@ -127,7 +127,7 @@ class OrderController extends Controller
                 'payment_status' => Order::PAYMENT_STATUS_PAGADO,
                 'delivery_method' => $data['delivery_method'],
                 'payment_method' => $data['real_payment_method'],
-                'origin' => Order::ORIGIN_WHATSAPP,
+                'origin' => Order::ORIGIN_LOCAL,
                 'subtotal' => $subtotal,
                 'shipping_cost' => $shippingCost,
                 'shipping_zone_id' => $shippingZone?->id,
@@ -152,9 +152,9 @@ class OrderController extends Controller
             return $order;
         });
 
-        ActivityLog::log('pedido_whatsapp', "Pedido #{$order->id} cargado a mano (WhatsApp) para {$order->customer->name} ({$order->formatted_total})", $order);
+        ActivityLog::log('pedido_local', "Pedido #{$order->id} cargado a mano (Local) para {$order->customer->name} ({$order->formatted_total})", $order);
 
-        return redirect()->route('admin.orders.show', $order)->with('status', 'Pedido cargado.');
+        return redirect()->route('admin.orders.show', [$order, 'from' => 'local'])->with('status', 'Pedido cargado.');
     }
 
     public function show(Order $order): View

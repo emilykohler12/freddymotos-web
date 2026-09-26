@@ -210,13 +210,9 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
-        if ($product->image_path) {
-            Storage::disk('public')->delete($product->image_path);
-        }
-
         $product->delete();
 
-        return back()->with('status', 'Producto eliminado.');
+        return back()->with('status', 'Producto desactivado.');
     }
 
     private function validated(Request $request, ?Product $product = null): array

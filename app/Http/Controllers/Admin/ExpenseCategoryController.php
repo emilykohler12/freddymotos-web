@@ -25,9 +25,17 @@ class ExpenseCategoryController extends Controller
     public function update(Request $request, ExpenseCategory $expenseCategory)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:80'],
-            'parent_id' => ['nullable', 'exists:expense_categories,id'],
+            'name' => ['sometimes', 'required', 'string', 'max:80'],
+            'parent_id' => ['sometimes', 'nullable', 'exists:expense_categories,id'],
         ]);
+
+        if (($data['parent_id'] ?? null) == $expenseCategory->id) {
+            $message = 'Una categoría no puede ser su propia subcategoría.';
+
+            return $request->wantsJson()
+                ? response()->json(['error' => $message], 422)
+                : back()->with('error', $message);
+        }
 
         $expenseCategory->update($data);
 

@@ -44,6 +44,7 @@ class Order extends Model
     // De dónde vino el pedido: se mantiene fijo aunque después cambie el payment_method real.
     public const ORIGIN_WEB = 'web';
     public const ORIGIN_WHATSAPP = 'whatsapp';
+    public const ORIGIN_LOCAL = 'local';
 
     protected $fillable = [
         'uuid',

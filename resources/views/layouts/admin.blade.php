@@ -128,22 +128,6 @@
     </main>
 </div>
 
-{{-- Modal de confirmación para eliminar --}}
-<div id="confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-marca-negro/50">
-    <div class="rounded-2xl bg-marca-blanco p-6 shadow-lg max-w-sm">
-        <h2 class="text-lg font-bold text-marca-negro mb-2">¿Estás seguro?</h2>
-        <p class="text-sm text-marca-gris-oscuro mb-6" id="confirm-message"></p>
-        <div class="flex gap-3 justify-end">
-            <button onclick="closeConfirmModal()" class="px-4 py-2 text-sm font-semibold text-marca-gris-oscuro hover:text-marca-negro border border-marca-gris-oscuro/20 rounded-lg hover:border-marca-gris-oscuro">
-                Cancelar
-            </button>
-            <button onclick="submitDelete()" class="px-4 py-2 text-sm font-semibold bg-marca-rojo text-marca-blanco rounded-lg hover:bg-marca-rojo/90">
-                Eliminar
-            </button>
-        </div>
-    </div>
-</div>
-
 {{-- Aviso flotante abajo a la derecha, se saca solo a los 30 segundos --}}
 @if (session('status') || session('error'))
     @php $isError = (bool) session('error'); @endphp
@@ -161,36 +145,6 @@
         }, 30000);
     </script>
 @endif
-
-<script>
-    var deleteForm = null;
-    var isModalShown = false;
-
-    function closeConfirmModal() {
-        document.getElementById('confirm-modal').classList.add('hidden');
-        deleteForm = null;
-        isModalShown = false;
-    }
-
-    function submitDelete() {
-        if (!deleteForm) return;
-        isModalShown = false;
-        document.body.appendChild(deleteForm);
-        deleteForm.submit();
-    }
-
-    document.addEventListener('submit', function(e) {
-        var form = e.target;
-        if (!form.hasAttribute('data-confirm') || isModalShown) return;
-
-        e.preventDefault();
-        var message = form.getAttribute('data-confirm');
-        deleteForm = form;
-        document.getElementById('confirm-message').textContent = message;
-        document.getElementById('confirm-modal').classList.remove('hidden');
-        isModalShown = true;
-    }, true);
-</script>
 
 </body>
 </html>

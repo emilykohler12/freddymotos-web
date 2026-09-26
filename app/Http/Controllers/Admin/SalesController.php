@@ -46,7 +46,7 @@ class SalesController extends Controller
 
         $web = (clone $baseQuery)->where('origin', Order::ORIGIN_WEB)->paginate(15, ['*'], 'web_page')->withQueryString();
         $whatsapp = (clone $baseQuery)->where('origin', Order::ORIGIN_WHATSAPP)->paginate(15, ['*'], 'whatsapp_page')->withQueryString();
-        $local = collect();
+        $local = (clone $baseQuery)->where('origin', Order::ORIGIN_LOCAL)->paginate(15, ['*'], 'local_page')->withQueryString();
 
         $ingresosSearch = trim((string) $request->query('ingresos_search', ''));
         $ingresosSort = $request->string('ingresos_sort', 'recent')->toString();

@@ -195,7 +195,11 @@
                                     <td class="px-5 py-3 text-right">
                                         <div class="flex items-center justify-end gap-3">
                                             <a href="{{ route('admin.products.edit', $product) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Editar</a>
-                                            <button type="button" onclick="confirmDelete('{{ route('admin.products.destroy', $product) }}', '{{ $product->name }}')" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                            <form method="POST" action="{{ route('admin.products.destroy', $product) }}" data-confirm="¿Desactivar {{ $product->name }}?" class="inline-flex">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
