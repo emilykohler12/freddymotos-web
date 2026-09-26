@@ -188,16 +188,24 @@
                                             body: formData,
                                             headers: { 'Accept': 'application/json' }
                                         }).then(r => {
-                                            if (draggedElement) draggedElement.style.opacity = '1';
+                                            if (draggedElement) {
+                                                draggedElement.style.opacity = '1';
+                                            }
                                             if (r.ok) {
-                                                location.reload();
+                                                setTimeout(() => location.reload(), 300);
                                             } else {
-                                                r.json().then(data => alert(data.error || 'Error al mover'));
+                                                try {
+                                                    r.json().then(data => alert(data.error || 'Error al mover'));
+                                                } catch (e) {
+                                                    alert('Error al mover');
+                                                }
                                             }
                                             draggedElement = null;
                                         }).catch(e => {
+                                            if (draggedElement) {
+                                                draggedElement.style.opacity = '1';
+                                            }
                                             alert('Error: ' + e.message);
-                                            if (draggedElement) draggedElement.style.opacity = '1';
                                             draggedElement = null;
                                         });
                                     }
