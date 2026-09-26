@@ -218,6 +218,7 @@
                             @endforeach
                         </select>
                         <input type="date" name="incurred_on" value="{{ now()->toDateString() }}" required class="{{ $field }}">
+                        <input type="date" name="due_on" placeholder="Fecha de vencimiento (opcional)" class="{{ $field }}">
                         <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                             Registrar
                         </button>

@@ -122,6 +122,7 @@ class DashboardController extends Controller
             'pendingOrders' => $pendingOrders,
             'pendingOrderPayments' => $pendingOrderPayments,
             'pendingExpensePayments' => $pendingExpensePayments,
+            'mechanicsDebt' => $mechanicsDebt,
             'topProductsChart' => $this->topProductsChart($topProducts),
             'expensesByCategoryChart' => $this->expensesByCategoryChart($expensesByCategory),
             'incomeVsExpensesChart' => $this->incomeVsExpensesChart($period, $start),

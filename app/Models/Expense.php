@@ -32,6 +32,7 @@ class Expense extends Model
         'frequency',
         'paid',
         'incurred_on',
+        'due_on',
     ];
 
     protected function casts(): array
@@ -39,6 +40,7 @@ class Expense extends Model
         return [
             'amount' => 'decimal:2',
             'incurred_on' => 'date',
+            'due_on' => 'date',
             'paid' => 'boolean',
         ];
     }

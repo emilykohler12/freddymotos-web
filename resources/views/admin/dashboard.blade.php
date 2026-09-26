@@ -46,150 +46,170 @@
         @endforeach
     </div>
 
-    {{-- Ingresos vs gastos: todo el ancho, siguiendo el mismo filtro de período de arriba --}}
-    <div class="mt-8 w-full rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-        <h2 class="text-sm font-bold text-marca-negro">Ingresos vs gastos · {{ $periods[$period] }}</h2>
-        <div class="mt-4 h-72 w-full sm:h-80">
-            <canvas data-chart="{{ json_encode($incomeVsExpensesChart) }}"></canvas>
+    {{-- Grid principal de gráficos (9 elementos) --}}
+    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        {{-- 1. Ingresos vs gastos --}}
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5 lg:col-span-2 xl:col-span-3">
+            <a href="{{ route('admin.orders.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Ingresos vs gastos · {{ $periods[$period] }}</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            <div class="mt-4 h-72 w-full">
+                <canvas data-chart="{{ json_encode($incomeVsExpensesChart) }}"></canvas>
+            </div>
         </div>
-    </div>
 
-    {{-- Gráficos --}}
-    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
+        {{-- 2. Pagos pendientes de gastos --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Productos más vendidos</h2>
-            @if ($hasTopProducts)
-                <div class="mt-4 h-72">
-                    <canvas data-chart="{{ json_encode($topProductsChart) }}"></canvas>
-                </div>
+            <a href="{{ route('admin.expenses.index', ['tab' => 'pendientes']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Gastos pendientes</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            @if ($pendingExpensePayments->isNotEmpty())
+                <ul class="mt-4 space-y-2 text-sm divide-y divide-marca-gris-claro">
+                    @foreach ($pendingExpensePayments->take(5) as $group)
+                        @forelse ($group as $expense)
+                            <li class="py-2 flex justify-between">
+                                <span class="text-marca-gris-oscuro">{{ $expense->description }}</span>
+                                <span class="font-semibold text-marca-negro">{{ $money($expense->amount) }}</span>
+                            </li>
+                        @empty
+                        @endforelse
+                    @endforeach
+                </ul>
             @else
-                <p class="mt-4 text-sm text-marca-gris-oscuro">Todavía no hay ventas en este período.</p>
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos pendientes.</p>
             @endif
         </div>
 
+        {{-- 3. Pagos pendientes en ventas --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <div class="flex items-center justify-between">
+            <a href="{{ route('admin.orders.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Pedidos sin pago</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            @if ($pendingOrderPayments->isNotEmpty())
+                <ul class="mt-4 space-y-2 text-sm divide-y divide-marca-gris-claro">
+                    @foreach ($pendingOrderPayments->sortBy('created_at')->take(5) as $order)
+                        <li class="py-2 flex justify-between">
+                            <div>
+                                <span class="text-marca-negro font-medium">{{ $order->customer->name ?? 'Cliente' }}</span>
+                                <p class="text-xs text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y') }}</p>
+                            </div>
+                            <span class="font-semibold">{{ $money($order->total) }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay pagos pendientes.</p>
+            @endif
+        </div>
+
+        {{-- 4. Envío pendientes --}}
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <a href="{{ route('admin.shipping.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Envíos pendientes</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            @if ($pendingOrders->isNotEmpty())
+                <ul class="mt-4 space-y-2 text-sm divide-y divide-marca-gris-claro">
+                    @foreach ($pendingOrders->sortBy('created_at')->take(5) as $order)
+                        <li class="py-2 flex justify-between">
+                            <div>
+                                <span class="text-marca-negro font-medium">{{ $order->customer->name ?? 'Cliente' }}</span>
+                                <p class="text-xs text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y') }}</p>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay envíos pendientes.</p>
+            @endif
+        </div>
+
+        {{-- 5. Gastos por categorías --}}
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <a href="{{ route('admin.expenses.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Gastos por categoría</h2>
-                <a href="{{ route('admin.expenses.index') }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ver gastos</a>
-            </div>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
             @if ($hasExpensesByCategory)
                 <div class="mt-4 h-72">
                     <canvas data-chart="{{ json_encode($expensesByCategoryChart) }}"></canvas>
                 </div>
             @else
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos registrados en este período.</p>
+                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos registrados.</p>
             @endif
         </div>
 
+        {{-- 6. Deuda mecánicos detallado --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-bold text-marca-negro">Cuánto deben los mecánicos</h2>
-                <a href="{{ route('admin.workshop.index', ['tab' => 'mecanicos']) }}" class="text-xs font-semibold text-marca-rojo hover:underline">Ver taller</a>
-            </div>
+            <a href="{{ route('admin.workshop.index', ['tab' => 'mecanicos']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Deuda mecánicos</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
             @if ($hasMechanicsDebt)
+                <ul class="mt-4 space-y-2 text-sm divide-y divide-marca-gris-claro">
+                    @foreach ($mechanicsDebt->take(5) as $mechanic)
+                        <li class="py-2 flex justify-between">
+                            <span class="text-marca-negro">{{ $mechanic['name'] }}</span>
+                            <span class="font-semibold text-marca-rojo">{{ $money($mechanic['total']) }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">Sin deudas.</p>
+            @endif
+        </div>
+
+        {{-- 7. Stock bajo --}}
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <a href="{{ route('admin.products.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Stock bajo/sin stock</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            @if ($outOfStock->isNotEmpty() || $lowStock->isNotEmpty())
+                <ul class="mt-4 space-y-2 text-sm divide-y divide-marca-gris-claro">
+                    @foreach ($outOfStock->take(3) as $product)
+                        <li class="py-2 flex justify-between items-center">
+                            <span class="text-marca-negro">{{ $product->name }}</span>
+                            <span class="rounded bg-marca-rojo/10 px-2 py-1 text-xs font-semibold text-marca-rojo">Sin stock</span>
+                        </li>
+                    @endforeach
+                    @foreach ($lowStock->take(2) as $product)
+                        <li class="py-2 flex justify-between items-center">
+                            <span class="text-marca-negro">{{ $product->name }}</span>
+                            <span class="text-xs font-semibold text-marca-mostaza">{{ $product->stock }} ud</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">Stock suficiente.</p>
+            @endif
+        </div>
+
+        {{-- 8. Productos más vendidos --}}
+        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+            <a href="{{ route('admin.products.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Productos top 5</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            @if ($hasTopProducts)
                 <div class="mt-4 h-72">
-                    <canvas data-chart="{{ json_encode($mechanicsDebtChart) }}"></canvas>
+                    <canvas data-chart="{{ json_encode($topProductsChart) }}"></canvas>
                 </div>
             @else
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay trabajos de mecánicos pendientes de pago.</p>
-            @endif
-        </div>
-    </div>
-
-    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {{-- Stock bajo / sin stock --}}
-        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Sin stock o poco stock</h2>
-            @if ($outOfStock->isEmpty() && $lowStock->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">Todos los productos tienen stock suficiente.</p>
-            @else
-                <ul class="mt-4 divide-y divide-marca-gris-claro text-sm">
-                    @foreach ($outOfStock as $product)
-                        <li class="flex items-center justify-between py-2">
-                            <span class="text-marca-negro">{{ $product->name }}</span>
-                            <span class="rounded-full bg-marca-rojo/10 px-2.5 py-0.5 text-xs font-semibold text-marca-rojo">Sin stock</span>
-                        </li>
-                    @endforeach
-                    @foreach ($lowStock as $product)
-                        <li class="flex items-center justify-between py-2">
-                            <span class="text-marca-negro">{{ $product->name }}</span>
-                            <span class="rounded-full bg-marca-mostaza/15 px-2.5 py-0.5 text-xs font-semibold text-marca-mostaza">{{ $product->stock }} unidades</span>
-                        </li>
-                    @endforeach
-                </ul>
+                <p class="mt-4 text-sm text-marca-gris-oscuro">Sin ventas.</p>
             @endif
         </div>
 
-        {{-- Pedidos pendientes --}}
+        {{-- 9. Marcas más vendidas (placeholder) --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Pedidos pendientes</h2>
-            @if ($pendingOrders->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay pedidos pendientes en este período.</p>
-            @else
-                <ul class="mt-4 divide-y divide-marca-gris-claro text-sm">
-                    @foreach ($pendingOrders as $order)
-                        <li class="flex items-center justify-between gap-3 py-2">
-                            <div>
-                                <a href="{{ route('admin.orders.show', $order) }}" class="font-medium text-marca-negro hover:text-marca-rojo">{{ $order->customer->name ?? '—' }}</a>
-                                <p class="text-xs text-marca-gris-oscuro">
-                                    {{ $order->delivery_method === \App\Models\Order::DELIVERY_ENVIO ? 'Falta enviar' : 'Falta retirar en el local' }}
-                                    @if ($order->payment_status === \App\Models\Order::PAYMENT_STATUS_PENDIENTE) · Pago pendiente @endif
-                                </p>
-                            </div>
-                            <span class="shrink-0 text-marca-gris-oscuro">{{ $order->formatted_total }}</span>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-
-        {{-- Pagos pendientes: pedidos del ecommerce --}}
-        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes · Pedidos</h2>
-            @if ($pendingOrderPayments->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay pagos de pedidos pendientes en este período.</p>
-            @else
-                <ul class="mt-4 divide-y divide-marca-gris-claro text-sm">
-                    @foreach ($pendingOrderPayments as $order)
-                        <li class="py-2">
-                            <div class="flex items-center justify-between gap-3">
-                                <a href="{{ route('admin.orders.show', $order) }}" class="font-medium text-marca-negro hover:text-marca-rojo">{{ $order->customer->name ?? '—' }}</a>
-                                <span class="shrink-0 text-marca-gris-oscuro">{{ $order->formatted_total }}</span>
-                            </div>
-                            <p class="mt-0.5 text-xs text-marca-gris-oscuro">{{ $order->items->pluck('product_name')->implode(', ') }}</p>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-
-        {{-- Pagos pendientes: todos los gastos sin pagar, separados por frecuencia --}}
-        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <h2 class="text-sm font-bold text-marca-negro">Pagos pendientes · Gastos</h2>
-            @if ($pendingExpensePayments->isEmpty())
-                <p class="mt-4 text-sm text-marca-gris-oscuro">No hay gastos pendientes de pago.</p>
-            @else
-                <div class="mt-4 max-h-96 space-y-4 overflow-y-auto">
-                    @foreach (\App\Models\Expense::FREQUENCIES as $freqKey => $freqLabel)
-                        @if ($pendingExpensePayments->has($freqKey))
-                            <div>
-                                <p class="mb-1.5 text-xs font-bold uppercase tracking-wide text-marca-gris-oscuro">{{ $freqLabel }}</p>
-                                <ul class="divide-y divide-marca-gris-claro text-sm">
-                                    @foreach ($pendingExpensePayments->get($freqKey) as $expense)
-                                        <li class="py-2">
-                                            <div class="flex items-center justify-between gap-3">
-                                                <span class="font-medium text-marca-negro">{{ $expense->description }}</span>
-                                                <span class="shrink-0 text-marca-gris-oscuro">{{ $expense->formatted_amount }}</span>
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            @endif
-            <a href="{{ route('admin.expenses.index', ['tab' => 'pendientes']) }}" class="mt-4 block text-center text-xs font-semibold text-marca-rojo hover:underline">Ver gastos pendientes</a>
+            <a href="{{ route('admin.products.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+                <h2 class="text-sm font-bold text-marca-negro">Marcas top 5</h2>
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            <p class="mt-4 text-sm text-marca-gris-oscuro">Datos disponibles próximamente.</p>
         </div>
     </div>
 @endsection
