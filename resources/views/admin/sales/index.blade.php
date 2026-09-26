@@ -89,7 +89,7 @@
                             </thead>
                             <tbody class="divide-y divide-marca-gris-claro">
                                 @foreach ($web as $order)
-                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', $order) }}'">
+                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', [$order, 'from' => 'web']) }}'">
                                         <td class="px-5 py-3 font-medium text-marca-negro">#{{ $order->id }}</td>
                                         <td class="px-5 py-3 text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="px-5 py-3 text-marca-negro">{{ $order->customer->name ?? '—' }}</td>
@@ -148,7 +148,7 @@
                             </thead>
                             <tbody class="divide-y divide-marca-gris-claro">
                                 @foreach ($whatsapp as $order)
-                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', $order) }}'">
+                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', [$order, 'from' => 'whatsapp']) }}'">
                                         <td class="px-5 py-3 font-medium text-marca-negro">#{{ $order->id }}</td>
                                         <td class="px-5 py-3 text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="px-5 py-3 text-marca-negro">{{ $order->customer->name ?? '—' }}</td>
@@ -221,7 +221,7 @@
                             </thead>
                             <tbody class="divide-y divide-marca-gris-claro">
                                 @foreach ($paidOrders as $order)
-                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', $order) }}'">
+                                    <tr class="cursor-pointer hover:bg-marca-gris-claro/40" onclick="location.href='{{ route('admin.orders.show', [$order, 'from' => 'ingresos']) }}'">
                                         <td class="px-5 py-3 font-medium text-marca-negro">#{{ $order->id }}</td>
                                         <td class="px-5 py-3 text-marca-gris-oscuro">{{ optional($order->paid_at)->format('d/m/Y H:i') ?? $order->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="px-5 py-3 text-marca-negro">{{ $order->customer->name ?? '—' }}</td>
