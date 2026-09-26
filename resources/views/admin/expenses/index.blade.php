@@ -178,15 +178,14 @@
                                     }
 
                                     if (draggedId && dropTargetId && draggedId !== dropTargetId) {
-                                        const formData = new FormData();
-                                        formData.append('_method', 'PUT');
-                                        formData.append('_token', '{{ csrf_token() }}');
-                                        formData.append('parent_id', dropTargetId);
-
                                         fetch('/admin/gastos/categorias/' + draggedId, {
-                                            method: 'POST',
-                                            body: formData,
-                                            headers: { 'Accept': 'application/json' }
+                                            method: 'PUT',
+                                            body: JSON.stringify({ parent_id: dropTargetId }),
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Accept': 'application/json',
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                            }
                                         }).then(r => {
                                             if (draggedElement) {
                                                 draggedElement.style.opacity = '1';
