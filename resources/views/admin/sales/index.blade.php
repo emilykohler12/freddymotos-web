@@ -26,38 +26,34 @@
 
     {{-- Tabs --}}
     <div class="flex flex-wrap items-start gap-2 mb-6">
-        <input type="radio" name="sales-tab" id="tab-web" class="peer/web hidden" @checked($activeTab === 'web')>
-        <label for="tab-web" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/web:bg-marca-negro peer-checked/web:text-marca-blanco">
+        <a href="{{ route('admin.sales.index', ['tab' => 'web']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'web' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Web
-        </label>
+        </a>
 
-        <input type="radio" name="sales-tab" id="tab-whatsapp" class="peer/whatsapp hidden" @checked($activeTab === 'whatsapp')>
-        <label for="tab-whatsapp" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/whatsapp:bg-marca-negro peer-checked/whatsapp:text-marca-blanco">
+        <a href="{{ route('admin.sales.index', ['tab' => 'whatsapp']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'whatsapp' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
             WhatsApp
-        </label>
+        </a>
 
-        <input type="radio" name="sales-tab" id="tab-local" class="peer/local hidden" @checked($activeTab === 'local')>
-        <label for="tab-local" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/local:bg-marca-negro peer-checked/local:text-marca-blanco">
+        <a href="{{ route('admin.sales.index', ['tab' => 'local']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'local' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5.581m0 0H9m5.581 0cm0 -1.667m0 1.667H9"/></svg>
             Local
-        </label>
+        </a>
 
-        <input type="radio" name="sales-tab" id="tab-ingresos" class="peer/ingresos hidden" @checked($activeTab === 'ingresos')>
-        <label for="tab-ingresos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/ingresos:bg-marca-negro peer-checked/ingresos:text-marca-blanco">
+        <a href="{{ route('admin.sales.index', ['tab' => 'ingresos']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'ingresos' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Ingresos
-        </label>
+        </a>
 
-        <input type="radio" name="sales-tab" id="tab-otros-ingresos" class="peer/otros hidden" @checked($activeTab === 'otros')>
-        <label for="tab-otros-ingresos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/otros:bg-marca-negro peer-checked/otros:text-marca-blanco">
+        <a href="{{ route('admin.sales.index', ['tab' => 'otros']) }}" class="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition {{ $activeTab === 'otros' ? 'bg-marca-negro text-marca-blanco' : 'bg-marca-gris-claro text-marca-gris-oscuro hover:bg-marca-gris-claro/70' }}">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Otros Ingresos
-        </label>
+        </a>
 
         {{-- Web Tab --}}
-        <div class="hidden w-full space-y-5 pt-4 peer-checked/web:block">
+        @if ($activeTab === 'web')
+        <div class="w-full space-y-5 pt-4">
             <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
                 <input type="hidden" name="tab" value="web">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por N° o cliente..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
@@ -112,9 +108,11 @@
                 <div>{{ $web->links() }}</div>
             @endif
         </div>
+        @endif
 
         {{-- WhatsApp Tab --}}
-        <div class="hidden w-full space-y-5 pt-4 peer-checked/whatsapp:block">
+        @if ($activeTab === 'whatsapp')
+        <div class="w-full space-y-5 pt-4">
             <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
                 <input type="hidden" name="tab" value="whatsapp">
                 <input type="text" name="search" value="{{ $search }}" placeholder="Buscar por N° o cliente..." class="min-w-[180px] flex-1 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none">
@@ -169,16 +167,20 @@
                 <div>{{ $whatsapp->links() }}</div>
             @endif
         </div>
+        @endif
 
         {{-- Local Tab --}}
-        <div class="hidden w-full pt-4 peer-checked/local:block">
+        @if ($activeTab === 'local')
+        <div class="w-full pt-4">
             <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 Ventas locales disponibles próximamente.
             </p>
         </div>
+        @endif
 
         {{-- Ingresos Tab --}}
-        <div class="hidden w-full space-y-5 pt-4 peer-checked/ingresos:block">
+        @if ($activeTab === 'ingresos')
+        <div class="w-full space-y-5 pt-4">
             <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
                 <input type="hidden" name="tab" value="ingresos">
                 <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
@@ -228,9 +230,11 @@
                 <div>{{ $paidOrders->links() }}</div>
             @endif
         </div>
+        @endif
 
         {{-- Otros Ingresos Tab --}}
-        <div class="hidden w-full space-y-5 pt-4 peer-checked/otros:block">
+        @if ($activeTab === 'otros')
+        <div class="w-full space-y-5 pt-4">
             <form method="GET" data-autosubmit class="flex flex-wrap gap-2">
                 <input type="hidden" name="tab" value="otros">
                 <input type="date" name="date" value="{{ $date }}" class="rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm">
@@ -278,5 +282,6 @@
                 <div>{{ $otherIncome->links() }}</div>
             @endif
         </div>
+        @endif
     </div>
 @endsection
