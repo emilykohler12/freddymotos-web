@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\CategoryAttribute;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
+use App\Models\Promotion;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Support\Sorting;
@@ -70,6 +71,27 @@ class ProductController extends Controller
         $stockReasons = StockMovement::REASONS;
         $stockMovements = StockMovement::with('product', 'user')->latest()->limit(20)->get();
 
+        $promotionSearch = $request->string('promotion_search', '')->toString();
+        $promotionSort = $request->string('promotion_sort', 'recent')->toString();
+        $promotionStatus = $request->string('promotion_status', '')->toString();
+        $promotionType = $request->string('promotion_type', '')->toString();
+
+        $promotionsQuery = Promotion::with(['category', 'products'])
+            ->when($promotionSearch !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('title') . ' LIKE ?', ['%' . Sorting::fold($promotionSearch) . '%']))
+            ->when($promotionStatus === 'active', fn ($q) => $q->where('active', true))
+            ->when($promotionStatus === 'inactive', fn ($q) => $q->where('active', false))
+            ->when($promotionType !== '', fn ($q) => $q->where('type', $promotionType));
+
+        if ($promotionSort === 'title_asc') {
+            $promotionsQuery->orderByRaw(Sorting::foldedName('title') . ' ASC');
+        } elseif ($promotionSort === 'title_desc') {
+            $promotionsQuery->orderByRaw(Sorting::foldedName('title') . ' DESC');
+        } else {
+            $promotionsQuery->latest();
+        }
+
+        $promotions = $promotionsQuery->get();
+
         return view('admin.products.index', [
             'activeTab' => $activeTab,
             'products' => $products,
@@ -81,6 +103,11 @@ class ProductController extends Controller
             'inventoryProducts' => $inventoryProducts,
             'stockReasons' => $stockReasons,
             'stockMovements' => $stockMovements,
+            'promotions' => $promotions,
+            'promotionSearch' => $promotionSearch,
+            'promotionSort' => $promotionSort,
+            'promotionStatus' => $promotionStatus,
+            'promotionType' => $promotionType,
         ]);
     }
 
