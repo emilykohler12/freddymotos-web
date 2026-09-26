@@ -22,6 +22,19 @@ class MechanicController extends Controller
         return redirect()->route('admin.workshop.index', ['tab' => 'mecanicos'])->with('status', 'Mecánico añadido.');
     }
 
+    public function update(Request $request, Mechanic $mechanic): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'phone' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
+            'email' => ['nullable', 'email', 'max:160'],
+        ]);
+
+        $mechanic->update($data);
+
+        return redirect()->route('admin.workshop.index', ['tab' => 'mecanicos'])->with('status', 'Mecánico actualizado.');
+    }
+
     public function destroy(Mechanic $mechanic): RedirectResponse
     {
         $mechanic->delete();

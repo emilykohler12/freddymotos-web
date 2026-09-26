@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Nuevo pedido')
-@section('page-heading', 'Cargar pedido por WhatsApp')
+@section('page-heading', 'Nuevo pedido')
 
 @section('content')
     @php
@@ -90,19 +90,60 @@
             {{-- Productos --}}
             <div class="border-b border-marca-gris-claro pb-6">
                 <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Productos</h2>
-                <p class="mb-3 text-xs text-marca-gris-oscuro">Tildá los productos, ajustá cantidad y precio si negociaste algo distinto al de catálogo.</p>
-                <div class="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3">
+                <input type="text" id="product-search" placeholder="Buscar producto por nombre..." class="{{ $field }} mb-3">
+                <div class="mb-4 space-y-2">
+                    <p class="text-xs text-marca-gris-oscuro">Productos seleccionados:</p>
+                    <div id="selected-products" class="min-h-8 space-y-2 rounded-lg bg-marca-amarillo/10 p-2">
+                        <p class="text-xs text-marca-gris-oscuro/60">Ninguno</p>
+                    </div>
+                </div>
+                <div class="max-h-96 space-y-2 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3" id="products-list">
                     @foreach ($products as $product)
-                        <div class="grid grid-cols-1 items-center gap-2 border-b border-marca-gris-claro pb-2 last:border-0 sm:grid-cols-[1fr_auto_auto]">
-                            <label class="flex items-center gap-2 text-sm text-marca-negro">
-                                <input type="checkbox" name="product_id[]" value="{{ $product->id }}" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
-                                {{ $product->name }}
+                        <div class="product-item grid grid-cols-1 items-center gap-2 border-b border-marca-gris-claro pb-2 last:border-0 sm:grid-cols-[1fr_auto_auto]" data-product-name="{{ strtolower($product->name) }}" data-product-id="{{ $product->id }}">
+                            <label class="flex items-center gap-2 text-sm text-marca-negro cursor-pointer">
+                                <input type="checkbox" name="product_id[]" value="{{ $product->id }}" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo product-checkbox">
+                                <span>{{ $product->name }}</span>
+                                <span class="text-xs text-marca-gris-oscuro">({{ '$ ' . number_format($product->price, 0, ',', '.') }})</span>
                             </label>
-                            <input type="number" min="1" value="1" name="quantity[{{ $product->id }}]" placeholder="Cant." class="w-24 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-sm">
-                            <input type="number" step="0.01" min="0" value="{{ $product->price }}" name="price[{{ $product->id }}]" placeholder="Precio" class="w-28 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-sm">
+                            <input type="number" min="1" value="1" name="quantity[{{ $product->id }}]" placeholder="Cant." class="w-24 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-sm quantity-input">
+                            <input type="number" step="0.01" min="0" value="{{ $product->price }}" name="price[{{ $product->id }}]" placeholder="Precio" class="w-28 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-sm price-input">
                         </div>
                     @endforeach
                 </div>
+                <script>
+                    (function() {
+                        const searchInput = document.getElementById('product-search');
+                        const productsList = document.getElementById('products-list');
+                        const selectedProductsDiv = document.getElementById('selected-products');
+                        const items = productsList.querySelectorAll('.product-item');
+
+                        function updateSearch() {
+                            const query = searchInput.value.toLowerCase();
+                            items.forEach(item => {
+                                const name = item.getAttribute('data-product-name');
+                                item.style.display = name.includes(query) ? '' : 'none';
+                            });
+                        }
+
+                        function updateSelectedProducts() {
+                            const selected = Array.from(document.querySelectorAll('.product-checkbox:checked'))
+                                .map(cb => cb.closest('.product-item').textContent.trim().split('\n')[0]);
+
+                            if (selected.length === 0) {
+                                selectedProductsDiv.innerHTML = '<p class="text-xs text-marca-gris-oscuro/60">Ninguno</p>';
+                            } else {
+                                selectedProductsDiv.innerHTML = selected
+                                    .map(name => `<span class="inline-block rounded-full bg-marca-amarillo/30 px-2 py-1 text-xs text-marca-negro">${name}</span>`)
+                                    .join('');
+                            }
+                        }
+
+                        searchInput.addEventListener('input', updateSearch);
+                        document.querySelectorAll('.product-checkbox').forEach(cb =>
+                            cb.addEventListener('change', updateSelectedProducts)
+                        );
+                    })();
+                </script>
             </div>
 
             {{-- Pago --}}

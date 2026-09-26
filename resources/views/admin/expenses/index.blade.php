@@ -63,8 +63,7 @@
 
         {{-- ===== Categoría ===== --}}
         <div class="hidden w-full pt-4 peer-checked/categoria:block">
-            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-                <div class="lg:col-span-2">
+            <div class="w-full">
                     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                         <div class="flex flex-wrap items-center gap-2">
                             <h2 class="text-sm font-bold text-marca-negro">Categorías existentes</h2>
@@ -105,94 +104,105 @@
                     </div>
 
                     <script>
-                        // Editar nombre de categoría inline
-                        document.querySelectorAll('.category-name-input').forEach(function(input) {
-                            const originalValue = input.value;
-                            input.addEventListener('blur', function() {
-                                if (this.value !== originalValue && this.value.trim()) {
-                                    const categoryId = this.getAttribute('data-category-id');
-                                    const formData = new FormData();
-                                    formData.append('_method', 'PUT');
-                                    formData.append('_token', '{{ csrf_token() }}');
-                                    formData.append('name', this.value);
+                        let draggedElement = null;
 
-                                    fetch('/admin/gastos-categorias/' + categoryId, {
-                                        method: 'POST',
-                                        body: formData
-                                    }).then(r => r.ok ? location.reload() : alert('Error al actualizar'));
-                                }
+                        function setupEventListeners() {
+                            // Editar nombre de categoría inline
+                            document.querySelectorAll('.category-name-input').forEach(function(input) {
+                                const originalValue = input.value;
+                                input.addEventListener('blur', function() {
+                                    if (this.value !== originalValue && this.value.trim()) {
+                                        const categoryId = this.getAttribute('data-category-id');
+                                        const formData = new FormData();
+                                        formData.append('_method', 'PUT');
+                                        formData.append('_token', '{{ csrf_token() }}');
+                                        formData.append('name', this.value);
+
+                                        fetch('/admin/gastos/categorias/' + categoryId, {
+                                            method: 'POST',
+                                            body: formData
+                                        }).then(r => r.ok ? location.reload() : alert('Error al actualizar'));
+                                    }
+                                });
                             });
-                        });
 
-                        // Eliminar categoría
-                        document.querySelectorAll('.category-delete-btn').forEach(function(btn) {
-                            btn.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                if (!confirm('¿Eliminar ' + this.getAttribute('data-category-name') + '?')) return;
+                            // Eliminar categoría
+                            document.querySelectorAll('.category-delete-btn').forEach(function(btn) {
+                                btn.addEventListener('click', function(e) {
+                                    e.preventDefault();
+                                    if (!confirm('¿Eliminar ' + this.getAttribute('data-category-name') + '?')) return;
 
-                                var categoryId = this.getAttribute('data-category-id');
-                                var formData = new FormData();
-                                formData.append('_method', 'DELETE');
-                                formData.append('_token', '{{ csrf_token() }}');
-                                formData.append('type', 'gasto');
-
-                                fetch('/admin/gastos-categorias/' + categoryId, {
-                                    method: 'POST',
-                                    body: formData
-                                }).then(r => r.ok ? location.reload() : alert('Error al eliminar'));
-                            });
-                        });
-
-                        // Drag and drop para categorías y subcategorías
-                        var draggedElement = null;
-
-                        document.querySelectorAll('[data-category-id], [data-child-id]').forEach(function(el) {
-                            el.addEventListener('dragstart', function(e) {
-                                draggedElement = this;
-                                this.style.opacity = '0.5';
-                            });
-                            el.addEventListener('dragend', function(e) {
-                                this.style.opacity = '1';
-                                draggedElement = null;
-                            });
-                        });
-
-                        // Permitir drop en categorías padre (para mover subcategorías o categorías)
-                        document.querySelectorAll('[data-category-id]').forEach(function(el) {
-                            el.addEventListener('dragover', function(e) {
-                                e.preventDefault();
-                                if (draggedElement && draggedElement !== this) {
-                                    this.style.backgroundColor = '#fff3cd';
-                                }
-                            });
-                            el.addEventListener('dragleave', function(e) {
-                                this.style.backgroundColor = '';
-                            });
-                            el.addEventListener('drop', function(e) {
-                                e.preventDefault();
-                                this.style.backgroundColor = '';
-
-                                if (!draggedElement || draggedElement === this) return;
-
-                                var newParentId = this.getAttribute('data-category-id');
-                                var childId = draggedElement.getAttribute('data-child-id') || draggedElement.getAttribute('data-category-id');
-
-                                if (childId && newParentId && childId !== newParentId) {
+                                    var categoryId = this.getAttribute('data-category-id');
                                     var formData = new FormData();
-                                    formData.append('_method', 'PUT');
+                                    formData.append('_method', 'DELETE');
                                     formData.append('_token', '{{ csrf_token() }}');
-                                    formData.append('parent_id', newParentId);
+                                    formData.append('type', 'gasto');
 
-                                    fetch('/admin/gastos-categorias/' + childId, {
+                                    fetch('/admin/gastos/categorias/' + categoryId, {
                                         method: 'POST',
                                         body: formData
-                                    }).then(r => r.ok ? location.reload() : alert('Error al mover'));
-                                }
+                                    }).then(r => {
+                                        if (!r.ok) alert('Error al eliminar');
+                                        else location.reload();
+                                    }).catch(e => alert('Error: ' + e.message));
+                                });
                             });
-                        });
-                    </script>
-                </div>
 
+                            // Drag and drop para categorías y subcategorías
+                            const draggables = document.querySelectorAll('[data-category-id][draggable="true"], [data-child-id][draggable="true"]');
+                            draggables.forEach(function(el) {
+                                el.addEventListener('dragstart', function(e) {
+                                    draggedElement = this;
+                                    this.style.opacity = '0.5';
+                                    e.dataTransfer.effectAllowed = 'move';
+                                });
+                                el.addEventListener('dragend', function(e) {
+                                    this.style.opacity = '1';
+                                    draggedElement = null;
+                                });
+                            });
+
+                            // Permitir drop en categorías padre
+                            document.querySelectorAll('[data-category-id][draggable="true"]').forEach(function(el) {
+                                el.addEventListener('dragover', function(e) {
+                                    e.preventDefault();
+                                    e.dataTransfer.dropEffect = 'move';
+                                    if (draggedElement && draggedElement !== this) {
+                                        this.style.backgroundColor = '#fff3cd';
+                                    }
+                                });
+                                el.addEventListener('dragleave', function(e) {
+                                    this.style.backgroundColor = '';
+                                });
+                                el.addEventListener('drop', function(e) {
+                                    e.preventDefault();
+                                    this.style.backgroundColor = '';
+
+                                    if (!draggedElement || draggedElement === this) return;
+
+                                    var newParentId = this.getAttribute('data-category-id');
+                                    var childId = draggedElement.getAttribute('data-child-id') || draggedElement.getAttribute('data-category-id');
+
+                                    if (childId && newParentId && childId !== newParentId) {
+                                        var formData = new FormData();
+                                        formData.append('_method', 'PUT');
+                                        formData.append('_token', '{{ csrf_token() }}');
+                                        formData.append('parent_id', newParentId);
+
+                                        fetch('/admin/gastos/categorias/' + childId, {
+                                            method: 'POST',
+                                            body: formData
+                                        }).then(r => {
+                                            if (!r.ok) alert('Error al mover');
+                                            else location.reload();
+                                        }).catch(e => alert('Error: ' + e.message));
+                                    }
+                                });
+                            });
+                        }
+
+                        setupEventListeners();
+                    </script>
             </div>
         </div>
 

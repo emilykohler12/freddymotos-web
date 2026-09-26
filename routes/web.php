@@ -169,6 +169,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         /* Taller: coordinación de mecánicos (solo panel, no se muestra en el sitio público) */
         Route::post('taller/mecanicos', [AdminMechanicController::class, 'store'])->name('mechanics.store');
+        Route::put('taller/mecanicos/{mechanic}', [AdminMechanicController::class, 'update'])->name('mechanics.update');
         Route::delete('taller/mecanicos/{mechanic}', [AdminMechanicController::class, 'destroy'])->name('mechanics.destroy');
         Route::post('taller/trabajos', [AdminMechanicJobController::class, 'store'])->name('mechanic-jobs.store');
         Route::put('taller/trabajos/{mechanicJob}', [AdminMechanicJobController::class, 'update'])->name('mechanic-jobs.update');

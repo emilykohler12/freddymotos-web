@@ -106,10 +106,22 @@
                                             @if ($mechanic->email) · {{ $mechanic->email }} @endif
                                         </p>
                                     </div>
-                                    <form method="POST" action="{{ route('admin.mechanics.destroy', $mechanic) }}" data-confirm="¿Eliminar a {{ $mechanic->name }} y todos sus trabajos registrados?" class="shrink-0">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
-                                    </form>
+                                    <div class="flex shrink-0 items-center gap-3">
+                                        <details class="[&_summary]:list-none">
+                                            <summary class="cursor-pointer text-xs font-semibold text-marca-negro hover:text-marca-amarillo [&::-webkit-details-marker]:hidden">Editar</summary>
+                                            <form method="POST" action="{{ route('admin.mechanics.update', $mechanic) }}" class="mt-3 space-y-2">
+                                                @csrf @method('PUT')
+                                                <input type="text" name="name" value="{{ $mechanic->name }}" required placeholder="Nombre" class="{{ $field }}">
+                                                <input type="text" name="phone" value="{{ $mechanic->phone }}" placeholder="Teléfono" class="{{ $field }}">
+                                                <input type="email" name="email" value="{{ $mechanic->email }}" placeholder="Correo" class="{{ $field }}">
+                                                <button type="submit" class="w-full rounded-lg border border-marca-gris-oscuro/20 px-4 py-2 text-xs font-semibold hover:border-marca-amarillo">Guardar</button>
+                                            </form>
+                                        </details>
+                                        <form method="POST" action="{{ route('admin.mechanics.destroy', $mechanic) }}" data-confirm="¿Eliminar a {{ $mechanic->name }} y todos sus trabajos registrados?" class="inline-flex">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-xs font-semibold text-marca-rojo hover:underline">Eliminar</button>
+                                        </form>
+                                    </div>
                                 </div>
 
                                 @if ($mechanic->jobs->isEmpty())
