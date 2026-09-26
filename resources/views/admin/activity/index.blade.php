@@ -18,12 +18,6 @@
             Notificaciones
         </label>
 
-        <input type="radio" name="activity-tab" id="tab-inventario" class="peer/inventario hidden" @checked($activeTab === 'inventario')>
-        <label for="tab-inventario" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/inventario:bg-marca-negro peer-checked/inventario:text-marca-blanco">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-            Inventario
-        </label>
-
         <input type="radio" name="activity-tab" id="tab-ingresos" class="peer/ingresos hidden" @checked($activeTab === 'ingresos')>
         <label for="tab-ingresos" class="flex cursor-pointer items-center gap-2 rounded-full bg-marca-gris-claro px-4 py-2 text-sm font-semibold text-marca-gris-oscuro transition hover:bg-marca-gris-claro/70 peer-checked/ingresos:bg-marca-negro peer-checked/ingresos:text-marca-blanco">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -235,79 +229,6 @@
                 </div>
 
                 <div>{{ $logs->links() }}</div>
-        </div>
-    </div>
-
-    {{-- Inventario: sumar o restar stock de un producto --}}
-    <div class="hidden w-full pt-4 peer-checked/inventario:block">
-        <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
-            <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                <h2 class="mb-3 text-sm font-bold text-marca-negro">Ajustar stock</h2>
-                <form method="POST" action="{{ route('admin.stock-movements.store') }}" class="space-y-3">
-                    @csrf
-                    <div>
-                        <label for="stock-product" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Producto</label>
-                        <select id="stock-product" name="product_id" required class="{{ $field }}">
-                            <option value="">Elegir…</option>
-                            @foreach ($inventoryProducts as $product)
-                                <option value="{{ $product->id }}">{{ $product->name }} (stock: {{ $product->stock }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Motivo</label>
-                        <div class="flex flex-wrap gap-4">
-                            @foreach ($stockReasons as $value => $label)
-                                @if ($value !== \App\Models\StockMovement::REASON_AJUSTE)
-                                    <label class="flex items-center gap-2 text-sm font-medium text-marca-negro">
-                                        <input type="radio" name="reason" value="{{ $value }}" @checked($loop->first) required class="h-4 w-4 border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
-                                        {{ $label }}
-                                    </label>
-                                @endif
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="stock-quantity" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Cantidad</label>
-                        <input type="number" id="stock-quantity" name="quantity" min="1" required class="{{ $field }}">
-                    </div>
-
-                    <div>
-                        <label for="stock-note" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Nota (opcional)</label>
-                        <input type="text" id="stock-note" name="note" maxlength="255" class="{{ $field }}">
-                    </div>
-
-                    <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                        Guardar movimiento
-                    </button>
-                </form>
-            </div>
-
-            <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                <h2 class="mb-3 text-sm font-bold text-marca-negro">Últimos movimientos</h2>
-                @if ($stockMovements->isEmpty())
-                    <p class="text-sm text-marca-gris-oscuro">Todavía no hay movimientos de stock.</p>
-                @else
-                    <ul class="divide-y divide-marca-gris-claro text-sm">
-                        @foreach ($stockMovements as $movement)
-                            <li class="flex items-center justify-between gap-3 py-2.5">
-                                <div>
-                                    <p class="font-medium text-marca-negro">{{ $movement->product->name ?? 'Producto eliminado' }}</p>
-                                    <p class="text-xs text-marca-gris-oscuro">
-                                        {{ $movement->reason_label }} · {{ $movement->user->name ?? 'Sistema' }} · {{ $movement->created_at->diffForHumans() }}
-                                        @if ($movement->note) · {{ $movement->note }} @endif
-                                    </p>
-                                </div>
-                                <span class="shrink-0 font-bold {{ $movement->quantity_change >= 0 ? 'text-marca-amarillo' : 'text-marca-rojo' }}">
-                                    {{ $movement->quantity_change >= 0 ? '+' : '' }}{{ $movement->quantity_change }}
-                                </span>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </div>
         </div>
     </div>
 

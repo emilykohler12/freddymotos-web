@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\CategoryAttribute;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
+use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
@@ -65,6 +66,10 @@ class ProductController extends Controller
         $lowStock = Product::where('active', true)->where('stock', '>', 0)->where('stock', '<=', 5)->orderBy('stock')->get();
         $outOfStock = Product::where('active', true)->where('stock', '<=', 0)->get();
 
+        $inventoryProducts = Product::where('active', true)->orderBy('name')->get();
+        $stockReasons = StockMovement::REASONS;
+        $stockMovements = StockMovement::with('product', 'user')->latest()->limit(20)->get();
+
         return view('admin.products.index', [
             'activeTab' => $activeTab,
             'products' => $products,
@@ -73,6 +78,9 @@ class ProductController extends Controller
             'outOfStock' => $outOfStock,
             'sort' => $sort ?: 'name_asc',
             'search' => $request->string('search')->toString(),
+            'inventoryProducts' => $inventoryProducts,
+            'stockReasons' => $stockReasons,
+            'stockMovements' => $stockMovements,
         ]);
     }
 

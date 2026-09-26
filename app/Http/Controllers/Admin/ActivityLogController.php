@@ -84,9 +84,6 @@ class ActivityLogController extends Controller
             'otrosIngresosWithoutCategory' => $otrosIngresos->whereNull('expense_category_id')->values(),
             'ingresosSearch' => $ingresosSearch,
             'ingresosSort' => $ingresosSort,
-            'inventoryProducts' => Product::orderBy('name')->get(['id', 'name', 'stock']),
-            'stockReasons' => StockMovement::REASONS,
-            'stockMovements' => StockMovement::with(['product', 'user'])->latest()->take(20)->get(),
         ]);
     }
 
