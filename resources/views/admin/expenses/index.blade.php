@@ -128,17 +128,18 @@
                         document.querySelectorAll('.category-delete-btn').forEach(function(btn) {
                             btn.addEventListener('click', function(e) {
                                 e.preventDefault();
+                                if (!confirm('¿Eliminar ' + this.getAttribute('data-category-name') + '?')) return;
+
                                 var categoryId = this.getAttribute('data-category-id');
-                                var categoryName = this.getAttribute('data-category-name');
+                                var formData = new FormData();
+                                formData.append('_method', 'DELETE');
+                                formData.append('_token', '{{ csrf_token() }}');
+                                formData.append('type', 'gasto');
 
-                                var form = document.createElement('form');
-                                form.method = 'POST';
-                                form.action = '/admin/gastos-categorias/' + categoryId;
-                                form.innerHTML = '@csrf @method("DELETE")<input type="hidden" name="type" value="gasto">';
-                                form.setAttribute('data-confirm', '¿Eliminar ' + categoryName + '?');
-
-                                document.body.appendChild(form);
-                                form.requestSubmit();
+                                fetch('/admin/gastos-categorias/' + categoryId, {
+                                    method: 'POST',
+                                    body: formData
+                                }).then(r => r.ok ? location.reload() : alert('Error al eliminar'));
                             });
                         });
 

@@ -54,12 +54,18 @@ class ClientAuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:160', 'unique:users,email'],
+            'phone' => ['required', 'regex:/^[0-9+\s\-()]+$/', 'min:10', 'max:20', 'unique:users,phone'],
             'password' => ['required', 'confirmed', Password::defaults()],
+        ], [
+            'phone.regex' => 'El teléfono solo puede contener números, espacios, guiones, paréntesis y símbolo +.',
+            'phone.min' => 'El teléfono debe tener al menos 10 caracteres.',
+            'phone.unique' => 'Este teléfono ya está registrado.',
         ]);
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => $data['phone'],
             'password' => $data['password'],
             'is_admin' => false,
         ]);
