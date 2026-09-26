@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class WorkshopCategory extends Model
 {
     use SoftDeletes;
-{
+
     protected $fillable = [
         'name',
         'description',

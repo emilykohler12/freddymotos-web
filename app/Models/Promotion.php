@@ -12,7 +12,8 @@ use Illuminate\Support\Str;
 class Promotion extends Model
 {
     use SoftDeletes;
-{
+
+
     public const TYPE_PERCENTAGE = 'percentage';
     public const TYPE_FIXED = 'fixed';
     public const TYPE_NXM = 'nxm';
