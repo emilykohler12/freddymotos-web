@@ -22,7 +22,7 @@ class ExpenseCategoryController extends Controller
         return $this->redirectFor($data['type'])->with('status', 'Categoría creada.');
     }
 
-    public function update(Request $request, ExpenseCategory $expenseCategory): RedirectResponse
+    public function update(Request $request, ExpenseCategory $expenseCategory)
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
@@ -31,17 +31,29 @@ class ExpenseCategoryController extends Controller
 
         $expenseCategory->update($data);
 
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'Categoría actualizada.']);
+        }
+
         return $this->redirectFor($expenseCategory->type)->with('status', 'Categoría actualizada.');
     }
 
-    public function destroy(ExpenseCategory $expenseCategory): RedirectResponse
+    public function destroy(Request $request, ExpenseCategory $expenseCategory)
     {
         if ($expenseCategory->expenses()->exists()) {
-            return $this->redirectFor($expenseCategory->type)->with('error', 'No se puede eliminar: hay registros usando esta categoría.');
+            $message = 'No se puede eliminar: hay registros usando esta categoría.';
+            if ($request->wantsJson()) {
+                return response()->json(['error' => $message], 400);
+            }
+            return $this->redirectFor($expenseCategory->type)->with('error', $message);
         }
 
         $type = $expenseCategory->type;
         $expenseCategory->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['status' => 'Categoría desactivada.']);
+        }
 
         return $this->redirectFor($type)->with('status', 'Categoría eliminada.');
     }

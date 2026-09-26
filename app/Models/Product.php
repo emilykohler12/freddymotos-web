@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 class Product extends Model
 {
     use SoftDeletes;
-{
+
     protected $fillable = [
         'name',
         'slug',

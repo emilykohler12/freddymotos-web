@@ -126,7 +126,8 @@
 
                                         fetch('/admin/gastos/categorias/' + categoryId, {
                                             method: 'POST',
-                                            body: formData
+                                            body: formData,
+                                            headers: { 'Accept': 'application/json' }
                                         }).then(r => r.ok ? location.reload() : alert('Error al actualizar'));
                                     }
                                 });
@@ -146,8 +147,12 @@
                                 });
                             });
 
-                            // Permitir drop en categorías padre
-                            document.querySelectorAll('[data-category-id][draggable="true"]').forEach(function(el) {
+                            // Permitir drop en categorías padre y hermanas
+                            const dropTargets = document.querySelectorAll('[data-category-id][draggable="true"]');
+                            const listItems = document.querySelectorAll('[data-child-id][draggable="true"]');
+                            const allDropTargets = Array.from(dropTargets).concat(Array.from(listItems));
+
+                            allDropTargets.forEach(function(el) {
                                 el.addEventListener('dragover', function(e) {
                                     e.preventDefault();
                                     e.dataTransfer.dropEffect = 'move';
@@ -164,28 +169,32 @@
 
                                     if (!draggedElement || draggedElement === this) return;
 
-                                    var newParentId = this.getAttribute('data-category-id');
-                                    var childId = draggedElement.getAttribute('data-child-id') || draggedElement.getAttribute('data-category-id');
+                                    var draggedId = draggedElement.getAttribute('data-child-id') || draggedElement.getAttribute('data-category-id');
+                                    var dropTargetId = this.getAttribute('data-category-id');
 
-                                    if (childId && newParentId && childId !== newParentId) {
-                                        var formData = new FormData();
+                                    // Si se suelta en una subcategoría, mover a su padre
+                                    if (this.getAttribute('data-child-id')) {
+                                        dropTargetId = this.getAttribute('data-parent-id');
+                                    }
+
+                                    if (draggedId && dropTargetId && draggedId !== dropTargetId) {
+                                        const formData = new FormData();
                                         formData.append('_method', 'PUT');
                                         formData.append('_token', '{{ csrf_token() }}');
-                                        formData.append('parent_id', newParentId);
+                                        formData.append('parent_id', dropTargetId);
 
-                                        fetch('/admin/gastos/categorias/' + childId, {
+                                        fetch('/admin/gastos/categorias/' + draggedId, {
                                             method: 'POST',
-                                            body: formData
+                                            body: formData,
+                                            headers: { 'Accept': 'application/json' }
                                         }).then(r => {
+                                            draggedElement.style.opacity = '1';
                                             if (r.ok) {
-                                                // NO recarga - la categoría ya se quedó en el lugar
-                                                draggedElement.style.opacity = '1';
-                                                draggedElement = null;
+                                                location.reload();
                                             } else {
-                                                alert('Error al mover la categoría');
-                                                draggedElement.style.opacity = '1';
-                                                draggedElement = null;
+                                                r.json().then(data => alert(data.error || 'Error al mover'));
                                             }
+                                            draggedElement = null;
                                         }).catch(e => {
                                             alert('Error: ' + e.message);
                                             draggedElement.style.opacity = '1';

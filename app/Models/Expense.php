@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 class Expense extends Model
 {
     use SoftDeletes;
-{
+
     public const TYPE_GASTO = 'gasto';
     public const TYPE_INGRESO = 'ingreso';
 

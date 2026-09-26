@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ExpenseCategory extends Model
 {
     use SoftDeletes;
-{
+
     public const TYPE_GASTO = 'gasto';
     public const TYPE_INGRESO = 'ingreso';
 
