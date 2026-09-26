@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\MechanicJobController as AdminMechanicJobControll
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
+use App\Http\Controllers\Admin\SalesController as AdminSalesController;
 use App\Http\Controllers\Admin\ShippingController as AdminShippingController;
 use App\Http\Controllers\Admin\SiteSettingController as AdminSiteSettingController;
 use App\Http\Controllers\Admin\StockMovementController as AdminStockMovementController;
@@ -109,7 +110,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('promociones/{promotion}', [AdminPromotionController::class, 'destroy'])->name('promotions.destroy');
 
         /* Ventas / Pedidos */
-        Route::get('pedidos', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('ventas', [AdminSalesController::class, 'index'])->name('sales.index');
         Route::get('pedidos/nuevo', [AdminOrderController::class, 'create'])->name('orders.create');
         Route::post('pedidos', [AdminOrderController::class, 'store'])->name('orders.store');
         Route::get('pedidos/{order:uuid}', [AdminOrderController::class, 'show'])->name('orders.show');

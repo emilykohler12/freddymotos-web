@@ -8,9 +8,9 @@
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
         $cards = [
             ['label' => 'Ventas', 'value' => $money($salesTotal), 'bg' => 'bg-marca-mostaza', 'text' => 'text-marca-blanco',
-                'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'href' => route('admin.orders.index')],
+                'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'href' => route('admin.sales.index')],
             ['label' => 'Ingresos', 'value' => $money($revenue), 'bg' => 'bg-marca-amarillo', 'text' => 'text-marca-negro',
-                'icon' => 'M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z', 'href' => route('admin.orders.index')],
+                'icon' => 'M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z', 'href' => route('admin.sales.index', ['tab' => 'ingresos'])],
             ['label' => 'Deuda de mecánicos', 'value' => $money($mechanicsTotalDebt), 'bg' => 'bg-marca-negro', 'text' => 'text-marca-blanco',
                 'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z', 'href' => route('admin.workshop.index', ['tab' => 'mecanicos'])],
             ['label' => 'Gastos', 'value' => $money($expensesTotal), 'bg' => 'bg-marca-bordo', 'text' => 'text-marca-blanco',
@@ -50,7 +50,7 @@
     <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
         {{-- 1. Ingresos vs gastos --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5 lg:col-span-2 xl:col-span-3">
-            <a href="{{ route('admin.orders.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+            <a href="{{ route('admin.sales.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Ingresos vs gastos · {{ $periods[$period] }}</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
@@ -84,7 +84,7 @@
 
         {{-- 3. Pagos pendientes en ventas --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <a href="{{ route('admin.orders.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+            <a href="{{ route('admin.sales.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Pedidos sin pago</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
@@ -164,7 +164,7 @@
 
         {{-- 7. Stock bajo --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <a href="{{ route('admin.products.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+            <a href="{{ route('admin.products.index', ['tab' => 'stock']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Stock bajo/sin stock</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
@@ -190,7 +190,7 @@
 
         {{-- 8. Productos más vendidos --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <a href="{{ route('admin.products.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+            <a href="{{ route('admin.products.index', ['tab' => 'repuestos']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Productos top 5</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
@@ -205,7 +205,7 @@
 
         {{-- 9. Marcas más vendidas (placeholder) --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-            <a href="{{ route('admin.products.index') }}" class="flex items-center justify-between hover:text-marca-rojo transition">
+            <a href="{{ route('admin.products.index', ['tab' => 'repuestos']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Marcas top 5</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

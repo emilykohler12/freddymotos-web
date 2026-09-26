@@ -16,20 +16,9 @@
     $nav = [
         ['label' => 'Dashboard',      'route' => 'admin.dashboard',     'active' => 'admin.dashboard',   'icon' => 'M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6V11h-6v9zm0-16v5h6V4h-6z'],
 
-        ['label' => 'Repuestos',      'group' => true, 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'children' => [
-            ['label' => 'Categorías',  'route' => 'admin.categories.index',   'active' => 'admin.categories.*'],
-            ['label' => 'Repuestos',   'route' => 'admin.products.index',    'active' => 'admin.products.*'],
-            ['label' => 'Stock',       'route' => 'admin.products.index',    'active' => 'admin.products.*'],
-            ['label' => 'Promociones', 'route' => 'admin.promotions.index',  'active' => 'admin.promotions.*'],
-        ]],
+        ['label' => 'Repuestos',      'route' => 'admin.products.index', 'active' => 'admin.products.*', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
 
-        ['label' => 'Ventas',         'group' => true, 'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z', 'children' => [
-            ['label' => 'Web',         'route' => 'admin.orders.index',      'active' => 'admin.orders.*'],
-            ['label' => 'WhatsApp',    'route' => 'admin.orders.index',      'active' => 'admin.orders.*'],
-            ['label' => 'Local',       'route' => 'admin.orders.index',      'active' => 'admin.orders.*'],
-            ['label' => 'Ingresos',    'route' => 'admin.activity.index',    'active' => 'admin.activity.*'],
-            ['label' => 'Otros Ingresos', 'route' => 'admin.activity.index', 'active' => 'admin.activity.*'],
-        ]],
+        ['label' => 'Ventas',         'route' => 'admin.sales.index',   'active' => 'admin.sales.*',   'icon' => 'M9 5h6a2 2 0 012 2v12l-5-3-5 3V7a2 2 0 012-2z'],
 
         ['label' => 'Gastos',         'route' => 'admin.expenses.index',   'active' => 'admin.expenses.*', 'icon' => 'M3 10h18M7 15h4m-4 0v.01M3 6h18v12H3z'],
         ['label' => 'Taller',         'route' => 'admin.workshop.index',   'active' => 'admin.workshop.*', 'icon' => 'M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z'],

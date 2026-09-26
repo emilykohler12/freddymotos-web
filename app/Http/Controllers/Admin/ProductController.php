@@ -32,6 +32,7 @@ class ProductController extends Controller
 
     public function index(Request $request): View
     {
+        $activeTab = $request->string('tab', 'repuestos')->toString();
         $sort = $request->string('sort')->toString();
         [$column, $direction] = self::SORTS[$sort] ?? self::SORTS['name_asc'];
 
@@ -47,9 +48,16 @@ class ProductController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $categories = Category::withCount('products')->orderByRaw(Sorting::foldedName('name'))->get();
+        $lowStock = Product::where('active', true)->where('stock', '>', 0)->where('stock', '<=', 5)->orderBy('stock')->get();
+        $outOfStock = Product::where('active', true)->where('stock', '<=', 0)->get();
+
         return view('admin.products.index', [
+            'activeTab' => $activeTab,
             'products' => $products,
-            'categories' => Category::orderByRaw(Sorting::foldedName('name'))->get(),
+            'categories' => $categories,
+            'lowStock' => $lowStock,
+            'outOfStock' => $outOfStock,
             'sort' => $sort ?: 'name_asc',
             'search' => $request->string('search')->toString(),
         ]);
