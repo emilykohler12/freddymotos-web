@@ -9,6 +9,13 @@
 <body class="flex min-h-screen items-center justify-center bg-marca-negro px-4 font-sans text-marca-negro antialiased">
 
     <div class="w-full max-w-sm">
+        <a href="{{ route('home') }}" class="mb-4 inline-flex items-center gap-1 text-sm text-marca-blanco/70 transition hover:text-marca-blanco">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Volver
+        </a>
+
         <div class="mb-6 text-center">
             <span class="text-2xl font-extrabold tracking-tight text-marca-blanco">
                 {{ \Illuminate\Support\Str::of($settings->nombre_local ?? 'Freddy Motos')->upper() }}
