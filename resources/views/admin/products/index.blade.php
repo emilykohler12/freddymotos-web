@@ -88,7 +88,7 @@
                                 </span>
                             </summary>
 
-                            <div class="mt-4 space-y-2">
+                            <div class="mt-4 space-y-3">
                                 <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data" class="space-y-2">
                                     @csrf
                                     @method('PUT')
@@ -98,6 +98,35 @@
                                         Guardar
                                     </button>
                                 </form>
+
+                                <div class="border-t border-marca-gris-claro pt-3">
+                                    <h4 class="mb-2 text-xs font-bold uppercase text-marca-gris-oscuro">Detalles de la categoría</h4>
+                                    @if ($category->attributes->isNotEmpty())
+                                        <div class="mb-2 space-y-1.5">
+                                            @foreach ($category->attributes as $attribute)
+                                                <form method="POST" action="{{ route('admin.categories.attributes.update', [$category, $attribute]) }}" class="flex gap-2">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="text" name="name" value="{{ $attribute->name }}" required class="{{ $field }} text-xs py-1.5">
+                                                    <button type="submit" class="shrink-0 rounded px-2 py-1.5 text-xs font-semibold text-marca-negro hover:bg-marca-amarillo/20">OK</button>
+                                                    <button type="button" onclick="document.getElementById('del-attr-{{ $attribute->id }}').submit()" class="shrink-0 rounded px-2 py-1.5 text-xs font-semibold text-marca-rojo hover:bg-marca-rojo/10">✕</button>
+                                                </form>
+                                            @endforeach
+                                        </div>
+                                        @foreach ($category->attributes as $attribute)
+                                            <form id="del-attr-{{ $attribute->id }}" style="display: none;" method="POST" action="{{ route('admin.categories.attributes.destroy', [$category, $attribute]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                        @endforeach
+                                    @endif
+                                    <form method="POST" action="{{ route('admin.categories.attributes.store', $category) }}" class="flex gap-2">
+                                        @csrf
+                                        <input type="text" name="name" placeholder="Nuevo detalle..." required class="{{ $field }} text-xs py-1.5">
+                                        <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-3 py-1.5 text-xs font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">+</button>
+                                    </form>
+                                </div>
+
                                 <form method="POST" action="{{ route('admin.categories.destroy', $category) }}" data-confirm="¿Eliminar la categoría {{ $category->name }}?">
                                     @csrf
                                     @method('DELETE')
