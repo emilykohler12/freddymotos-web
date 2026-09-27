@@ -104,6 +104,23 @@
                     </select>
                 </div>
 
+                @if ($order->payment_status === \App\Models\Order::PAYMENT_STATUS_PAGADO)
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Reembolso</label>
+                        @if ($order->refund_status === \App\Models\Order::REFUND_STATUS_REEMBOLSADO)
+                            <p class="text-sm font-medium text-marca-negro">Ya reembolsado.</p>
+                        @elseif ($order->refund_status === \App\Models\Order::REFUND_STATUS_PENDIENTE)
+                            <p class="text-sm font-medium text-marca-rojo">Marcado para reembolsar — se guarda al hacer clic en "Guardar estado".</p>
+                            <input type="hidden" name="refund_status" value="{{ \App\Models\Order::REFUND_STATUS_PENDIENTE }}">
+                        @else
+                            <label class="flex items-center gap-2 text-sm text-marca-negro">
+                                <input type="checkbox" name="refund_status" value="{{ \App\Models\Order::REFUND_STATUS_PENDIENTE }}" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-rojo focus:ring-marca-rojo">
+                                Marcar para reembolsar
+                            </label>
+                        @endif
+                    </div>
+                @endif
+
                 <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                     Guardar estado
                 </button>

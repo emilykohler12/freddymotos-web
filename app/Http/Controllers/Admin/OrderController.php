@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ShippingCompany;
 use App\Models\ShippingZone;
-use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,49 +16,6 @@ use Illuminate\View\View;
 
 class OrderController extends Controller
 {
-    public function index(Request $request): View
-    {
-        $search = trim((string) $request->query('search', ''));
-        $date = $request->query('date', '');
-        $sort = $request->query('sort', 'date_desc');
-
-        $orders = Order::with('customer')
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
-            ->when($request->filled('payment_status'), fn ($q) => $q->where('payment_status', $request->string('payment_status')))
-            ->when($search !== '', function ($q) use ($search) {
-                $q->where(function ($q) use ($search) {
-                    $q->where('id', 'like', "%{$search}%")
-                        ->orWhereHas('customer', fn ($q) => $q->whereRaw(Sorting::foldedName('name') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']));
-                });
-            })
-            ->when($date !== '', fn ($q) => $q->whereDate('created_at', $date))
-            ->when($sort === 'date_desc', fn ($q) => $q->latest())
-            ->when($sort === 'date_asc', fn ($q) => $q->oldest())
-            ->when($sort === 'customer_asc', fn ($q) => $q->orderBy(Customer::selectRaw(Sorting::foldedName('name'))->whereColumn('customers.id', 'orders.customer_id')))
-            ->when($sort === 'customer_desc', fn ($q) => $q->orderByDesc(Customer::selectRaw(Sorting::foldedName('name'))->whereColumn('customers.id', 'orders.customer_id')))
-            ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
-            ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
-            ->paginate(15)
-            ->withQueryString();
-
-        $paidOrdersQuery = Order::with('customer')->paid();
-
-        $income = [
-            'orders' => (clone $paidOrdersQuery)->latest('paid_at')->paginate(15, ['*'], 'ingresos_page')->withQueryString(),
-            'total' => (clone $paidOrdersQuery)->sum('total'),
-        ];
-
-        return view('admin.orders.index', [
-            'orders' => $orders,
-            'statuses' => $this->statuses(),
-            'paymentStatuses' => $this->paymentStatuses(),
-            'income' => $income,
-            'search' => $search,
-            'date' => $date,
-            'sort' => $sort,
-        ]);
-    }
-
     public function create(): View
     {
         return view('admin.orders.create', [
@@ -177,12 +133,18 @@ class OrderController extends Controller
             'status' => ['required', 'in:' . implode(',', array_keys($this->statuses()))],
             'payment_status' => ['required', 'in:' . implode(',', array_keys($this->paymentStatuses()))],
             'real_payment_method' => [$needsRealMethod ? 'required' : 'nullable', 'in:' . implode(',', array_keys(Order::REAL_PAYMENT_METHODS))],
+            'refund_status' => ['nullable', 'in:' . Order::REFUND_STATUS_PENDIENTE . ',' . Order::REFUND_STATUS_REEMBOLSADO],
         ]);
 
         if (! empty($data['real_payment_method'])) {
             $data['payment_method'] = $data['real_payment_method'];
         }
         unset($data['real_payment_method']);
+
+        // Solo se puede pedir reembolso de un pedido que esté (o haya quedado) pagado.
+        if (($data['refund_status'] ?? null) === Order::REFUND_STATUS_PENDIENTE && $data['payment_status'] !== Order::PAYMENT_STATUS_PAGADO) {
+            unset($data['refund_status']);
+        }
 
         $order->update($data);
 

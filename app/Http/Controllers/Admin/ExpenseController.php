@@ -25,7 +25,7 @@ class ExpenseController extends Controller
             ->where('type', Expense::TYPE_GASTO)
             ->when($frequency, fn ($q) => $q->where('frequency', $frequency))
             ->when($search !== '', fn ($q) => $q->whereRaw(Sorting::foldedName('description') . ' LIKE ?', ['%' . Sorting::fold($search) . '%']))
-            ->orderByDesc('incurred_on')
+            ->orderByDesc('created_at')
             ->get();
 
         $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->with('children')->whereNull('parent_id')->orderByRaw(Sorting::foldedName('name'))->get();

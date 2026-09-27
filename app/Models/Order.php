@@ -22,6 +22,10 @@ class Order extends Model
     public const PAYMENT_STATUS_PAGADO = 'pagado';
     public const PAYMENT_STATUS_RECHAZADO = 'rechazado';
 
+    // Estado del REEMBOLSO (solo aplica si ya estaba pagado).
+    public const REFUND_STATUS_PENDIENTE = 'pendiente';
+    public const REFUND_STATUS_REEMBOLSADO = 'reembolsado';
+
     public const DELIVERY_RETIRO = 'retiro';
     public const DELIVERY_ENVIO = 'envio';
 
@@ -51,6 +55,7 @@ class Order extends Model
         'customer_id',
         'status',
         'payment_status',
+        'refund_status',
         'delivery_method',
         'payment_method',
         'origin',

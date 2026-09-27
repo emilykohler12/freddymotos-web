@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class SupplierController extends Controller
@@ -83,6 +86,54 @@ class SupplierController extends Controller
         $supplier->purchases()->create($data + ['paid_amount' => $data['paid_amount'] ?? 0]);
 
         return back()->with('status', 'Compra registrada.');
+    }
+
+    /** Pago a proveedor por repuestos puntuales: arma el detalle y suma el stock recibido. */
+    public function storeProductPayment(Request $request, Supplier $supplier): RedirectResponse
+    {
+        $data = $request->validate([
+            'product_id' => ['required', 'array', 'min:1'],
+            'product_id.*' => ['exists:products,id'],
+            'quantity' => ['required', 'array'],
+            'quantity.*' => ['nullable', 'integer', 'min:1'],
+            'purchased_at' => ['required', 'date'],
+            'paid_amount' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        $products = Product::whereIn('id', $data['product_id'])->get()->keyBy('id');
+
+        $lines = collect($data['product_id'])->map(function ($productId) use ($data, $products) {
+            $product = $products->get((int) $productId);
+            $quantity = max(1, (int) ($data['quantity'][$productId] ?? 1));
+
+            return ['product' => $product, 'quantity' => $quantity, 'subtotal' => (float) $product->cost_price * $quantity];
+        });
+
+        $amount = (float) $lines->sum('subtotal');
+        $description = $lines->map(fn ($line) => "{$line['product']->name} x{$line['quantity']}")->implode(', ');
+
+        DB::transaction(function () use ($supplier, $data, $lines, $amount, $description) {
+            $supplier->purchases()->create([
+                'description' => $description,
+                'amount' => $amount,
+                'paid_amount' => $data['paid_amount'] ?? $amount,
+                'purchased_at' => $data['purchased_at'],
+            ]);
+
+            foreach ($lines as $line) {
+                $line['product']->increment('stock', $line['quantity']);
+
+                StockMovement::create([
+                    'product_id' => $line['product']->id,
+                    'user_id' => auth('web')->id(),
+                    'reason' => StockMovement::REASON_COMPRA,
+                    'quantity_change' => $line['quantity'],
+                    'note' => "Compra a proveedor: {$supplier->name}",
+                ]);
+            }
+        });
+
+        return back()->with('status', 'Pago a proveedor registrado y stock actualizado.');
     }
 
     private function validated(Request $request, ?Supplier $supplier = null): array

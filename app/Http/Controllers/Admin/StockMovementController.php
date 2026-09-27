@@ -24,7 +24,7 @@ class StockMovementController extends Controller
         $isEntrada = $data['reason'] === StockMovement::REASON_COMPRA;
         $change = $isEntrada ? $data['quantity'] : -$data['quantity'];
 
-        $redirect = redirect()->route('admin.activity.index', ['tab' => 'inventario']);
+        $redirect = redirect()->route('admin.products.index', ['tab' => 'stock']);
 
         if (! $isEntrada && $data['quantity'] > $product->stock) {
             return $redirect->with('error', "No hay {$data['quantity']} unidades de «{$product->name}» para descontar (stock actual: {$product->stock}).");

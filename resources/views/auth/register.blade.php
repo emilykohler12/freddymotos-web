@@ -36,7 +36,6 @@
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required
                            placeholder="ejemplo@gmail.com"
                            class="w-full rounded-lg border border-marca-gris-oscuro/20 px-3 py-2 text-sm focus:border-marca-amarillo focus:outline-none focus:ring-2 focus:ring-marca-amarillo/40">
-                    <p class="mt-1 text-xs text-marca-gris-oscuro">Gmail, Yahoo, Hotmail, Outlook, etc.</p>
                 </div>
                 <div>
                     <label for="phone" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Teléfono</label>

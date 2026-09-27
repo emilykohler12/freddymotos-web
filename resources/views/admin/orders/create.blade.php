@@ -170,7 +170,7 @@
                 <button type="submit" class="rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                     Cargar pedido
                 </button>
-                <a href="{{ route('admin.orders.index') }}" class="text-sm font-semibold text-marca-gris-oscuro transition hover:text-marca-rojo">Cancelar</a>
+                <a href="{{ route('admin.sales.index', ['tab' => 'local']) }}" class="text-sm font-semibold text-marca-gris-oscuro transition hover:text-marca-rojo">Cancelar</a>
             </div>
         </form>
     </div>

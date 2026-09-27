@@ -7,15 +7,11 @@
     @php
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
         $tabs = [
-            'web' => 'Ventas Web',
-            'whatsapp' => 'Ventas WhatsApp',
+            'ventas' => 'Ventas Web y WhatsApp',
             'consultas' => 'Consultas',
-            'por-enviar' => 'Pedidos por enviar',
-            'por-cobrar' => 'Pedidos por cobrar',
             'pagos-pendientes' => 'Pagos pendientes',
-            'stock' => 'Stock',
+            'reembolso' => 'Reembolso',
             'gastos' => 'Vencimiento de gastos',
-            'promociones' => 'Vencimiento de promociones',
         ];
     @endphp
 
@@ -28,52 +24,21 @@
         @endforeach
     </div>
 
-    {{-- ===== Ventas Web ===== --}}
-    @if ($activeTab === 'web')
+    {{-- ===== Ventas Web y WhatsApp ===== --}}
+    @if ($activeTab === 'ventas')
         <div class="w-full space-y-3 pt-4">
-            @if ($webOrders->isEmpty())
+            @if ($orders->isEmpty())
                 <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    No hay ventas web abiertas.
+                    No hay ventas abiertas.
                 </p>
             @else
-                @foreach ($webOrders as $order)
+                @foreach ($orders as $order)
                     <div class="rounded-2xl bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                         <div class="flex items-center justify-between gap-2">
-                            <a href="{{ route('admin.orders.show', [$order, 'from' => 'web']) }}" class="font-semibold text-marca-negro hover:text-marca-rojo">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</a>
-                            <span class="text-xs text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y H:i') }}</span>
+                            <a href="{{ route('admin.orders.show', $order) }}" class="font-semibold text-marca-negro hover:text-marca-rojo">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</a>
+                            <span class="rounded-full bg-marca-gris-claro px-2 py-0.5 text-[10px] font-bold uppercase text-marca-gris-oscuro">{{ ucfirst($order->origin) }}</span>
                         </div>
-                        <p class="mt-0.5 text-xs text-marca-gris-oscuro">{{ $order->formatted_total }}</p>
-                        <form method="POST" action="{{ route('admin.orders.update', $order) }}" class="mt-2 flex gap-2">
-                            @csrf @method('PUT')
-                            <input type="hidden" name="payment_status" value="{{ $order->payment_status }}">
-                            <select name="status" class="flex-1 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-xs">
-                                @foreach ($orderStatuses as $value => $label)
-                                    <option value="{{ $value }}" @selected($order->status === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="shrink-0 rounded-lg bg-marca-amarillo px-3 py-1.5 text-xs font-semibold text-marca-negro hover:bg-marca-rojo hover:text-marca-blanco">Actualizar</button>
-                        </form>
-                    </div>
-                @endforeach
-            @endif
-        </div>
-    @endif
-
-    {{-- ===== Ventas WhatsApp ===== --}}
-    @if ($activeTab === 'whatsapp')
-        <div class="w-full space-y-3 pt-4">
-            @if ($whatsappOrders->isEmpty())
-                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    No hay ventas por WhatsApp abiertas.
-                </p>
-            @else
-                @foreach ($whatsappOrders as $order)
-                    <div class="rounded-2xl bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                        <div class="flex items-center justify-between gap-2">
-                            <a href="{{ route('admin.orders.show', [$order, 'from' => 'whatsapp']) }}" class="font-semibold text-marca-negro hover:text-marca-bordo">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</a>
-                            <span class="text-xs text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y H:i') }}</span>
-                        </div>
-                        <p class="mt-0.5 text-xs text-marca-gris-oscuro">{{ $order->formatted_total }}</p>
+                        <p class="mt-0.5 text-xs text-marca-gris-oscuro">{{ $order->formatted_total }} · {{ $order->created_at->format('d/m/Y H:i') }}</p>
                         <form method="POST" action="{{ route('admin.orders.update', $order) }}" class="mt-2 grid grid-cols-2 gap-2">
                             @csrf @method('PUT')
                             <select name="payment_status" class="rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-xs">
@@ -86,13 +51,15 @@
                                     <option value="{{ $value }}" @selected($order->status === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <select name="real_payment_method" class="col-span-2 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-xs">
-                                <option value="">Cómo pagó (si marcás "Pagado")</option>
-                                @foreach ($realPaymentMethods as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="col-span-2 rounded-lg bg-marca-bordo px-3 py-1.5 text-xs font-semibold text-marca-blanco hover:bg-marca-negro">Actualizar</button>
+                            @if ($order->payment_method === \App\Models\Order::PAYMENT_WHATSAPP)
+                                <select name="real_payment_method" class="col-span-2 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1.5 text-xs">
+                                    <option value="">Cómo pagó (si marcás "Pagado")</option>
+                                    @foreach ($realPaymentMethods as $value => $label)
+                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
+                            <button type="submit" class="col-span-2 rounded-lg bg-marca-amarillo px-3 py-1.5 text-xs font-semibold text-marca-negro hover:bg-marca-rojo hover:text-marca-blanco">Actualizar</button>
                         </form>
                     </div>
                 @endforeach
@@ -146,48 +113,7 @@
         </div>
     @endif
 
-    {{-- ===== Pedidos por enviar ===== --}}
-    @if ($activeTab === 'por-enviar')
-        <div class="w-full space-y-3 pt-4">
-            @if ($toShip->isEmpty())
-                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    No hay pedidos pendientes de envío.
-                </p>
-            @else
-                @foreach ($toShip as $order)
-                    <a href="{{ route('admin.orders.show', $order) }}" class="flex items-center gap-3 rounded-xl bg-marca-blanco p-4 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5 hover:ring-marca-amarillo">
-                        <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $order->status === 'enviado' ? 'bg-marca-amarillo/20 text-marca-negro' : 'bg-marca-mostaza/15 text-marca-mostaza' }}">
-                            {{ $orderStatuses[$order->status] ?? $order->status }}
-                        </span>
-                        <span class="font-medium text-marca-negro">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</span>
-                        <span class="text-xs text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y') }}</span>
-                        <span class="ml-auto font-semibold text-marca-negro">{{ $order->formatted_total }}</span>
-                    </a>
-                @endforeach
-            @endif
-        </div>
-    @endif
-
-    {{-- ===== Pedidos por cobrar ===== --}}
-    @if ($activeTab === 'por-cobrar')
-        <div class="w-full space-y-3 pt-4">
-            @if ($toCollect->isEmpty())
-                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    No hay pedidos pendientes de pago.
-                </p>
-            @else
-                @foreach ($toCollect as $order)
-                    <a href="{{ route('admin.orders.show', $order) }}" class="flex items-center gap-3 rounded-xl bg-marca-blanco p-4 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5 hover:ring-marca-amarillo">
-                        <span class="font-medium text-marca-negro">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</span>
-                        <span class="text-xs text-marca-gris-oscuro">{{ $order->created_at->format('d/m/Y') }}</span>
-                        <span class="ml-auto font-semibold text-marca-rojo">{{ $order->formatted_total }}</span>
-                    </a>
-                @endforeach
-            @endif
-        </div>
-    @endif
-
-    {{-- ===== Pagos pendientes (mecánicos + WhatsApp sin pagar) ===== --}}
+    {{-- ===== Pagos pendientes (mecánicos + clientes) ===== --}}
     @if ($activeTab === 'pagos-pendientes')
         <div class="w-full space-y-6 pt-4">
             <div>
@@ -209,17 +135,65 @@
             </div>
 
             <div>
-                <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">Pedidos de WhatsApp sin pagar</h2>
-                @if ($whatsappUnpaid->isEmpty())
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">Pedidos sin pagar (Web y WhatsApp)</h2>
+                @if ($unpaidOrders->isEmpty())
                     <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                        No hay pedidos de WhatsApp sin pagar.
+                        No hay pedidos sin pagar.
                     </p>
                 @else
                     <div class="space-y-2">
-                        @foreach ($whatsappUnpaid as $order)
+                        @foreach ($unpaidOrders as $order)
                             <a href="{{ route('admin.orders.show', $order) }}" class="flex items-center justify-between rounded-xl bg-marca-blanco p-4 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5 hover:ring-marca-amarillo">
                                 <span class="font-medium text-marca-negro">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</span>
                                 <span class="font-semibold text-marca-rojo">{{ $order->formatted_total }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    {{-- ===== Reembolso ===== --}}
+    @if ($activeTab === 'reembolso')
+        <div class="w-full space-y-3 pt-4">
+            @if ($refundOrders->isEmpty())
+                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    No hay reembolsos pendientes.
+                </p>
+            @else
+                @foreach ($refundOrders as $order)
+                    <div class="flex items-center gap-3 rounded-xl bg-marca-rojo/10 px-4 py-3 text-sm">
+                        <a href="{{ route('admin.orders.show', $order) }}" class="font-medium text-marca-negro hover:underline">#{{ $order->id }} · {{ $order->customer->name ?? '—' }}</a>
+                        <span class="font-semibold text-marca-rojo">{{ $order->formatted_total }}</span>
+                        <form method="POST" action="{{ route('admin.orders.update', $order) }}" class="ml-auto">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="status" value="{{ $order->status }}">
+                            <input type="hidden" name="payment_status" value="{{ $order->payment_status }}">
+                            <input type="hidden" name="refund_status" value="{{ \App\Models\Order::REFUND_STATUS_REEMBOLSADO }}">
+                            <button type="submit" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Marcar reembolsado</button>
+                        </form>
+                    </div>
+                @endforeach
+            @endif
+        </div>
+    @endif
+
+    {{-- ===== Vencimiento de gastos (+ deuda a proveedores) ===== --}}
+    @if ($activeTab === 'gastos')
+        <div class="w-full space-y-6 pt-4">
+            <div>
+                <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">Gastos recurrentes vencidos</h2>
+                @if ($dueExpenses->isEmpty())
+                    <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                        No hay gastos recurrentes vencidos.
+                    </p>
+                @else
+                    <div class="space-y-2">
+                        @foreach ($dueExpenses as $expense)
+                            <a href="{{ route('admin.expenses.index') }}" class="flex items-center gap-3 rounded-xl bg-marca-mostaza/15 px-4 py-3 text-sm hover:ring-2 hover:ring-marca-mostaza">
+                                <span class="text-marca-negro">Toca pagar <strong>{{ $expense->description }}</strong> ({{ \App\Models\Expense::FREQUENCIES[$expense->frequency] ?? $expense->frequency }}) — último pago {{ $expense->incurred_on->format('d/m/Y') }}.</span>
+                                <span class="ml-auto shrink-0 text-xs font-semibold text-marca-negro">Ver gastos →</span>
                             </a>
                         @endforeach
                     </div>
@@ -243,84 +217,6 @@
                     </div>
                 @endif
             </div>
-
-            <div>
-                <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">Reembolsos pendientes</h2>
-                @if ($pendingRefunds->isEmpty())
-                    <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                        No hay reembolsos pendientes.
-                    </p>
-                @else
-                    <div class="space-y-2">
-                        @foreach ($pendingRefunds as $order)
-                            <a href="{{ route('admin.orders.show', $order) }}" class="flex items-center justify-between rounded-xl bg-marca-blanco p-4 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5 hover:ring-marca-amarillo">
-                                <span class="font-medium text-marca-negro">#{{ $order->id }} · {{ $order->customer->name ?? '—' }} (cancelado y ya cobrado)</span>
-                                <span class="font-semibold text-marca-rojo">{{ $order->formatted_total }}</span>
-                            </a>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-    @endif
-
-    {{-- ===== Stock ===== --}}
-    @if ($activeTab === 'stock')
-        <div class="w-full space-y-3 pt-4">
-            @if ($outOfStock->isEmpty() && $lowStock->isEmpty())
-                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    Stock suficiente en todos los repuestos.
-                </p>
-            @else
-                @foreach ($outOfStock as $product)
-                    <a href="{{ route('admin.products.edit', $product) }}" class="flex items-center gap-3 rounded-xl bg-marca-rojo/10 px-4 py-3 text-sm hover:ring-2 hover:ring-marca-rojo">
-                        <span class="text-marca-negro"><strong>{{ $product->name }}</strong> está sin stock.</span>
-                        <span class="ml-auto shrink-0 text-xs font-semibold text-marca-rojo">Reponer →</span>
-                    </a>
-                @endforeach
-                @foreach ($lowStock as $product)
-                    <a href="{{ route('admin.products.edit', $product) }}" class="flex items-center gap-3 rounded-xl bg-marca-mostaza/15 px-4 py-3 text-sm hover:ring-2 hover:ring-marca-mostaza">
-                        <span class="text-marca-negro"><strong>{{ $product->name }}</strong> tiene poco stock ({{ $product->stock }}).</span>
-                        <span class="ml-auto shrink-0 text-xs font-semibold text-marca-negro">Reponer →</span>
-                    </a>
-                @endforeach
-            @endif
-        </div>
-    @endif
-
-    {{-- ===== Vencimiento de gastos ===== --}}
-    @if ($activeTab === 'gastos')
-        <div class="w-full space-y-3 pt-4">
-            @if ($dueExpenses->isEmpty())
-                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    No hay gastos recurrentes vencidos.
-                </p>
-            @else
-                @foreach ($dueExpenses as $expense)
-                    <a href="{{ route('admin.expenses.index') }}" class="flex items-center gap-3 rounded-xl bg-marca-mostaza/15 px-4 py-3 text-sm hover:ring-2 hover:ring-marca-mostaza">
-                        <span class="text-marca-negro">Toca pagar <strong>{{ $expense->description }}</strong> ({{ \App\Models\Expense::FREQUENCIES[$expense->frequency] ?? $expense->frequency }}) — último pago {{ $expense->incurred_on->format('d/m/Y') }}.</span>
-                        <span class="ml-auto shrink-0 text-xs font-semibold text-marca-negro">Ver gastos →</span>
-                    </a>
-                @endforeach
-            @endif
-        </div>
-    @endif
-
-    {{-- ===== Vencimiento de promociones ===== --}}
-    @if ($activeTab === 'promociones')
-        <div class="w-full space-y-3 pt-4">
-            @if ($expiringPromotions->isEmpty())
-                <p class="rounded-2xl bg-marca-blanco px-5 py-10 text-center text-sm text-marca-gris-oscuro shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    No hay promociones por vencer en los próximos 7 días.
-                </p>
-            @else
-                @foreach ($expiringPromotions as $promotion)
-                    <a href="{{ route('admin.products.index', ['tab' => 'promociones']) }}" class="flex items-center gap-3 rounded-xl bg-marca-amarillo/10 px-4 py-3 text-sm hover:ring-2 hover:ring-marca-amarillo">
-                        <span class="text-marca-negro"><strong>{{ $promotion->title }}</strong> vence el {{ $promotion->ends_at->format('d/m/Y') }}.</span>
-                        <span class="ml-auto shrink-0 text-xs font-semibold text-marca-negro">Ver promociones →</span>
-                    </a>
-                @endforeach
-            @endif
         </div>
     @endif
 @endsection

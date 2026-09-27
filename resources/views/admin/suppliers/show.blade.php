@@ -74,6 +74,38 @@
                 </form>
             </div>
 
+            {{-- Pago a proveedores: elegir repuestos puntuales + cantidad, suma stock automáticamente --}}
+            @if ($supplier->products->isNotEmpty())
+                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    <h2 class="mb-4 text-sm font-bold text-marca-negro">Pago a proveedores</h2>
+                    <form method="POST" action="{{ route('admin.suppliers.product-payment.store', $supplier) }}" class="space-y-3">
+                        @csrf
+                        <div class="max-h-56 space-y-2 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3">
+                            @foreach ($supplier->products as $product)
+                                <label class="flex items-center gap-3 text-sm text-marca-negro">
+                                    <input type="checkbox" name="product_id[]" value="{{ $product->id }}" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
+                                    <span class="flex-1">{{ $product->name }} <span class="text-xs text-marca-gris-oscuro">({{ $money($product->cost_price) }} costo)</span></span>
+                                    <input type="number" min="1" value="1" name="quantity[{{ $product->id }}]" class="w-20 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1 text-xs">
+                                </label>
+                            @endforeach
+                        </div>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Fecha</label>
+                                <input type="date" name="purchased_at" value="{{ now()->toDateString() }}" required class="{{ $field }}">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Pagado ahora <span class="normal-case text-marca-gris-oscuro/50">(vacío = pagado completo)</span></label>
+                                <input type="number" step="0.01" min="0" name="paid_amount" class="{{ $field }}">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                            Registrar pago y sumar stock
+                        </button>
+                    </form>
+                </div>
+            @endif
+
             {{-- Repuestos comprados (catálogo asociado) --}}
             @if ($supplier->products->isNotEmpty())
                 <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">

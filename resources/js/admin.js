@@ -29,8 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Formularios de búsqueda/orden/filtro del admin (listados de categorías,
  * productos, promociones, etc.): con data-autosubmit, los inputs de texto
- * mandan el form solos 400ms después de que el admin deja de tipear (sin
+ * mandan el form solos 600ms después de que el admin deja de tipear (sin
  * Enter ni botón), y los select/checkbox lo mandan apenas cambian.
+ *
+ * Como el envío recarga la página (no es AJAX), el input pierde el foco.
+ * Antes de mandar el form guardamos qué campo estaba escribiendo el admin
+ * y, ni bien carga la página nueva, se lo devolvemos con el cursor al final
+ * para que pueda seguir tipeando sin tocar el mouse.
  */
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('form[data-autosubmit]').forEach((form) => {
@@ -39,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelectorAll('input[type="text"], input[type="search"], input[type="number"]').forEach((input) => {
             input.addEventListener('input', () => {
                 clearTimeout(timer);
-                timer = setTimeout(() => form.requestSubmit(), 400);
+                if (input.name) {
+                    sessionStorage.setItem('autosubmit-refocus', input.name);
+                }
+                timer = setTimeout(() => form.requestSubmit(), 600);
             });
         });
 
@@ -47,6 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
             field.addEventListener('change', () => form.requestSubmit());
         });
     });
+
+    const refocusName = sessionStorage.getItem('autosubmit-refocus');
+    if (refocusName) {
+        sessionStorage.removeItem('autosubmit-refocus');
+        const field = document.querySelector(`form[data-autosubmit] input[name="${CSS.escape(refocusName)}"]`);
+        if (field) {
+            field.focus();
+            const value = field.value;
+            field.value = '';
+            field.value = value;
+        }
+    }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
