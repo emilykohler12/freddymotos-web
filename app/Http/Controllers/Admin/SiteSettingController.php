@@ -50,6 +50,8 @@ class SiteSettingController extends Controller
             'email' => ['nullable', 'email', 'max:160'],
             'direccion' => ['nullable', 'string', 'max:200'],
             'horario_atencion' => ['nullable', 'string', 'max:200'],
+            'dias_atencion' => ['nullable', 'array'],
+            'dias_atencion.*' => ['string', 'in:' . implode(',', array_keys(\App\Models\SiteSetting::DIAS))],
             'historia' => ['nullable', 'string', 'max:2000'],
             'fecha_creacion' => ['nullable', 'date', 'before_or_equal:today'],
             'instagram_url' => ['nullable', 'url', 'max:200'],
@@ -66,6 +68,7 @@ class SiteSettingController extends Controller
         ]);
 
         $data['payment_methods'] = $data['payment_methods'] ?? [];
+        $data['dias_atencion'] = $data['dias_atencion'] ?? [];
         $tab = $data['tab'] ?? 'general';
         unset($data['tab']);
 

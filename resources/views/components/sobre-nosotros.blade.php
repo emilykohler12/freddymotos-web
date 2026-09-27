@@ -68,14 +68,21 @@
                 @endforeach
             </dl>
 
-            {{-- Solo el horario acá; la dirección va como link en el botón "Conocé la tienda" de abajo. --}}
-            @if ($settings->horario_atencion)
-                <ul class="mt-8 space-y-2.5 border-t border-marca-negro/15 pt-6 text-sm text-marca-negro/80">
-                    <li class="flex items-start gap-2">
-                        <svg class="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>{{ $settings->horario_atencion }}</span>
-                    </li>
-                </ul>
+            {{-- Días y horario acá; la dirección va como link en el botón "Conocé la tienda" de abajo. --}}
+            @if ($settings->dias_atencion_labels || $settings->horario_atencion)
+                <div class="mt-8 space-y-2.5 border-t border-marca-negro/15 pt-6 text-sm text-marca-negro/80">
+                    @if ($settings->dias_atencion_labels)
+                        <div class="flex flex-row flex-wrap items-center gap-1.5">
+                            <svg class="mr-1 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            @foreach ($settings->dias_atencion_labels as $dia)
+                                <span class="rounded-full bg-marca-negro/10 px-2.5 py-1 text-xs font-semibold">{{ $dia }}</span>
+                            @endforeach
+                        </div>
+                    @endif
+                    @if ($settings->horario_atencion)
+                        <p class="{{ $settings->dias_atencion_labels ? 'pl-6' : '' }}">{{ $settings->horario_atencion }}</p>
+                    @endif
+                </div>
             @endif
 
             {{-- Va a Google Maps con la dirección cargada en Configuración; si no hay dirección, no se muestra. --}}

@@ -70,11 +70,16 @@
                                         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                                     </a>
                                 @endif
-                                @if ($settings->horario_atencion)
-                                    <p class="mt-2 flex items-start gap-1.5 text-xs text-marca-gris-oscuro">
-                                        <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        {{ $settings->horario_atencion }}
-                                    </p>
+                                @if ($settings->dias_atencion_labels || $settings->horario_atencion)
+                                    <div class="mt-2 flex flex-row flex-wrap items-center gap-1.5 text-xs text-marca-gris-oscuro">
+                                        <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        @if ($settings->dias_atencion_labels)
+                                            <span>{{ implode(' · ', $settings->dias_atencion_labels) }}</span>
+                                        @endif
+                                        @if ($settings->horario_atencion)
+                                            <span>{{ $settings->horario_atencion }}</span>
+                                        @endif
+                                    </div>
                                 @endif
                             @else
                                 <p class="text-marca-gris-oscuro">Coordinamos la dirección de retiro al contactarte.</p>

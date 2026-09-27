@@ -15,6 +15,11 @@ class SiteSetting extends Model
 {
     protected $guarded = [];
 
+    public const DIAS = [
+        'lun' => 'Lun', 'mar' => 'Mar', 'mie' => 'Mié', 'jue' => 'Jue',
+        'vie' => 'Vie', 'sab' => 'Sáb', 'dom' => 'Dom',
+    ];
+
     private static ?self $memo = null;
 
     protected static function booted(): void
@@ -37,6 +42,7 @@ class SiteSetting extends Model
             'email' => null,
             'direccion' => null,
             'horario_atencion' => null,
+            'dias_atencion' => [],
             'historia' => null,
             'fecha_creacion' => null,
             'instagram_url' => null,
@@ -53,6 +59,7 @@ class SiteSetting extends Model
     {
         return [
             'payment_methods' => 'array',
+            'dias_atencion' => 'array',
             'tax_rate' => 'decimal:2',
             'fecha_creacion' => 'date',
         ];
@@ -112,6 +119,16 @@ class SiteSetting extends Model
         return $this->direccion
             ? 'https://www.google.com/maps/search/?api=1&query=' . urlencode($this->direccion)
             : null;
+    }
+
+    /** Días de atención seleccionados, ya traducidos a etiquetas cortas (Lun, Mar, ...). */
+    public function getDiasAtencionLabelsAttribute(): array
+    {
+        return collect($this->dias_atencion ?? [])
+            ->map(fn ($dia) => self::DIAS[$dia] ?? null)
+            ->filter()
+            ->values()
+            ->all();
     }
 
     /** Años desde la fecha de creación cargada por el admin, o null si no la cargó. */
