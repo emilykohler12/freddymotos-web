@@ -37,13 +37,13 @@ class DashboardController extends Controller
         $paidOrdersInPeriod = fn () => Order::query()->paid()->where('created_at', '>=', $start);
 
         // ---- KPIs ----
-        // Ventas: pedidos pagados y entregados, de la web y coordinados por WhatsApp.
-        $salesTotal = (float) Order::query()
+        // Ventas: cantidad de pedidos pagados y entregados, de la web y coordinados por WhatsApp.
+        $salesCount = (int) Order::query()
             ->paid()
             ->whereIn('origin', [Order::ORIGIN_WEB, Order::ORIGIN_WHATSAPP])
             ->whereIn('status', [Order::STATUS_ENVIADO, Order::STATUS_ENTREGADO])
             ->where('created_at', '>=', $start)
-            ->sum('total');
+            ->count();
 
         // Ingresos: pedidos pagados de la web y coordinados por WhatsApp que el admin marcó como pagado.
         $revenue = (float) Order::query()
@@ -126,7 +126,7 @@ class DashboardController extends Controller
         return view('admin.dashboard', [
             'periods' => self::PERIODS,
             'period' => $period,
-            'salesTotal' => $salesTotal,
+            'salesCount' => $salesCount,
             'revenue' => $revenue,
             'mechanicsTotalDebt' => $mechanicsTotalDebt,
             'expensesTotal' => $expensesTotal,

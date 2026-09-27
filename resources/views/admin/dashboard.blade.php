@@ -7,7 +7,7 @@
     @php
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
         $cards = [
-            ['label' => 'Ventas', 'value' => $money($salesTotal), 'bg' => 'bg-marca-mostaza', 'text' => 'text-marca-blanco',
+            ['label' => 'Ventas', 'value' => number_format($salesCount, 0, ',', '.'), 'bg' => 'bg-marca-mostaza', 'text' => 'text-marca-blanco',
                 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4', 'href' => route('admin.sales.index')],
             ['label' => 'Ingresos', 'value' => $money($revenue), 'bg' => 'bg-marca-amarillo', 'text' => 'text-marca-negro',
                 'icon' => 'M12 8c-2 0-3 1-3 2s1 2 3 2 3 1 3 2-1 2-3 2m0-10V6m0 12v-2m8-4a9 9 0 11-18 0 9 9 0 0118 0z', 'href' => route('admin.sales.index', ['tab' => 'ingresos'])],
@@ -70,7 +70,12 @@
                     @foreach ($pendingExpensePayments->take(5) as $group)
                         @forelse ($group as $expense)
                             <li class="py-2 flex justify-between">
-                                <span class="text-marca-gris-oscuro">{{ $expense->description }}</span>
+                                <div>
+                                    <span class="text-marca-gris-oscuro">{{ $expense->description }}</span>
+                                    @if ($expense->due_on)
+                                        <p class="text-xs text-marca-gris-oscuro/70">Vence: {{ $expense->due_on->format('d/m/Y') }}</p>
+                                    @endif
+                                </div>
                                 <span class="font-semibold text-marca-negro">{{ $money($expense->amount) }}</span>
                             </li>
                         @empty

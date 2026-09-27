@@ -78,8 +78,50 @@
 
         {{-- ===== Mecánicos (interno, no se muestra en el sitio público) ===== --}}
         <div class="hidden w-full pt-4 peer-checked/mecanicos:block">
-            <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-                <div class="space-y-4 lg:col-span-2">
+            <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                    <h2 class="mb-3 text-sm font-bold text-marca-negro">Añadir mecánico</h2>
+                    <form method="POST" action="{{ route('admin.mechanics.store') }}" class="space-y-3">
+                        @csrf
+                        <input type="text" name="name" placeholder="Nombre" required class="{{ $field }}">
+                        <input type="text" name="phone" placeholder="Teléfono" class="{{ $field }}">
+                        <input type="email" name="email" placeholder="Correo (opcional)" class="{{ $field }}">
+                        <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                            Añadir
+                        </button>
+                    </form>
+                </div>
+
+                @if ($allMechanics->isNotEmpty())
+                    <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                        <h2 class="mb-3 text-sm font-bold text-marca-negro">Registrar trabajo</h2>
+                        <form method="POST" action="{{ route('admin.mechanic-jobs.store') }}" class="space-y-3">
+                            @csrf
+                            <select name="mechanic_id" required class="{{ $field }}">
+                                <option value="">Mecánico…</option>
+                                @foreach ($allMechanics as $mechanic)
+                                    <option value="{{ $mechanic->id }}">{{ $mechanic->name }}</option>
+                                @endforeach
+                            </select>
+                            <input type="text" name="moto" placeholder="Moto (ej: Honda Wave 110, opcional)" class="{{ $field }}">
+                            <textarea name="problema" rows="2" placeholder="Qué necesitaba arreglarse y por qué (opcional)" class="{{ $field }}"></textarea>
+                            <select name="product_id" class="{{ $field }}" data-product-select>
+                                <option value="">Repuesto que compró (opcional)</option>
+                                @foreach ($products as $product)
+                                    <option value="{{ $product->id }}" data-price="{{ $product->price }}">{{ $product->name }} — {{ $product->formatted_price }}</option>
+                                @endforeach
+                            </select>
+                            <input type="number" min="1" value="1" name="quantity" placeholder="Cantidad" class="{{ $field }}" data-product-qty>
+                            <input type="number" step="0.01" min="0" name="monto_a_pagar" placeholder="Monto que debe al local" required class="{{ $field }}" data-product-amount>
+                            <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                                Registrar
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+
+            <div class="space-y-4">
                     <form method="GET" data-autosubmit>
                         <input type="hidden" name="tab" value="mecanicos">
                         <input type="text" name="mechanic_search" value="{{ $mechanicSearch }}" placeholder="Buscar mecánico..." class="{{ $field }}">
@@ -180,50 +222,6 @@
                             </div>
                         @endforeach
                     @endif
-                </div>
-
-                <div class="space-y-6">
-                    <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                        <h2 class="mb-3 text-sm font-bold text-marca-negro">Añadir mecánico</h2>
-                        <form method="POST" action="{{ route('admin.mechanics.store') }}" class="space-y-3">
-                            @csrf
-                            <input type="text" name="name" placeholder="Nombre" required class="{{ $field }}">
-                            <input type="text" name="phone" placeholder="Teléfono" class="{{ $field }}">
-                            <input type="email" name="email" placeholder="Correo (opcional)" class="{{ $field }}">
-                            <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                                Añadir
-                            </button>
-                        </form>
-                    </div>
-
-                    @if ($allMechanics->isNotEmpty())
-                        <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                            <h2 class="mb-3 text-sm font-bold text-marca-negro">Registrar trabajo</h2>
-                            <form method="POST" action="{{ route('admin.mechanic-jobs.store') }}" class="space-y-3">
-                                @csrf
-                                <select name="mechanic_id" required class="{{ $field }}">
-                                    <option value="">Mecánico…</option>
-                                    @foreach ($allMechanics as $mechanic)
-                                        <option value="{{ $mechanic->id }}">{{ $mechanic->name }}</option>
-                                    @endforeach
-                                </select>
-                                <input type="text" name="moto" placeholder="Moto (ej: Honda Wave 110, opcional)" class="{{ $field }}">
-                                <textarea name="problema" rows="2" placeholder="Qué necesitaba arreglarse y por qué (opcional)" class="{{ $field }}"></textarea>
-                                <select name="product_id" class="{{ $field }}" data-product-select>
-                                    <option value="">Repuesto que compró (opcional)</option>
-                                    @foreach ($products as $product)
-                                        <option value="{{ $product->id }}" data-price="{{ $product->price }}">{{ $product->name }} — {{ $product->formatted_price }}</option>
-                                    @endforeach
-                                </select>
-                                <input type="number" min="1" value="1" name="quantity" placeholder="Cantidad" class="{{ $field }}" data-product-qty>
-                                <input type="number" step="0.01" min="0" name="monto_a_pagar" placeholder="Monto que debe al local" required class="{{ $field }}" data-product-amount>
-                                <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                                    Registrar
-                                </button>
-                            </form>
-                        </div>
-                    @endif
-                </div>
             </div>
         </div>
     </div>
