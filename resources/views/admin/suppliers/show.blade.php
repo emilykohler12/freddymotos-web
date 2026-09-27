@@ -12,6 +12,44 @@
 
     <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
+            {{-- Registrar compra: elegir un repuesto del catálogo y una cantidad --}}
+            <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
+                <h2 class="mb-4 text-sm font-bold text-marca-negro">Registrar compra</h2>
+                <form method="POST" action="{{ route('admin.suppliers.purchases.store', $supplier) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    @csrf
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Repuesto</label>
+                        <select name="product_id" required class="{{ $field }}">
+                            <option value="">Elegir repuesto…</option>
+                            @foreach ($allProducts as $product)
+                                <option value="{{ $product->id }}">{{ $product->name }} ({{ $money($product->cost_price) }} costo)</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Cantidad</label>
+                        <input type="number" min="1" value="1" name="quantity" required class="{{ $field }}">
+                    </div>
+                    <div>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Fecha</label>
+                        <input type="date" name="purchased_at" value="{{ now()->toDateString() }}" required class="{{ $field }}">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Estado del pago</label>
+                        <select name="status" required class="{{ $field }}">
+                            @foreach ($purchaseStatuses as $value => $label)
+                                <option value="{{ $value }}" @selected($value === 'pendiente')>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
+                            Registrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             {{-- Historial de compras --}}
             <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <div class="border-b border-marca-gris-claro px-5 py-4">
@@ -26,8 +64,7 @@
                                 <th class="px-5 py-3 font-semibold">Fecha</th>
                                 <th class="px-5 py-3 font-semibold">Detalle</th>
                                 <th class="px-5 py-3 font-semibold">Monto</th>
-                                <th class="px-5 py-3 font-semibold">Pagado</th>
-                                <th class="px-5 py-3 font-semibold">Saldo</th>
+                                <th class="px-5 py-3 font-semibold">Estado</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-marca-gris-claro">
@@ -36,75 +73,17 @@
                                     <td class="px-5 py-3 text-marca-gris-oscuro">{{ $purchase->purchased_at->format('d/m/Y') }}</td>
                                     <td class="px-5 py-3 text-marca-negro">{{ $purchase->description }}</td>
                                     <td class="px-5 py-3 text-marca-negro">{{ $money($purchase->amount) }}</td>
-                                    <td class="px-5 py-3 text-marca-gris-oscuro">{{ $money($purchase->paid_amount) }}</td>
-                                    <td class="px-5 py-3 {{ $purchase->balance > 0 ? 'font-semibold text-marca-rojo' : 'text-marca-gris-oscuro' }}">{{ $money($purchase->balance) }}</td>
+                                    <td class="px-5 py-3">
+                                        <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ $purchase->status === 'pendiente' ? 'bg-marca-rojo/10 text-marca-rojo' : ($purchase->status === 'pagado' ? 'bg-marca-amarillo/20 text-marca-negro' : 'bg-marca-gris-claro text-marca-gris-oscuro') }}">
+                                            {{ $purchase->status_label }}
+                                        </span>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 @endif
             </div>
-
-            {{-- Registrar compra --}}
-            <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                <h2 class="mb-4 text-sm font-bold text-marca-negro">Registrar compra</h2>
-                <form method="POST" action="{{ route('admin.suppliers.purchases.store', $supplier) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    @csrf
-                    <div class="sm:col-span-2">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Repuestos comprados / detalle</label>
-                        <input type="text" name="description" required placeholder="Ej: 20 pastillas de freno, 10 cascos MT" class="{{ $field }}">
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Monto total</label>
-                        <input type="number" step="0.01" min="0" name="amount" required class="{{ $field }}">
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Pagado ahora</label>
-                        <input type="number" step="0.01" min="0" name="paid_amount" value="0" class="{{ $field }}">
-                    </div>
-                    <div>
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Fecha</label>
-                        <input type="date" name="purchased_at" value="{{ now()->toDateString() }}" required class="{{ $field }}">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                            Registrar
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            {{-- Pago a proveedores: elegir repuestos puntuales + cantidad, suma stock automáticamente --}}
-            @if ($supplier->products->isNotEmpty())
-                <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    <h2 class="mb-4 text-sm font-bold text-marca-negro">Pago a proveedores</h2>
-                    <form method="POST" action="{{ route('admin.suppliers.product-payment.store', $supplier) }}" class="space-y-3">
-                        @csrf
-                        <div class="max-h-56 space-y-2 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3">
-                            @foreach ($supplier->products as $product)
-                                <label class="flex items-center gap-3 text-sm text-marca-negro">
-                                    <input type="checkbox" name="product_id[]" value="{{ $product->id }}" class="h-4 w-4 rounded border-marca-gris-oscuro/30 text-marca-amarillo focus:ring-marca-amarillo">
-                                    <span class="flex-1">{{ $product->name }} <span class="text-xs text-marca-gris-oscuro">({{ $money($product->cost_price) }} costo)</span></span>
-                                    <input type="number" min="1" value="1" name="quantity[{{ $product->id }}]" class="w-20 rounded-lg border border-marca-gris-oscuro/20 px-2 py-1 text-xs">
-                                </label>
-                            @endforeach
-                        </div>
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Fecha</label>
-                                <input type="date" name="purchased_at" value="{{ now()->toDateString() }}" required class="{{ $field }}">
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Pagado ahora <span class="normal-case text-marca-gris-oscuro/50">(vacío = pagado completo)</span></label>
-                                <input type="number" step="0.01" min="0" name="paid_amount" class="{{ $field }}">
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
-                            Registrar pago y sumar stock
-                        </button>
-                    </form>
-                </div>
-            @endif
 
             {{-- Repuestos comprados (catálogo asociado) --}}
             @if ($supplier->products->isNotEmpty())

@@ -7,11 +7,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SupplierPurchase extends Model
 {
+    public const STATUS_PENDIENTE = 'pendiente';
+    public const STATUS_PAGADO = 'pagado';
+    public const STATUS_CANCELADO = 'cancelado';
+
+    public const STATUSES = [
+        self::STATUS_PENDIENTE => 'Pendiente',
+        self::STATUS_PAGADO => 'Pagado',
+        self::STATUS_CANCELADO => 'Cancelado',
+    ];
+
     protected $fillable = [
         'supplier_id',
+        'product_id',
+        'quantity',
         'description',
         'amount',
         'paid_amount',
+        'status',
         'purchased_at',
     ];
 
@@ -20,6 +33,7 @@ class SupplierPurchase extends Model
         return [
             'amount' => 'decimal:2',
             'paid_amount' => 'decimal:2',
+            'quantity' => 'integer',
             'purchased_at' => 'date',
         ];
     }
@@ -29,8 +43,13 @@ class SupplierPurchase extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function getBalanceAttribute(): float
+    public function product(): BelongsTo
     {
-        return (float) $this->amount - (float) $this->paid_amount;
+        return $this->belongsTo(Product::class);
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::STATUSES[$this->status] ?? $this->status;
     }
 }

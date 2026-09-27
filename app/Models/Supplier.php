@@ -28,10 +28,10 @@ class Supplier extends Model
         return $this->hasMany(SupplierPurchase::class);
     }
 
-    /** Deuda total = compras registradas - pagos registrados. */
+    /** Deuda total = compras marcadas como pendientes de pago. */
     public function getDebtAttribute(): float
     {
-        return (float) $this->purchases()->sum('amount') - (float) $this->purchases()->sum('paid_amount');
+        return (float) $this->purchases()->where('status', SupplierPurchase::STATUS_PENDIENTE)->sum('amount');
     }
 
     public function getFormattedDebtAttribute(): string

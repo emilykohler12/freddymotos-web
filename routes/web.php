@@ -131,7 +131,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('proveedores/{supplier}', [AdminSupplierController::class, 'update'])->name('suppliers.update');
         Route::delete('proveedores/{supplier}', [AdminSupplierController::class, 'destroy'])->name('suppliers.destroy');
         Route::post('proveedores/{supplier}/compras', [AdminSupplierController::class, 'storePurchase'])->name('suppliers.purchases.store');
-        Route::post('proveedores/{supplier}/pago-productos', [AdminSupplierController::class, 'storeProductPayment'])->name('suppliers.product-payment.store');
 
         /* Envíos: zonas y empresas */
         Route::get('envios', [AdminShippingController::class, 'index'])->name('shipping.index');

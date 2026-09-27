@@ -1,0 +1,15 @@
+name: Keep Render awake
+
+# Render free tier duerme el servicio después de un rato sin tráfico.
+# Esto lo despierta con una visita cada 10 minutos para que no se apague.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping la app en Render
+        run: curl -sSf --max-time 30 https://freddymotos.onrender.com/ > /dev/null

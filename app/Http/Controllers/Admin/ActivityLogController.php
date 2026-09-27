@@ -70,7 +70,7 @@ class ActivityLogController extends Controller
             // Vencimiento de gastos: gastos recurrentes vencidos + deuda a proveedores.
             'dueExpenses' => Expense::due(),
             'pendingSupplierPayments' => SupplierPurchase::with('supplier')
-                ->whereColumn('paid_amount', '<', 'amount')
+                ->where('status', SupplierPurchase::STATUS_PENDIENTE)
                 ->orderBy('purchased_at')
                 ->get(),
         ]);

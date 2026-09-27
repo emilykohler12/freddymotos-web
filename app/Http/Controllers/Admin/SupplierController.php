@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use App\Models\SupplierPurchase;
 use App\Support\Sorting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,7 +48,11 @@ class SupplierController extends Controller
     {
         $supplier->load(['purchases' => fn ($q) => $q->latest('purchased_at'), 'products']);
 
-        return view('admin.suppliers.show', compact('supplier'));
+        return view('admin.suppliers.show', [
+            'supplier' => $supplier,
+            'allProducts' => Product::orderBy('name')->get(),
+            'purchaseStatuses' => SupplierPurchase::STATUSES,
+        ]);
     }
 
     public function edit(Supplier $supplier): View
@@ -73,67 +78,46 @@ class SupplierController extends Controller
         return back()->with('status', 'Proveedor eliminado.');
     }
 
-    /** Registrar una compra (para el historial y el cálculo de deuda). */
+    /**
+     * Registrar una compra: elige un repuesto del catálogo y una cantidad, calcula el
+     * monto según el costo cargado, y suma el stock recibido (salvo que se cancele).
+     */
     public function storePurchase(Request $request, Supplier $supplier): RedirectResponse
     {
         $data = $request->validate([
-            'description' => ['required', 'string', 'max:500'],
-            'amount' => ['required', 'numeric', 'min:0'],
-            'paid_amount' => ['nullable', 'numeric', 'min:0'],
+            'product_id' => ['required', 'exists:products,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
+            'status' => ['required', 'in:' . implode(',', array_keys(SupplierPurchase::STATUSES))],
             'purchased_at' => ['required', 'date'],
         ]);
 
-        $supplier->purchases()->create($data + ['paid_amount' => $data['paid_amount'] ?? 0]);
+        $product = Product::findOrFail($data['product_id']);
+        $amount = (float) $product->cost_price * $data['quantity'];
 
-        return back()->with('status', 'Compra registrada.');
-    }
-
-    /** Pago a proveedor por repuestos puntuales: arma el detalle y suma el stock recibido. */
-    public function storeProductPayment(Request $request, Supplier $supplier): RedirectResponse
-    {
-        $data = $request->validate([
-            'product_id' => ['required', 'array', 'min:1'],
-            'product_id.*' => ['exists:products,id'],
-            'quantity' => ['required', 'array'],
-            'quantity.*' => ['nullable', 'integer', 'min:1'],
-            'purchased_at' => ['required', 'date'],
-            'paid_amount' => ['nullable', 'numeric', 'min:0'],
-        ]);
-
-        $products = Product::whereIn('id', $data['product_id'])->get()->keyBy('id');
-
-        $lines = collect($data['product_id'])->map(function ($productId) use ($data, $products) {
-            $product = $products->get((int) $productId);
-            $quantity = max(1, (int) ($data['quantity'][$productId] ?? 1));
-
-            return ['product' => $product, 'quantity' => $quantity, 'subtotal' => (float) $product->cost_price * $quantity];
-        });
-
-        $amount = (float) $lines->sum('subtotal');
-        $description = $lines->map(fn ($line) => "{$line['product']->name} x{$line['quantity']}")->implode(', ');
-
-        DB::transaction(function () use ($supplier, $data, $lines, $amount, $description) {
+        DB::transaction(function () use ($supplier, $data, $product, $amount) {
             $supplier->purchases()->create([
-                'description' => $description,
+                'product_id' => $product->id,
+                'quantity' => $data['quantity'],
+                'description' => "{$product->name} x{$data['quantity']}",
                 'amount' => $amount,
-                'paid_amount' => $data['paid_amount'] ?? $amount,
+                'status' => $data['status'],
                 'purchased_at' => $data['purchased_at'],
             ]);
 
-            foreach ($lines as $line) {
-                $line['product']->increment('stock', $line['quantity']);
+            if ($data['status'] !== SupplierPurchase::STATUS_CANCELADO) {
+                $product->increment('stock', $data['quantity']);
 
                 StockMovement::create([
-                    'product_id' => $line['product']->id,
+                    'product_id' => $product->id,
                     'user_id' => auth('web')->id(),
                     'reason' => StockMovement::REASON_COMPRA,
-                    'quantity_change' => $line['quantity'],
+                    'quantity_change' => $data['quantity'],
                     'note' => "Compra a proveedor: {$supplier->name}",
                 ]);
             }
         });
 
-        return back()->with('status', 'Pago a proveedor registrado y stock actualizado.');
+        return back()->with('status', 'Compra registrada.');
     }
 
     private function validated(Request $request, ?Supplier $supplier = null): array

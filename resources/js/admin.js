@@ -4,9 +4,10 @@ import Chart from 'chart.js/auto';
  * Registrar/editar trabajo de mecánico: al elegir un producto (o cambiar la
  * cantidad), el monto se autocompleta con el precio del producto, pero el
  * admin puede modificarlo a mano después sin que se vuelva a pisar.
+ * Exportada para poder volver a engancharla después de un swap por AJAX.
  */
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-product-select]').forEach((select) => {
+function bindProductSelects(root) {
+    root.querySelectorAll('[data-product-select]').forEach((select) => {
         const form = select.closest('form');
         if (!form) return;
         const qty = form.querySelector('[data-product-qty]');
@@ -24,53 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
         select.addEventListener('change', recalc);
         qty.addEventListener('change', recalc);
     });
-});
+}
 
-/**
- * Formularios de búsqueda/orden/filtro del admin (listados de categorías,
- * productos, promociones, etc.): con data-autosubmit, los inputs de texto
- * mandan el form solos 600ms después de que el admin deja de tipear (sin
- * Enter ni botón), y los select/checkbox lo mandan apenas cambian.
- *
- * Como el envío recarga la página (no es AJAX), el input pierde el foco.
- * Antes de mandar el form guardamos qué campo estaba escribiendo el admin
- * y, ni bien carga la página nueva, se lo devolvemos con el cursor al final
- * para que pueda seguir tipeando sin tocar el mouse.
- */
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('form[data-autosubmit]').forEach((form) => {
-        let timer = null;
-
-        form.querySelectorAll('input[type="text"], input[type="search"], input[type="number"]').forEach((input) => {
-            input.addEventListener('input', () => {
-                clearTimeout(timer);
-                if (input.name) {
-                    sessionStorage.setItem('autosubmit-refocus', input.name);
-                }
-                timer = setTimeout(() => form.requestSubmit(), 600);
-            });
-        });
-
-        form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach((field) => {
-            field.addEventListener('change', () => form.requestSubmit());
-        });
-    });
-
-    const refocusName = sessionStorage.getItem('autosubmit-refocus');
-    if (refocusName) {
-        sessionStorage.removeItem('autosubmit-refocus');
-        const field = document.querySelector(`form[data-autosubmit] input[name="${CSS.escape(refocusName)}"]`);
-        if (field) {
-            field.focus();
-            const value = field.value;
-            field.value = '';
-            field.value = value;
-        }
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-chart]').forEach((canvas) => {
+function bindCharts(root) {
+    root.querySelectorAll('[data-chart]').forEach((canvas) => {
         try {
             const config = JSON.parse(canvas.dataset.chart);
             new Chart(canvas, config);
@@ -78,12 +36,82 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('No se pudo dibujar el gráfico', e);
         }
     });
+}
+
+/**
+ * Formularios de búsqueda/orden/filtro del admin (listados de categorías,
+ * productos, promociones, etc.): con data-autosubmit, los inputs de texto
+ * mandan el form solos 500ms después de que el admin deja de tipear (sin
+ * Enter ni botón), y los select/checkbox lo mandan apenas cambian.
+ *
+ * Va por AJAX: en vez de navegar (lo que reiniciaba la página y borraba el
+ * foco del buscador), pide la misma URL por fetch, saca el <main> nuevo de
+ * esa respuesta y reemplaza el actual. El buscador nunca se destruye si el
+ * admin sigue tipeando, así que el texto y el cursor quedan como estaban.
+ */
+function bindAutosubmit(root) {
+    root.querySelectorAll('form[data-autosubmit]').forEach((form) => {
+        if (form.dataset.autosubmitBound) return;
+        form.dataset.autosubmitBound = '1';
+
+        let timer = null;
+
+        const submitAjax = (focusField) => {
+            const params = new URLSearchParams(new FormData(form));
+            const baseUrl = form.getAttribute('action') || window.location.pathname;
+            const url = baseUrl + '?' + params.toString();
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then((r) => r.text())
+                .then((html) => {
+                    const newMain = new DOMParser().parseFromString(html, 'text/html').querySelector('main');
+                    const currentMain = document.querySelector('main');
+                    if (!newMain || !currentMain) return;
+
+                    currentMain.innerHTML = newMain.innerHTML;
+                    window.history.replaceState(null, '', url);
+
+                    bindAutosubmit(currentMain);
+                    bindProductSelects(currentMain);
+                    bindCharts(currentMain);
+
+                    if (focusField && focusField.name) {
+                        const restored = currentMain.querySelector(`input[name="${CSS.escape(focusField.name)}"]`);
+                        if (restored) {
+                            restored.focus();
+                            const value = restored.value;
+                            restored.value = '';
+                            restored.value = value;
+                        }
+                    }
+                })
+                .catch((e) => console.error('No se pudo actualizar la búsqueda', e));
+        };
+
+        form.querySelectorAll('input[type="text"], input[type="search"], input[type="number"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => submitAjax(input), 500);
+            });
+        });
+
+        form.querySelectorAll('select, input[type="checkbox"], input[type="radio"]').forEach((field) => {
+            field.addEventListener('change', () => submitAjax(null));
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    bindProductSelects(document);
+    bindCharts(document);
+    bindAutosubmit(document);
 });
 
 /**
  * Modal de confirmación propio para acciones destructivas (eliminar producto,
  * categoría, promoción, etc.), en vez del confirm() nativo del navegador.
- * Cualquier form con data-confirm="mensaje" queda cubierto automáticamente.
+ * Cualquier form con data-confirm="mensaje" queda cubierto automáticamente
+ * (delegado en document, así que también cubre forms traídos por AJAX).
  */
 document.addEventListener('DOMContentLoaded', () => {
     const dialog = document.createElement('dialog');

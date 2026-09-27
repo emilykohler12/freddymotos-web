@@ -44,6 +44,7 @@
                             <td class="px-5 py-3 {{ $supplier->debt > 0 ? 'font-semibold text-marca-rojo' : 'text-marca-gris-oscuro' }}">{{ $supplier->formatted_debt }}</td>
                             <td class="px-5 py-3 text-right">
                                 <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.suppliers.show', $supplier) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Compra</a>
                                     <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="text-xs font-semibold text-marca-negro hover:text-marca-amarillo">Editar</a>
                                     <form method="POST" action="{{ route('admin.suppliers.destroy', $supplier) }}" data-confirm="¿Eliminar {{ $supplier->name }}?" class="inline-flex">
                                         @csrf

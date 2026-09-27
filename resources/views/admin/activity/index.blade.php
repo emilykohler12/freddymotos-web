@@ -211,7 +211,7 @@
                         @foreach ($pendingSupplierPayments as $purchase)
                             <a href="{{ route('admin.suppliers.show', $purchase->supplier) }}" class="flex items-center justify-between rounded-xl bg-marca-blanco p-4 text-sm shadow-sm ring-1 ring-marca-gris-oscuro/5 hover:ring-marca-amarillo">
                                 <span class="font-medium text-marca-negro">{{ $purchase->supplier->name ?? '—' }} · {{ $purchase->description }}</span>
-                                <span class="font-semibold text-marca-rojo">{{ $money($purchase->amount - $purchase->paid_amount) }}</span>
+                                <span class="font-semibold text-marca-rojo">{{ $money($purchase->amount) }}</span>
                             </a>
                         @endforeach
                     </div>
