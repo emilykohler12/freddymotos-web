@@ -25,7 +25,8 @@ class MechanicJobController extends Controller
 
     public function togglePaid(MechanicJob $mechanicJob): RedirectResponse
     {
-        $mechanicJob->update(['pagado' => ! $mechanicJob->pagado]);
+        $pagado = ! $mechanicJob->pagado;
+        $mechanicJob->update(['pagado' => $pagado, 'paid_at' => $pagado ? now() : null]);
 
         return redirect()->route('admin.workshop.index', ['tab' => 'mecanicos'])->with('status', $mechanicJob->pagado ? 'Trabajo marcado como pagado.' : 'Trabajo marcado como pendiente.');
     }
@@ -41,8 +42,8 @@ class MechanicJobController extends Controller
     {
         return $request->validate([
             'mechanic_id' => ['required', 'exists:mechanics,id'],
-            'moto' => ['required', 'string', 'max:150'],
-            'problema' => ['required', 'string', 'max:1000'],
+            'moto' => ['nullable', 'string', 'max:150'],
+            'problema' => ['nullable', 'string', 'max:1000'],
             'product_id' => ['nullable', 'exists:products,id'],
             'quantity' => ['nullable', 'integer', 'min:1'],
             'monto_a_pagar' => ['required', 'numeric', 'min:0'],

@@ -86,8 +86,6 @@ class PasswordResetController extends Controller
         $user->update(['password' => $data['password']]);
         $reset->delete();
 
-        $loginRoute = $user->isAdmin() ? 'admin.login' : 'login';
-
-        return redirect()->route($loginRoute)->with('status', 'Contraseña actualizada. Ya podés ingresar.');
+        return redirect()->route('login')->with('status', 'Contraseña actualizada. Ya podés ingresar.');
     }
 }

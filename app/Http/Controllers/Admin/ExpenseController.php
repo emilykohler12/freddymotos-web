@@ -30,6 +30,16 @@ class ExpenseController extends Controller
 
         $categories = ExpenseCategory::where('type', Expense::TYPE_GASTO)->with('children')->whereNull('parent_id')->orderByRaw(Sorting::foldedName('name'))->get();
 
+        $categoryOptions = $categories->flatMap(function (ExpenseCategory $cat) {
+            $options = collect([['id' => $cat->id, 'label' => $cat->name]]);
+
+            foreach ($cat->children as $child) {
+                $options->push(['id' => $child->id, 'label' => '— ' . $child->name]);
+            }
+
+            return $options;
+        });
+
         $categoryList = $categories
             ->when($categorySearch !== '', fn ($c) => $c->filter(fn (ExpenseCategory $cat) => str_contains(Sorting::fold($cat->name), Sorting::fold($categorySearch))))
             ->sortBy(fn (ExpenseCategory $cat) => Sorting::fold($cat->name), SORT_STRING, $categorySort === 'name_desc')
@@ -58,6 +68,7 @@ class ExpenseController extends Controller
             'paidWithoutCategory' => $paid->whereNull('expense_category_id')->values(),
             'totalThisMonth' => $totalThisMonth,
             'categories' => $categories,
+            'categoryOptions' => $categoryOptions,
             'categoryList' => $categoryList,
             'categorySearch' => $categorySearch,
             'categorySort' => $categorySort,
@@ -118,9 +129,12 @@ class ExpenseController extends Controller
             'expense_category_id' => ['nullable', 'exists:expense_categories,id'],
             'amount' => ['required', 'numeric', 'min:0'],
             'frequency' => ['nullable', 'in:' . implode(',', array_keys(Expense::FREQUENCIES))],
-            'incurred_on' => ['required', 'date'],
+            'incurred_on' => ['nullable', 'date'],
+            'due_on' => ['nullable', 'date'],
             'tab' => ['nullable', 'string'],
         ]);
+
+        $data['incurred_on'] = $data['incurred_on'] ?? now()->toDateString();
 
         $tab = $data['tab'] ?? ($data['type'] === Expense::TYPE_INGRESO ? 'ingresos' : 'categoria');
         unset($data['tab']);

@@ -29,8 +29,8 @@
                 <input type="number" step="0.01" min="0" name="amount" value="{{ $item->amount }}" required class="{{ $field }}">
                 <select name="expense_category_id" class="{{ $field }}">
                     <option value="">Sin categoría</option>
-                    @foreach (($categories ?? \App\Models\ExpenseCategory::where('type', $item->type)->orderBy('name')->get()) as $category)
-                        <option value="{{ $category->id }}" @selected($item->expense_category_id === $category->id)>{{ $category->name }}</option>
+                    @foreach ($categoryOptions ?? [] as $option)
+                        <option value="{{ $option['id'] }}" @selected($item->expense_category_id === $option['id'])>{{ $option['label'] }}</option>
                     @endforeach
                 </select>
                 <select name="frequency" required class="{{ $field }}">

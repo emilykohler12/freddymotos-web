@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController as AdminActivityLogController;
-use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryAttributeController as AdminCategoryAttributeController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
@@ -75,12 +74,10 @@ Route::middleware('guest')->prefix('recuperar-contrasena')->group(function () {
 });
 
 /* ---------------- Panel de administración ---------------- */
+/* El login es único (/login): un admin que inicia sesión ahí va directo al panel. */
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('login', [AdminAuthController::class, 'showLogin'])->name('login');
-    Route::post('login', [AdminAuthController::class, 'login']);
-
     Route::middleware('admin')->group(function () {
-        Route::post('logout', [AdminAuthController::class, 'logout'])->name('logout');
+        Route::post('logout', [ClientAuthController::class, 'logout'])->name('logout');
 
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 

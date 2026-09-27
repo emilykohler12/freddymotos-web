@@ -51,7 +51,7 @@
                 <form method="POST" action="{{ route('admin.suppliers.purchases.store', $supplier) }}" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     @csrf
                     <div class="sm:col-span-2">
-                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Productos comprados / detalle</label>
+                        <label class="mb-1 block text-xs font-semibold uppercase tracking-wide text-marca-gris-oscuro">Repuestos comprados / detalle</label>
                         <input type="text" name="description" required placeholder="Ej: 20 pastillas de freno, 10 cascos MT" class="{{ $field }}">
                     </div>
                     <div>
@@ -74,10 +74,10 @@
                 </form>
             </div>
 
-            {{-- Productos comprados (catálogo asociado) --}}
+            {{-- Repuestos comprados (catálogo asociado) --}}
             @if ($supplier->products->isNotEmpty())
                 <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
-                    <h2 class="mb-3 text-sm font-bold text-marca-negro">Productos de este proveedor</h2>
+                    <h2 class="mb-3 text-sm font-bold text-marca-negro">Repuestos de este proveedor</h2>
                     <ul class="divide-y divide-marca-gris-claro text-sm">
                         @foreach ($supplier->products as $product)
                             <li class="flex items-center justify-between py-2">

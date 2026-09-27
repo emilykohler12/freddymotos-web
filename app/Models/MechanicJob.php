@@ -18,6 +18,7 @@ class MechanicJob extends Model
         'quantity',
         'monto_a_pagar',
         'pagado',
+        'paid_at',
     ];
 
     protected function casts(): array
@@ -26,6 +27,7 @@ class MechanicJob extends Model
             'quantity' => 'integer',
             'monto_a_pagar' => 'decimal:2',
             'pagado' => 'boolean',
+            'paid_at' => 'datetime',
         ];
     }
 

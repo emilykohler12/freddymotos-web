@@ -188,10 +188,10 @@
             @endif
         </div>
 
-        {{-- 8. Productos más vendidos --}}
+        {{-- 8. Repuestos más vendidos --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
             <a href="{{ route('admin.products.index', ['tab' => 'repuestos']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
-                <h2 class="text-sm font-bold text-marca-negro">Productos top 5</h2>
+                <h2 class="text-sm font-bold text-marca-negro">Repuestos top 5</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
             @if ($hasTopProducts)
@@ -203,13 +203,19 @@
             @endif
         </div>
 
-        {{-- 9. Marcas más vendidas (placeholder) --}}
+        {{-- 9. Marcas más vendidas --}}
         <div class="rounded-2xl bg-marca-blanco p-5 shadow-sm ring-1 ring-marca-gris-oscuro/5">
             <a href="{{ route('admin.products.index', ['tab' => 'repuestos']) }}" class="flex items-center justify-between hover:text-marca-rojo transition">
                 <h2 class="text-sm font-bold text-marca-negro">Marcas top 5</h2>
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>
-            <p class="mt-4 text-sm text-marca-gris-oscuro">Datos disponibles próximamente.</p>
+            @if ($hasTopBrands)
+                <div class="mt-4 h-72">
+                    <canvas data-chart="{{ json_encode($topBrandsChart) }}"></canvas>
+                </div>
+            @else
+                <p class="mt-4 text-sm text-marca-gris-oscuro">Sin ventas.</p>
+            @endif
         </div>
     </div>
 @endsection

@@ -131,15 +131,17 @@
                                         @foreach ($mechanic->jobs as $job)
                                             <li class="py-3">
                                                 <div class="flex items-start justify-between gap-2">
-                                                    <p class="font-semibold text-marca-negro">{{ $job->moto }}</p>
+                                                    <p class="font-semibold text-marca-negro">{{ $job->moto ?: 'Sin moto especificada' }}</p>
                                                     <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase {{ $job->pagado ? 'bg-marca-amarillo/20 text-marca-negro' : 'bg-marca-rojo/10 text-marca-rojo' }}">
                                                         {{ $job->pagado ? 'Pagado' : 'Debe' }}
                                                     </span>
                                                 </div>
                                                 <dl class="mt-1 space-y-1 text-sm text-marca-gris-oscuro">
-                                                    <div><span class="font-medium text-marca-negro">Motivo:</span> {{ $job->problema }}</div>
+                                                    @if ($job->problema)
+                                                        <div><span class="font-medium text-marca-negro">Motivo:</span> {{ $job->problema }}</div>
+                                                    @endif
                                                     @if ($job->product)
-                                                        <div><span class="font-medium text-marca-negro">Producto:</span> {{ $job->product->name }} (x{{ $job->quantity }})</div>
+                                                        <div><span class="font-medium text-marca-negro">Repuesto:</span> {{ $job->product->name }} (x{{ $job->quantity }})</div>
                                                     @endif
                                                     <div>Debe al local: <span class="font-medium text-marca-negro">{{ $job->formatted_monto }}</span></div>
                                                     <div class="text-xs">{{ $job->created_at->diffForHumans() }}</div>
@@ -150,10 +152,10 @@
                                                         <form method="POST" action="{{ route('admin.mechanic-jobs.update', $job) }}" class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                                                             @csrf @method('PUT')
                                                             <input type="hidden" name="mechanic_id" value="{{ $mechanic->id }}">
-                                                            <input type="text" name="moto" value="{{ $job->moto }}" required placeholder="Moto" class="sm:col-span-2 {{ $field }}">
-                                                            <textarea name="problema" rows="2" required placeholder="Qué necesitaba y por qué" class="sm:col-span-2 {{ $field }}">{{ $job->problema }}</textarea>
+                                                            <input type="text" name="moto" value="{{ $job->moto }}" placeholder="Moto (opcional)" class="sm:col-span-2 {{ $field }}">
+                                                            <textarea name="problema" rows="2" placeholder="Qué necesitaba y por qué (opcional)" class="sm:col-span-2 {{ $field }}">{{ $job->problema }}</textarea>
                                                             <select name="product_id" class="{{ $field }}" data-product-select>
-                                                                <option value="">Sin producto</option>
+                                                                <option value="">Sin repuesto</option>
                                                                 @foreach ($products as $product)
                                                                     <option value="{{ $product->id }}" data-price="{{ $product->price }}" @selected($job->product_id === $product->id)>{{ $product->name }} — {{ $product->formatted_price }}</option>
                                                                 @endforeach
@@ -208,10 +210,10 @@
                                         <option value="{{ $mechanic->id }}">{{ $mechanic->name }}</option>
                                     @endforeach
                                 </select>
-                                <input type="text" name="moto" placeholder="Moto (ej: Honda Wave 110)" required class="{{ $field }}">
-                                <textarea name="problema" rows="2" placeholder="Qué necesitaba arreglarse y por qué" required class="{{ $field }}"></textarea>
+                                <input type="text" name="moto" placeholder="Moto (ej: Honda Wave 110, opcional)" class="{{ $field }}">
+                                <textarea name="problema" rows="2" placeholder="Qué necesitaba arreglarse y por qué (opcional)" class="{{ $field }}"></textarea>
                                 <select name="product_id" class="{{ $field }}" data-product-select>
-                                    <option value="">Producto que compró (opcional)</option>
+                                    <option value="">Repuesto que compró (opcional)</option>
                                     @foreach ($products as $product)
                                         <option value="{{ $product->id }}" data-price="{{ $product->price }}">{{ $product->name }} — {{ $product->formatted_price }}</option>
                                     @endforeach

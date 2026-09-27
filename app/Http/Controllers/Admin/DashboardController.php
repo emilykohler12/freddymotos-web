@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\Mechanic;
+use App\Models\MechanicJob;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -51,8 +52,8 @@ class DashboardController extends Controller
 
         $revenue = (float) $paidOrdersInPeriod()->sum('total') + $otrosIngresosTotal;
 
-        // Deuda de mecánicos: total en dinero
-        $mechanicsTotalDebt = (float) Mechanic::with(['jobs' => fn ($q) => $q->where('pagado', false)])
+        // Deuda de mecánicos: total en dinero (incluye mecánicos desactivados: la deuda sigue siendo real)
+        $mechanicsTotalDebt = (float) Mechanic::withTrashed()->with(['jobs' => fn ($q) => $q->where('pagado', false)])
             ->get()
             ->flatMap(fn (Mechanic $m) => $m->jobs)
             ->sum('monto_a_pagar');
@@ -69,6 +70,18 @@ class DashboardController extends Controller
             ->groupBy('product_id', 'product_name')
             ->orderByDesc('total_qty')
             ->take(8)
+            ->get();
+
+        // ---- Marcas más vendidas ----
+        $topBrands = OrderItem::query()
+            ->join('products', 'products.id', '=', 'order_items.product_id')
+            ->selectRaw('products.brand as brand, SUM(order_items.quantity) as total_qty')
+            ->whereIn('order_items.order_id', $paidOrdersInPeriod()->pluck('id'))
+            ->whereNotNull('products.brand')
+            ->where('products.brand', '!=', '')
+            ->groupBy('products.brand')
+            ->orderByDesc('total_qty')
+            ->take(5)
             ->get();
 
         $lowStock = Product::where('active', true)->where('stock', '>', 0)->where('stock', '<=', 5)->orderBy('stock')->get();
@@ -103,7 +116,7 @@ class DashboardController extends Controller
             ->sortDesc();
 
         // ---- Cuánto deben los mecánicos por productos que compraron y no pagaron ----
-        $mechanicsDebt = Mechanic::with(['jobs' => fn ($q) => $q->where('pagado', false)])
+        $mechanicsDebt = Mechanic::withTrashed()->with(['jobs' => fn ($q) => $q->where('pagado', false)])
             ->get()
             ->map(fn (Mechanic $m) => ['name' => $m->name, 'total' => (float) $m->jobs->sum('monto_a_pagar')])
             ->filter(fn ($m) => $m['total'] > 0)
@@ -124,10 +137,12 @@ class DashboardController extends Controller
             'pendingExpensePayments' => $pendingExpensePayments,
             'mechanicsDebt' => $mechanicsDebt,
             'topProductsChart' => $this->topProductsChart($topProducts),
+            'topBrandsChart' => $this->topBrandsChart($topBrands),
             'expensesByCategoryChart' => $this->expensesByCategoryChart($expensesByCategory),
             'incomeVsExpensesChart' => $this->incomeVsExpensesChart($period, $start),
             'mechanicsDebtChart' => $this->mechanicsDebtChart($mechanicsDebt),
             'hasTopProducts' => $topProducts->isNotEmpty(),
+            'hasTopBrands' => $topBrands->isNotEmpty(),
             'hasExpensesByCategory' => $expensesByCategory->isNotEmpty(),
             'hasMechanicsDebt' => $mechanicsDebt->isNotEmpty(),
         ]);
@@ -153,6 +168,29 @@ class DashboardController extends Controller
                     'label' => 'Unidades vendidas',
                     'data' => $topProducts->pluck('total_qty')->all(),
                     'backgroundColor' => '#F5C518',
+                    'borderRadius' => 6,
+                    'maxBarThickness' => 28,
+                ]],
+            ],
+            'options' => [
+                'indexAxis' => 'y',
+                'maintainAspectRatio' => false,
+                'plugins' => ['legend' => ['display' => false]],
+                'scales' => ['x' => ['beginAtZero' => true, 'ticks' => ['precision' => 0]]],
+            ],
+        ];
+    }
+
+    private function topBrandsChart($topBrands): array
+    {
+        return [
+            'type' => 'bar',
+            'data' => [
+                'labels' => $topBrands->pluck('brand')->all(),
+                'datasets' => [[
+                    'label' => 'Unidades vendidas',
+                    'data' => $topBrands->pluck('total_qty')->all(),
+                    'backgroundColor' => '#D22F27',
                     'borderRadius' => 6,
                     'maxBarThickness' => 28,
                 ]],
@@ -227,6 +265,7 @@ class DashboardController extends Controller
         $whatsappIngresos = [];
         $localIngresos = [];
         $otrosIngresos = [];
+        $mecanicosIngresos = [];
         $gastos = [];
 
         foreach ($buckets as $bucket) {
@@ -242,10 +281,19 @@ class DashboardController extends Controller
                 2
             );
 
-            $localIngresos[] = 0;
+            $localIngresos[] = round(
+                (float) Order::query()->paid()->where('origin', Order::ORIGIN_LOCAL)->whereBetween('created_at', [$bucket['start'], $bucket['end']])->sum('total'),
+                2
+            );
 
             $otrosIngresos[] = round(
                 (float) Expense::where('type', Expense::TYPE_INGRESO)->whereBetween('incurred_on', [$bucket['start'], $bucket['end']])->sum('amount'),
+                2
+            );
+
+            // Lo que cobró el local cuando el admin marcó como pagado un trabajo de mecánico.
+            $mecanicosIngresos[] = round(
+                (float) MechanicJob::where('pagado', true)->whereBetween('paid_at', [$bucket['start'], $bucket['end']])->sum('monto_a_pagar'),
                 2
             );
 
@@ -275,9 +323,23 @@ class DashboardController extends Controller
                         'maxBarThickness' => 48,
                     ],
                     [
+                        'label' => 'Local',
+                        'data' => $localIngresos,
+                        'backgroundColor' => '#141414',
+                        'borderRadius' => 6,
+                        'maxBarThickness' => 48,
+                    ],
+                    [
                         'label' => 'Otros Ingresos',
                         'data' => $otrosIngresos,
                         'backgroundColor' => '#BC7C1A',
+                        'borderRadius' => 6,
+                        'maxBarThickness' => 48,
+                    ],
+                    [
+                        'label' => 'Ingresos mecánicos',
+                        'data' => $mecanicosIngresos,
+                        'backgroundColor' => '#2A6F97',
                         'borderRadius' => 6,
                         'maxBarThickness' => 48,
                     ],

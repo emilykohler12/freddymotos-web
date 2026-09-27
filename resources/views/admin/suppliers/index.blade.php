@@ -27,7 +27,7 @@
                         <th class="px-5 py-3 font-semibold">Nombre</th>
                         <th class="px-5 py-3 font-semibold">Empresa</th>
                         <th class="px-5 py-3 font-semibold">Teléfono</th>
-                        <th class="px-5 py-3 font-semibold">Productos</th>
+                        <th class="px-5 py-3 font-semibold">Repuestos</th>
                         <th class="px-5 py-3 font-semibold">Deuda</th>
                         <th class="px-5 py-3 font-semibold"></th>
                     </tr>

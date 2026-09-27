@@ -87,7 +87,7 @@
                     <select id="scope" name="scope" required class="{{ $field }}">
                         <option value="all" @selected(old('scope', $promotion->scope) === 'all')>Todo el catálogo</option>
                         <option value="category" @selected(old('scope', $promotion->scope) === 'category')>Una categoría</option>
-                        <option value="products" @selected(old('scope', $promotion->scope) === 'products')>Productos puntuales</option>
+                        <option value="products" @selected(old('scope', $promotion->scope) === 'products')>Repuestos puntuales</option>
                     </select>
                 </div>
 
@@ -102,8 +102,8 @@
                 </div>
 
                 <div class="mt-4">
-                    <label class="{{ $lbl }}">Productos <span class="normal-case text-marca-gris-oscuro/50">(si el alcance es "Productos puntuales")</span></label>
-                    <input type="text" id="product_search" placeholder="Buscar producto..." class="{{ $field }} mb-3">
+                    <label class="{{ $lbl }}">Repuestos <span class="normal-case text-marca-gris-oscuro/50">(si el alcance es "Repuestos puntuales")</span></label>
+                    <input type="text" id="product_search" placeholder="Buscar repuesto..." class="{{ $field }} mb-3">
                     <div class="max-h-48 columns-1 gap-4 overflow-y-auto rounded-lg border border-marca-gris-oscuro/20 p-3 sm:columns-2 lg:columns-3" id="products_container">
                         @forelse ($products as $product)
                             <label class="mb-1 flex items-center gap-2 break-inside-avoid text-sm text-marca-negro product-checkbox" data-product-name="{{ strtolower($product->name) }}">
@@ -111,7 +111,7 @@
                                 {{ $product->name }}
                             </label>
                         @empty
-                            <p class="text-sm text-marca-gris-oscuro">Todavía no hay productos cargados.</p>
+                            <p class="text-sm text-marca-gris-oscuro">Todavía no hay repuestos cargados.</p>
                         @endforelse
                     </div>
                     <script>

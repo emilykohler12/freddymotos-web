@@ -13,15 +13,15 @@
 
     <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
         <div class="space-y-6 lg:col-span-2">
-            {{-- Productos --}}
+            {{-- Repuestos --}}
             <div class="overflow-hidden rounded-2xl bg-marca-blanco shadow-sm ring-1 ring-marca-gris-oscuro/5">
                 <div class="border-b border-marca-gris-claro px-5 py-4">
-                    <h2 class="text-sm font-bold text-marca-negro">Productos</h2>
+                    <h2 class="text-sm font-bold text-marca-negro">Repuestos</h2>
                 </div>
                 <table class="w-full text-left text-sm">
                     <thead class="text-xs uppercase tracking-wide text-marca-gris-oscuro/60">
                         <tr>
-                            <th class="px-5 py-3 font-semibold">Producto</th>
+                            <th class="px-5 py-3 font-semibold">Repuesto</th>
                             <th class="px-5 py-3 font-semibold">Cantidad</th>
                             <th class="px-5 py-3 font-semibold">Precio unit.</th>
                             <th class="px-5 py-3 font-semibold">Subtotal</th>

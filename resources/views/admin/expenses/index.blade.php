@@ -9,6 +9,12 @@
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
     @endphp
 
+    @if ($errors->any())
+        <div class="mb-6 rounded-lg bg-marca-rojo/10 px-4 py-3 text-sm font-medium text-marca-rojo">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
     <p class="mb-6 text-sm text-marca-gris-oscuro">
         Total del mes: <strong class="text-marca-negro">{{ $money($totalThisMonth) }}</strong>
     </p>
@@ -80,7 +86,7 @@
                     </div>
                     <div class="space-y-3" id="categoriesList">
                         @forelse ($categoryList as $category)
-                            <div class="rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5" draggable="true" data-category-id="{{ $category->id }}" data-category-name="{{ $category->name }}">
+                            <div class="rounded-lg bg-marca-blanco p-4 shadow-sm ring-1 ring-marca-gris-oscuro/5">
                                 <div class="flex items-center justify-between gap-3 mb-3">
                                     <input type="text" class="flex-1 bg-transparent text-marca-negro font-semibold border-0 p-0 focus:ring-0 focus:outline-none text-sm category-name-input" value="{{ $category->name }}" data-category-id="{{ $category->id }}">
                                     <form method="POST" action="{{ route('admin.expense-categories.destroy', $category->id) }}" data-confirm="¿Desactivar la categoría {{ $category->name }}?" style="display: inline;">
@@ -91,7 +97,7 @@
                                 @if ($category->children->isNotEmpty())
                                     <ul class="space-y-2 pl-3 border-l-2 border-marca-gris-claro">
                                         @foreach ($category->children as $child)
-                                            <li class="flex items-center justify-between gap-2 rounded px-2 py-2 bg-marca-gris-claro text-xs" draggable="true" data-child-id="{{ $child->id }}" data-parent-id="{{ $category->id }}" data-child-name="{{ $child->name }}">
+                                            <li class="flex items-center justify-between gap-2 rounded px-2 py-2 bg-marca-gris-claro text-xs">
                                                 <input type="text" class="flex-1 bg-transparent text-marca-gris-oscuro font-medium border-0 p-0 focus:ring-0 focus:outline-none text-xs category-name-input" value="{{ $child->name }}" data-category-id="{{ $child->id }}">
                                                 <form method="POST" action="{{ route('admin.expense-categories.destroy', $child->id) }}" data-confirm="¿Desactivar {{ $child->name }}?" style="display: inline;">
                                                     @csrf @method('DELETE')
@@ -110,109 +116,24 @@
                     </div>
 
                     <script>
-                        let draggedElement = null;
+                        document.querySelectorAll('.category-name-input').forEach(function(input) {
+                            const originalValue = input.value;
+                            input.addEventListener('blur', function() {
+                                if (this.value !== originalValue && this.value.trim()) {
+                                    const categoryId = this.getAttribute('data-category-id');
+                                    const formData = new FormData();
+                                    formData.append('_method', 'PUT');
+                                    formData.append('_token', '{{ csrf_token() }}');
+                                    formData.append('name', this.value);
 
-                        function setupEventListeners() {
-                            // Editar nombre de categoría inline
-                            document.querySelectorAll('.category-name-input').forEach(function(input) {
-                                const originalValue = input.value;
-                                input.addEventListener('blur', function() {
-                                    if (this.value !== originalValue && this.value.trim()) {
-                                        const categoryId = this.getAttribute('data-category-id');
-                                        const formData = new FormData();
-                                        formData.append('_method', 'PUT');
-                                        formData.append('_token', '{{ csrf_token() }}');
-                                        formData.append('name', this.value);
-
-                                        fetch('/admin/gastos/categorias/' + categoryId, {
-                                            method: 'POST',
-                                            body: formData,
-                                            headers: { 'Accept': 'application/json' }
-                                        }).then(r => r.ok ? location.reload() : alert('Error al actualizar'));
-                                    }
-                                });
+                                    fetch('/admin/gastos/categorias/' + categoryId, {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: { 'Accept': 'application/json' }
+                                    }).then(r => r.ok ? location.reload() : alert('Error al actualizar'));
+                                }
                             });
-
-                            // Drag and drop - NO recarga la página
-                            const draggables = document.querySelectorAll('[data-category-id][draggable="true"], [data-child-id][draggable="true"]');
-                            draggables.forEach(function(el) {
-                                el.addEventListener('dragstart', function(e) {
-                                    draggedElement = this;
-                                    this.style.opacity = '0.5';
-                                    e.dataTransfer.effectAllowed = 'move';
-                                });
-                                el.addEventListener('dragend', function(e) {
-                                    this.style.opacity = '1';
-                                    draggedElement = null;
-                                });
-                            });
-
-                            // Permitir drop en categorías padre y hermanas
-                            const dropTargets = document.querySelectorAll('[data-category-id][draggable="true"]');
-                            const listItems = document.querySelectorAll('[data-child-id][draggable="true"]');
-                            const allDropTargets = Array.from(dropTargets).concat(Array.from(listItems));
-
-                            allDropTargets.forEach(function(el) {
-                                el.addEventListener('dragover', function(e) {
-                                    e.preventDefault();
-                                    e.dataTransfer.dropEffect = 'move';
-                                    if (draggedElement && draggedElement !== this) {
-                                        this.style.backgroundColor = '#fff3cd';
-                                    }
-                                });
-                                el.addEventListener('dragleave', function(e) {
-                                    this.style.backgroundColor = '';
-                                });
-                                el.addEventListener('drop', function(e) {
-                                    e.preventDefault();
-                                    this.style.backgroundColor = '';
-
-                                    if (!draggedElement || draggedElement === this) return;
-
-                                    var draggedId = draggedElement.getAttribute('data-child-id') || draggedElement.getAttribute('data-category-id');
-                                    var dropTargetId = this.getAttribute('data-category-id');
-
-                                    // Si se suelta en una subcategoría, mover a su padre
-                                    if (this.getAttribute('data-child-id')) {
-                                        dropTargetId = this.getAttribute('data-parent-id');
-                                    }
-
-                                    if (draggedId && dropTargetId && draggedId !== dropTargetId) {
-                                        fetch('/admin/gastos/categorias/' + draggedId, {
-                                            method: 'PUT',
-                                            body: JSON.stringify({ parent_id: dropTargetId }),
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'Accept': 'application/json',
-                                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                            }
-                                        }).then(r => {
-                                            if (draggedElement) {
-                                                draggedElement.style.opacity = '1';
-                                            }
-                                            if (r.ok) {
-                                                setTimeout(() => location.reload(), 300);
-                                            } else {
-                                                try {
-                                                    r.json().then(data => alert(data.error || 'Error al mover'));
-                                                } catch (e) {
-                                                    alert('Error al mover');
-                                                }
-                                            }
-                                            draggedElement = null;
-                                        }).catch(e => {
-                                            if (draggedElement) {
-                                                draggedElement.style.opacity = '1';
-                                            }
-                                            alert('Error: ' + e.message);
-                                            draggedElement = null;
-                                        });
-                                    }
-                                });
-                            });
-                        }
-
-                        setupEventListeners();
+                        });
                     </script>
             </div>
         </div>
@@ -230,8 +151,8 @@
                         <input type="number" step="0.01" min="0" name="amount" placeholder="Monto" required class="{{ $field }}">
                         <select name="expense_category_id" class="{{ $field }}">
                             <option value="">Sin categoría</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @foreach ($categoryOptions as $option)
+                                <option value="{{ $option['id'] }}">{{ $option['label'] }}</option>
                             @endforeach
                         </select>
                         <select name="frequency" required class="{{ $field }}">
@@ -239,7 +160,14 @@
                                 <option value="{{ $value }}">{{ $label }}</option>
                             @endforeach
                         </select>
-                        <input type="date" name="due_on" required class="{{ $field }}" title="Fecha de vencimiento">
+                        <div>
+                            <label class="mb-1 block text-xs text-marca-gris-oscuro">Fecha</label>
+                            <input type="date" name="incurred_on" value="{{ date('Y-m-d') }}" required class="{{ $field }}">
+                        </div>
+                        <div>
+                            <label class="mb-1 block text-xs text-marca-gris-oscuro">Fecha de vencimiento (opcional)</label>
+                            <input type="date" name="due_on" class="{{ $field }}">
+                        </div>
                         <button type="submit" class="w-full rounded-lg bg-marca-amarillo px-5 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                             Registrar
                         </button>
@@ -269,7 +197,7 @@
                     @else
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             @foreach ($allExpenses as $item)
-                                @include('admin.expenses._card', ['item' => $item, 'categories' => $categories, 'activeTab' => 'nuevo-gasto'])
+                                @include('admin.expenses._card', ['item' => $item, 'categoryOptions' => $categoryOptions, 'activeTab' => 'nuevo-gasto'])
                             @endforeach
                         </div>
                     @endif
@@ -285,7 +213,7 @@
                         <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">{{ $group['category']->name }}</h2>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             @foreach ($group['items'] as $item)
-                                @include('admin.expenses._card', ['item' => $item, 'categories' => $categories, 'activeTab' => 'pendientes'])
+                                @include('admin.expenses._card', ['item' => $item, 'categoryOptions' => $categoryOptions, 'activeTab' => 'pendientes'])
                             @endforeach
                         </div>
                     </div>
@@ -297,7 +225,7 @@
                     <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">Sin categoría</h2>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         @foreach ($pendingWithoutCategory as $item)
-                            @include('admin.expenses._card', ['item' => $item, 'categories' => $categories, 'activeTab' => 'pendientes'])
+                            @include('admin.expenses._card', ['item' => $item, 'categoryOptions' => $categoryOptions, 'activeTab' => 'pendientes'])
                         @endforeach
                     </div>
                 </div>
@@ -318,7 +246,7 @@
                         <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">{{ $group['category']->name }}</h2>
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             @foreach ($group['items'] as $item)
-                                @include('admin.expenses._card', ['item' => $item, 'categories' => $categories, 'activeTab' => 'pagadas'])
+                                @include('admin.expenses._card', ['item' => $item, 'categoryOptions' => $categoryOptions, 'activeTab' => 'pagadas'])
                             @endforeach
                         </div>
                     </div>
@@ -330,7 +258,7 @@
                     <h2 class="mb-3 text-sm font-bold uppercase tracking-wide text-marca-negro">Sin categoría</h2>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         @foreach ($paidWithoutCategory as $item)
-                            @include('admin.expenses._card', ['item' => $item, 'categories' => $categories, 'activeTab' => 'pagadas'])
+                            @include('admin.expenses._card', ['item' => $item, 'categoryOptions' => $categoryOptions, 'activeTab' => 'pagadas'])
                         @endforeach
                     </div>
                 </div>

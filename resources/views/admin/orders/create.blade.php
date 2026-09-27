@@ -87,12 +87,12 @@
                 </div>
             </div>
 
-            {{-- Productos --}}
+            {{-- Repuestos --}}
             <div class="border-b border-marca-gris-claro pb-6">
-                <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Productos</h2>
-                <input type="text" id="product-search" placeholder="Buscar producto por nombre..." class="{{ $field }} mb-3">
+                <h2 class="mb-4 text-sm font-bold uppercase tracking-wide text-marca-negro">Repuestos</h2>
+                <input type="text" id="product-search" placeholder="Buscar repuesto por nombre..." class="{{ $field }} mb-3">
                 <div class="mb-4 space-y-2">
-                    <p class="text-xs text-marca-gris-oscuro">Productos seleccionados:</p>
+                    <p class="text-xs text-marca-gris-oscuro">Repuestos seleccionados:</p>
                     <div id="selected-products" class="min-h-8 space-y-2 rounded-lg bg-marca-amarillo/10 p-2">
                         <p class="text-xs text-marca-gris-oscuro/60">Ninguno</p>
                     </div>

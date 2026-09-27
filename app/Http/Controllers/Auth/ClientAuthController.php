@@ -78,10 +78,12 @@ class ClientAuthController extends Controller
 
     public function logout(Request $request): RedirectResponse
     {
+        $wasAdmin = Auth::check() && Auth::user()->isAdmin();
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        return redirect()->route($wasAdmin ? 'login' : 'home');
     }
 }
