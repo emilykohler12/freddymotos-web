@@ -37,20 +37,20 @@ class DashboardController extends Controller
         $paidOrdersInPeriod = fn () => Order::query()->paid()->where('created_at', '>=', $start);
 
         // ---- KPIs ----
-        // Ventas: dinero de pedidos pagados Y entregados
+        // Ventas: pedidos pagados y entregados, de la web y coordinados por WhatsApp.
         $salesTotal = (float) Order::query()
             ->paid()
+            ->whereIn('origin', [Order::ORIGIN_WEB, Order::ORIGIN_WHATSAPP])
             ->whereIn('status', [Order::STATUS_ENVIADO, Order::STATUS_ENTREGADO])
             ->where('created_at', '>=', $start)
             ->sum('total');
 
-        // Ingresos: todos los pedidos pagados + otros ingresos
-        $otrosIngresosTotal = (float) Expense::query()
-            ->where('type', Expense::TYPE_INGRESO)
-            ->where('incurred_on', '>=', $start)
-            ->sum('amount');
-
-        $revenue = (float) $paidOrdersInPeriod()->sum('total') + $otrosIngresosTotal;
+        // Ingresos: pedidos pagados de la web y coordinados por WhatsApp que el admin marcó como pagado.
+        $revenue = (float) Order::query()
+            ->paid()
+            ->whereIn('origin', [Order::ORIGIN_WEB, Order::ORIGIN_WHATSAPP])
+            ->where('created_at', '>=', $start)
+            ->sum('total');
 
         // Deuda de mecánicos: total en dinero (incluye mecánicos desactivados: la deuda sigue siendo real)
         $mechanicsTotalDebt = (float) Mechanic::withTrashed()->with(['jobs' => fn ($q) => $q->where('pagado', false)])
@@ -292,8 +292,9 @@ class DashboardController extends Controller
             );
 
             // Lo que cobró el local cuando el admin marcó como pagado un trabajo de mecánico.
+            // withTrashed(): el ingreso ya ocurrió, así que sigue contando aunque después se borre el trabajo o el mecánico.
             $mecanicosIngresos[] = round(
-                (float) MechanicJob::where('pagado', true)->whereBetween('paid_at', [$bucket['start'], $bucket['end']])->sum('monto_a_pagar'),
+                (float) MechanicJob::withTrashed()->where('pagado', true)->whereBetween('paid_at', [$bucket['start'], $bucket['end']])->sum('monto_a_pagar'),
                 2
             );
 

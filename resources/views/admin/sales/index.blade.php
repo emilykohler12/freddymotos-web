@@ -13,6 +13,7 @@
         ];
         $money = fn ($n) => '$ ' . number_format((float) $n, 0, ',', '.');
         $paymentMethodLabels = ['mercadopago' => 'Mercado Pago', 'whatsapp' => 'A coordinar (WhatsApp)'] + \App\Models\Order::REAL_PAYMENT_METHODS;
+        $originLabels = ['web' => 'Web', 'whatsapp' => 'WhatsApp', 'local' => 'Local'];
         $paymentStatuses = ['pendiente' => 'Pendiente', 'pagado' => 'Pagado', 'rechazado' => 'Rechazado'];
         $statuses = ['pendiente' => 'Pendiente', 'enviado' => 'Enviado', 'entregado' => 'Entregado', 'cancelado' => 'Cancelado'];
     @endphp
@@ -314,7 +315,7 @@
                                     <th class="px-5 py-3 font-semibold">Fecha de pago</th>
                                     <th class="px-5 py-3 font-semibold">Cliente</th>
                                     <th class="px-5 py-3 font-semibold">Monto</th>
-                                    <th class="px-5 py-3 font-semibold">Método de pago</th>
+                                    <th class="px-5 py-3 font-semibold">Por dónde ingresó</th>
                                     <th class="px-5 py-3 font-semibold"></th>
                                 </tr>
                             </thead>
@@ -325,7 +326,7 @@
                                         <td class="px-5 py-3 text-marca-gris-oscuro">{{ optional($order->paid_at)->format('d/m/Y H:i') ?? $order->created_at->format('d/m/Y H:i') }}</td>
                                         <td class="px-5 py-3 text-marca-negro">{{ $order->customer->name ?? '—' }}</td>
                                         <td class="px-5 py-3 font-semibold text-marca-negro">{{ $order->formatted_total }}</td>
-                                        <td class="px-5 py-3 text-marca-gris-oscuro">{{ $paymentMethodLabels[$order->payment_method] ?? ucfirst($order->payment_method) }}</td>
+                                        <td class="px-5 py-3 text-marca-gris-oscuro">{{ $originLabels[$order->origin] ?? ucfirst($order->origin) }}</td>
                                         <td class="px-5 py-3 text-right text-xs font-semibold text-marca-rojo">Ver →</td>
                                     </tr>
                                 @endforeach
