@@ -105,7 +105,7 @@ class ExpenseController extends Controller
 
     private function redirectFor(string $tab): RedirectResponse
     {
-        return in_array($tab, ['ingresos'], true)
+        return in_array($tab, ['ingresos', 'otros'], true)
             ? redirect()->route('admin.sales.index', ['tab' => 'otros'])
             : redirect()->route('admin.expenses.index', ['tab' => in_array($tab, ['categoria', 'nuevo-gasto', 'pendientes', 'pagadas'], true) ? $tab : 'categoria']);
     }
