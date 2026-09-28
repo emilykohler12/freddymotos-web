@@ -29,6 +29,9 @@ jobs:
       - name: Copy .env
         run: cp .env.example .env
 
+      - name: Create sqlite database
+        run: mkdir -p database && touch database/database.sqlite
+
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
