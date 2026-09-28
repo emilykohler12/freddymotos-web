@@ -49,8 +49,18 @@ class AppServiceProvider extends ServiceProvider
         // Windows. Se resuelve con una función nativa registrada en PHP en vez
         // de una expresión SQL gigante. Postgres (producción) no lo necesita:
         // ahí el REPLACE() encadenado anda sin problema.
+        //
+        // El try/catch es necesario: durante el build de Docker (composer
+        // dump-autoload → package:discover) todavía no hay variables de entorno
+        // cargadas, así que la config cae al default de Laravel ("sqlite") sin
+        // que exista ningún archivo de base de datos. Sin este try/catch, esa
+        // conexión fallida tira abajo el build entero en Render.
         if (config('database.default') === 'sqlite') {
-            DB::connection()->getPdo()->sqliteCreateFunction('folded_name', fn (?string $value) => Sorting::fold((string) $value), 1);
+            try {
+                DB::connection()->getPdo()->sqliteCreateFunction('folded_name', fn (?string $value) => Sorting::fold((string) $value), 1);
+            } catch (\Throwable) {
+                // Sin base de datos disponible todavía (ej. build-time): no hay nada que registrar.
+            }
         }
     }
 }
