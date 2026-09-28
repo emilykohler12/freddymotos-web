@@ -97,6 +97,15 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // Producción usa la conexión pooled de Neon (PgBouncer en modo
+            // "transaction"): ese modo no garantiza que dos statements de la
+            // misma transacción PHP vayan al mismo backend, así que un PREPARE
+            // real de PDO en un statement puede no existir para el siguiente y
+            // aborta toda la transacción ("current transaction is aborted").
+            // Emular los prepares en el cliente evita ese problema.
+            'options' => [
+                \PDO::ATTR_EMULATE_PREPARES => true,
+            ],
         ],
 
         'sqlsrv' => [
