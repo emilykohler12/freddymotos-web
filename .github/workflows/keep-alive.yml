@@ -12,4 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping la app en Render
-        run: curl -sSf --max-time 30 https://freddymotos.onrender.com/ > /dev/null
+        # Si igual llegó a dormirse, el arranque en frío (contenedor + migraciones +
+        # primera petición) pasa los 30s: le damos hasta 2 minutos y reintenta si
+        # corta por tiempo o Render devuelve 502/503/504.
+        run: curl -sSf --max-time 120 --retry 2 --retry-delay 10 https://freddymotos.onrender.com/ > /dev/null
