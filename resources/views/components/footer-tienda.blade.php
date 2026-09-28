@@ -45,7 +45,7 @@
                 <h3 class="text-sm font-bold uppercase tracking-wider text-marca-amarillo">Links rápidos</h3>
                 <ul class="mt-4 space-y-2.5 text-sm text-marca-blanco/70">
                     <li><a href="{{ url('/') }}" class="transition hover:text-marca-amarillo">Inicio</a></li>
-                    <li><a href="{{ route('products.index') }}" class="transition hover:text-marca-amarillo">Productos</a></li>
+                    <li><a href="{{ route('products.index') }}" class="transition hover:text-marca-amarillo">Repuestos</a></li>
                     <li><a href="{{ route('workshop.index') }}" class="transition hover:text-marca-amarillo">Taller</a></li>
                     <li><a href="{{ route('cart.index') }}" class="transition hover:text-marca-amarillo">Mi carrito</a></li>
                     <li><a href="{{ url('/#sobre-nosotros') }}" class="transition hover:text-marca-amarillo">Sobre nosotros</a></li>

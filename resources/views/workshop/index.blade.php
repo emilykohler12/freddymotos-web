@@ -16,7 +16,7 @@
 
             @if ($categories->isEmpty())
                 <p class="rounded-2xl bg-marca-gris-claro px-6 py-16 text-center text-sm text-marca-gris-oscuro">
-                    Todavía no hay servicios cargados. Dejanos tu consulta igual, te contactamos.
+                    Todavía no hay servicios cargados.
                 </p>
             @else
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

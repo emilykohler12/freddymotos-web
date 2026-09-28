@@ -11,7 +11,7 @@
             {{-- Encabezado --}}
             <div class="mb-8">
                 <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-rojo">Catálogo</p>
-                <h1 class="text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">Todos los productos</h1>
+                <h1 class="text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">Todos los repuestos</h1>
             </div>
 
             {{-- ============ Barra de filtros ============ --}}
@@ -76,7 +76,7 @@
             {{-- ============ Grilla ============ --}}
             @if ($products->isEmpty())
                 <div class="rounded-2xl bg-marca-gris-claro px-6 py-16 text-center">
-                    <p class="text-lg font-semibold text-marca-negro">No encontramos productos con esos filtros.</p>
+                    <p class="text-lg font-semibold text-marca-negro">No encontramos repuestos con esos filtros.</p>
                     <p class="mt-1 text-sm text-marca-gris-oscuro">Probá cambiar la búsqueda o quitar algún filtro.</p>
                     <a href="{{ route('products.index') }}" class="mt-5 inline-flex rounded-full bg-marca-amarillo px-6 py-2.5 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">
                         Ver todo el catálogo

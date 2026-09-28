@@ -15,6 +15,7 @@ class ProductController extends Controller
 
         $products = Product::query()
             ->where('active', true)
+            ->where('stock', '>', 0)
             ->filter($filters)
             ->orderByDesc('is_featured')
             ->orderBy('name')

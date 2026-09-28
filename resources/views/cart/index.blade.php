@@ -13,7 +13,7 @@
             @if ($lines->isEmpty())
                 {{-- Carrito vacío --}}
                 <div class="rounded-2xl bg-marca-gris-claro px-6 py-16 text-center">
-                    <p class="text-lg font-semibold text-marca-negro">Todavía no agregaste productos.</p>
+                    <p class="text-lg font-semibold text-marca-negro">Todavía no agregaste repuestos.</p>
                     <p class="mt-1 text-sm text-marca-gris-oscuro">Explorá el catálogo y sumá lo que necesites para tu moto.</p>
                     <a href="{{ route('products.index') }}"
                        class="mt-6 inline-flex rounded-full bg-marca-amarillo px-7 py-3 text-sm font-bold text-marca-negro transition hover:bg-marca-rojo hover:text-marca-blanco">

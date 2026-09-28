@@ -12,7 +12,7 @@
             <nav class="mb-6 flex flex-wrap items-center gap-1 text-xs text-marca-gris-oscuro/70">
                 <a href="{{ route('home') }}" class="transition hover:text-marca-rojo">Inicio</a>
                 <span>/</span>
-                <a href="{{ route('products.index') }}" class="transition hover:text-marca-rojo">Productos</a>
+                <a href="{{ route('products.index') }}" class="transition hover:text-marca-rojo">Repuestos</a>
                 <span>/</span>
                 <a href="{{ route('products.index', ['category' => $product->category]) }}" class="transition hover:text-marca-rojo">{{ $product->category }}</a>
                 <span>/</span>
@@ -123,10 +123,10 @@
                 </div>
             </div>
 
-            {{-- ============ Productos relacionados ============ --}}
+            {{-- ============ Repuestos relacionados ============ --}}
             @if ($related->isNotEmpty())
                 <section class="mt-16 sm:mt-24">
-                    <h2 class="mb-8 text-2xl font-extrabold tracking-tight text-marca-negro sm:text-3xl">Productos relacionados</h2>
+                    <h2 class="mb-8 text-2xl font-extrabold tracking-tight text-marca-negro sm:text-3xl">Repuestos relacionados</h2>
                     <div class="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
                         @foreach ($related as $item)
                             <x-product-card :product="$item" compact />

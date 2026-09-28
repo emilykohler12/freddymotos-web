@@ -35,7 +35,7 @@
                                 </span>
                             @endif
                             <span class="text-sm font-semibold text-marca-negro">{{ $category->name }}</span>
-                            <span class="text-xs text-marca-gris-oscuro">{{ $category->products_count }} {{ Str::plural('producto', $category->products_count) }}</span>
+                            <span class="text-xs text-marca-gris-oscuro">{{ $category->products_count }} {{ Str::plural('repuesto', $category->products_count) }}</span>
                         </a>
                     @endforeach
                 </div>

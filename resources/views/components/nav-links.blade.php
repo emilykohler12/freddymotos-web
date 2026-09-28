@@ -8,7 +8,7 @@
 @endphp
 
 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? $linkActivo : $link }}">Inicio</a>
-<a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? $linkActivo : $link }}">Productos</a>
+<a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? $linkActivo : $link }}">Repuestos</a>
 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? $linkActivo : $link }}">Categorías</a>
 <a href="{{ route('workshop.index') }}" class="{{ request()->routeIs('workshop.*') ? $linkActivo : $link }}">Taller</a>
 <a href="{{ url('/#sobre-nosotros') }}" class="{{ $link }}">Nosotros</a>
