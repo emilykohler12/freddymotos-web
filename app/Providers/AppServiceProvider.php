@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\SiteSetting;
 use App\Support\Cart;
+use App\Support\Sorting;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -40,5 +42,15 @@ class AppServiceProvider extends ServiceProvider
 
             return Transport::fromDsn('mailjet+api://' . urlencode((string) $key) . ':' . urlencode((string) $secret) . '@default');
         });
+
+        // SQLite (local y tests): el chain de 31 REPLACE() de Sorting::foldedName()
+        // desborda el stack del parser en algunos builds de sqlite3 (ej. el de
+        // Ubuntu que usan los runners de GitHub Actions), aunque ande bien en
+        // Windows. Se resuelve con una función nativa registrada en PHP en vez
+        // de una expresión SQL gigante. Postgres (producción) no lo necesita:
+        // ahí el REPLACE() encadenado anda sin problema.
+        if (config('database.default') === 'sqlite') {
+            DB::connection()->getPdo()->sqliteCreateFunction('folded_name', fn (?string $value) => Sorting::fold((string) $value), 1);
+        }
     }
 }

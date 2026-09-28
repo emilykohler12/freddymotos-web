@@ -22,6 +22,13 @@ class Sorting
      */
     public static function foldedName(string $column): string
     {
+        // En SQLite, la cadena de 31 REPLACE() de abajo desborda el stack del
+        // parser en algunos builds (ver AppServiceProvider::boot()). Ahí se usa
+        // en cambio una función nativa registrada en PHP.
+        if (config('database.default') === 'sqlite') {
+            return "folded_name({$column})";
+        }
+
         // SQLite's LOWER() solo baja de caja ASCII (una "Á" mayúscula le queda
         // igual), así que el mapa tiene que traer las dos variantes de caja de
         // cada vocal con tilde: no alcanza con hacer LOWER() y mapear solo la
