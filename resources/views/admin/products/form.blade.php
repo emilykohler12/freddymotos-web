@@ -108,6 +108,7 @@
                                 input.value = cat.name;
                                 hiddenInput.value = cat.id;
                                 currentSelected = cat.id;
+                                hiddenInput.dispatchEvent(new Event('change'));
                                 dropdown.style.display = 'none';
                             });
                             dropdown.appendChild(option);

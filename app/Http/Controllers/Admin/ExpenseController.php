@@ -48,9 +48,12 @@ class ExpenseController extends Controller
         $groupByCategory = function (Collection $collection) use ($categories) {
             return $categories->map(fn (ExpenseCategory $category) => [
                 'category' => $category,
-                'items' => $collection->where('expense_category_id', $category->id)->values(),
+                // Incluye los gastos cargados en subcategorías, que si no quedaban fuera de todos los grupos.
+                'items' => $collection->whereIn('expense_category_id', $category->children->pluck('id')->push($category->id))->values(),
             ]);
         };
+
+        $groupedIds = $categories->flatMap(fn (ExpenseCategory $c) => $c->children->pluck('id')->push($c->id));
 
         $pending = $items->where('paid', false)->values();
         $paid = $items->where('paid', true)->values();
@@ -63,9 +66,9 @@ class ExpenseController extends Controller
             'activeTab' => $request->string('tab', 'categoria')->toString(),
             'allExpenses' => $items,
             'pendingByCategory' => $groupByCategory($pending),
-            'pendingWithoutCategory' => $pending->whereNull('expense_category_id')->values(),
+            'pendingWithoutCategory' => $pending->whereNotIn('expense_category_id', $groupedIds)->values(),
             'paidByCategory' => $groupByCategory($paid),
-            'paidWithoutCategory' => $paid->whereNull('expense_category_id')->values(),
+            'paidWithoutCategory' => $paid->whereNotIn('expense_category_id', $groupedIds)->values(),
             'totalThisMonth' => $totalThisMonth,
             'categories' => $categories,
             'categoryOptions' => $categoryOptions,
