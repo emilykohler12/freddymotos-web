@@ -38,6 +38,10 @@ class OrderDeleteTest extends TestCase
             'subtotal' => 2000,
         ]);
 
+        $this->actingAs($admin)->get(route('admin.orders.show', $order))
+            ->assertOk()
+            ->assertSee('Eliminar pedido');
+
         $response = $this->actingAs($admin)->delete(route('admin.orders.destroy', $order), ['from' => 'ingresos']);
 
         $response->assertRedirect(route('admin.sales.index', ['tab' => 'ingresos']));
