@@ -28,7 +28,7 @@
 
 @if ($productos->isNotEmpty())
 <section class="w-full bg-marca-negro py-14 sm:py-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
 
         {{-- Encabezado centrado --}}
         <div class="mx-auto mb-10 max-w-2xl text-center sm:mb-14">

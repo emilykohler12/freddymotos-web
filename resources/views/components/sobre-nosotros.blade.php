@@ -25,7 +25,7 @@
 @endphp
 
 <section id="sobre-nosotros" class="w-full scroll-mt-4 bg-marca-amarillo py-14 sm:py-20">
-    <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
+    <div class="grid grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8">
 
         {{-- Imagen del local: la última foto que subió el admin en Configuración, o un ícono genérico si todavía no cargó ninguna. --}}
         <div class="relative">

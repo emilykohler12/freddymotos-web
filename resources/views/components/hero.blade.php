@@ -76,7 +76,7 @@
     </header>
 
     {{-- ============ 2 + 3. CONTENIDO (texto izq / imagen der) ============ --}}
-    <div class="relative z-10 mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-10 px-4 pb-20 pt-6 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-12">
+    <div class="relative z-10 grid w-full flex-1 grid-cols-1 items-center gap-10 px-4 pb-20 pt-6 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-12">
 
         {{-- Bloque de texto --}}
         <div class="max-w-xl">
@@ -128,7 +128,7 @@
 
     {{-- ============ 5. FRANJA INFERIOR DE TRANSICIÓN ============ --}}
     <div class="relative z-10 bg-marca-blanco">
-        <div class="mx-auto flex max-w-7xl items-center justify-center px-4 py-6 text-center sm:px-6 lg:px-8">
+        <div class="flex items-center justify-center px-4 py-6 text-center sm:px-6 lg:px-8">
             <p class="text-sm font-medium text-marca-gris-oscuro">
                 Garantía en todos los repuestos · Envíos a todo el país · Trabajamos las mejores marcas
             </p>

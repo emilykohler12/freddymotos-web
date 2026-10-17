@@ -13,7 +13,7 @@
 
 @if ($categorias->isNotEmpty())
 <section id="categorias" class="w-full scroll-mt-4 bg-marca-blanco py-14 sm:py-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
 
         {{-- Encabezado de seccion --}}
         <div class="mb-10 flex flex-col gap-3 sm:mb-12 sm:flex-row sm:items-end sm:justify-between">

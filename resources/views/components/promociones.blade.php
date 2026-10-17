@@ -11,7 +11,7 @@
 
 @if ($promos->isNotEmpty())
 <section class="w-full bg-marca-gris-claro py-14 sm:py-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
 
         <div class="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
             <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-rojo">

@@ -17,7 +17,7 @@
 
 @if ($marcas->isNotEmpty())
 <section class="w-full bg-marca-bordo py-14 sm:py-20">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
 
         <div class="mb-10 sm:mb-12">
             <p class="mb-2 text-sm font-semibold uppercase tracking-wider text-marca-amarillo">
