@@ -79,7 +79,7 @@
     <div class="relative z-10 grid w-full flex-1 grid-cols-1 items-center gap-10 px-4 pb-20 pt-6 sm:px-6 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:pb-28 lg:pt-12">
 
         {{-- Bloque de texto --}}
-        <div class="max-w-xl">
+        <div class="mx-auto w-full max-w-3xl text-center">
             {{-- PLACEHOLDER: nombre del local o frase corta --}}
             <p class="mb-4 inline-block rounded-full bg-marca-negro/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-marca-blanco">
                 Repuestos originales para tu moto
@@ -90,12 +90,12 @@
                 <span class="block">que tu moto necesita</span>
             </h1>
 
-            <p class="mt-5 max-w-md text-base leading-relaxed text-marca-blanco/80 sm:text-lg">
+            <p class="mx-auto mt-5 max-w-md text-base leading-relaxed text-marca-blanco/80 sm:text-lg">
                 Cascos, frenos, filtros y mucho más, con envíos a todo el país.
                 Te ayudamos a elegir la pieza justa para tu modelo.
             </p>
 
-            <div class="mt-8 flex flex-wrap items-center gap-4">
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
                 {{-- Botón principal (pill, fondo blanco, texto oscuro) --}}
                 <a href="{{ route('products.index') }}" class="inline-flex items-center justify-center rounded-full bg-marca-blanco px-7 py-3 text-sm font-bold text-marca-negro shadow-lg shadow-marca-negro/10 transition hover:-translate-y-0.5 hover:bg-marca-gris-claro">
                     Ver productos
@@ -110,7 +110,7 @@
         </div>
 
         {{-- Imagen destacada + salpicaduras decorativas --}}
-        <div class="relative lg:-mr-4">
+        <div class="relative">
             {{-- Salpicaduras / textura en tono mostaza-amarillo detras de la imagen --}}
             <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
                 <div class="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-marca-amarillo/70 blur-3xl sm:h-96 sm:w-96"></div>
