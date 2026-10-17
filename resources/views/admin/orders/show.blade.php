@@ -126,6 +126,15 @@
                 </button>
             </form>
 
+            <form method="POST" action="{{ route('admin.orders.destroy', $order) }}" data-confirm="¿Eliminar este pedido? Se saca de ventas e ingresos y se devuelve el stock.">
+                @csrf
+                @method('DELETE')
+                <input type="hidden" name="from" value="{{ request('from') }}">
+                <button type="submit" class="w-full rounded-lg bg-marca-rojo px-5 py-2.5 text-sm font-bold text-marca-blanco transition hover:bg-marca-negro">
+                    Eliminar pedido
+                </button>
+            </form>
+
             <a href="{{ request('from') ? route('admin.sales.index', ['tab' => request('from')]) : route('admin.sales.index') }}" class="block text-center text-sm font-semibold text-marca-gris-oscuro hover:text-marca-rojo">← Volver</a>
         </div>
     </div>

@@ -112,6 +112,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('pedidos', [AdminOrderController::class, 'store'])->name('orders.store');
         Route::get('pedidos/{order:uuid}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('pedidos/{order:uuid}', [AdminOrderController::class, 'update'])->name('orders.update');
+        Route::delete('pedidos/{order:uuid}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
 
         /* Clientes */
         Route::get('clientes', [AdminCustomerController::class, 'index'])->name('customers.index');

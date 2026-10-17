@@ -155,6 +155,27 @@ class OrderController extends Controller
         return back()->with('status', 'Pedido actualizado.');
     }
 
+    /** Borra un pedido cargado por error: deja de contar como venta/ingreso y devuelve el stock. */
+    public function destroy(Request $request, Order $order): RedirectResponse
+    {
+        $label = "Pedido #{$order->id} ({$order->formatted_total})";
+
+        DB::transaction(function () use ($order) {
+            foreach ($order->items()->with('product')->get() as $item) {
+                $item->product?->increment('stock', $item->quantity);
+            }
+
+            $order->delete();
+        });
+
+        ActivityLog::log('pedido_eliminado', "{$label} eliminado");
+
+        $from = $request->string('from')->toString();
+
+        return redirect()->route('admin.sales.index', $from !== '' ? ['tab' => $from] : [])
+            ->with('status', 'Pedido eliminado.');
+    }
+
     private function statuses(): array
     {
         return [
