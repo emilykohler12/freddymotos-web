@@ -27,14 +27,7 @@ class DatabaseSeeder extends Seeder
         // admin desde el panel, no vienen de ejemplo. Se pueden correr a mano si
         // hace falta una tienda de prueba: `php artisan db:seed --class=ProductSeeder`.
         //
-        // AdminUserSeeder crea un login de prueba con contraseña fija y conocida
-        // (está en el código, público en GitHub): solo se corre en local. En
-        // producción, el admin real se crea a mano por tinker con su propia
-        // contraseña (ver la guía de deploy).
-        if ($this->command->getLaravel()->environment('local')) {
-            $this->call([
-                AdminUserSeeder::class,
-            ]);
-        }
+        // El admin se crea a mano por tinker con su propia contraseña (no va en el
+        // código: el repo es público).
     }
 }
