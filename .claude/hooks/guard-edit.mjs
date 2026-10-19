@@ -12,10 +12,13 @@ const root = projectRoot(event);
 const rel = relativeToRoot(root, file);
 const name = path.basename(file);
 
-// .env y .env.* (menos .env.example)
+// .env y .env.* (menos .env.example): ni leerlo ni editarlo.
 if (name === '.env' || (name.startsWith('.env.') && name !== '.env.example')) {
-  block(`Bloqueado: ${name} tiene credenciales reales y no se edita desde Claude. Para variables nuevas usá .env.example y pedile al usuario que actualice su .env.`);
+  block(`Bloqueado: ${name} tiene credenciales reales y Claude no lo lee ni lo edita. Para ver variables usá .env.example; para variables nuevas agregalas ahí y pedile al usuario que actualice su .env.`);
 }
+
+// Leer lockfiles y migraciones está bien; las reglas de abajo son solo para escribir.
+if (event.tool_name === 'Read') process.exit(0);
 
 // Lockfiles: los genera composer / npm.
 if (name === 'composer.lock' || name === 'package-lock.json') {
