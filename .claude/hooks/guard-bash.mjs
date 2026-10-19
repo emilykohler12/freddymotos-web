@@ -1,21 +1,43 @@
-// PreToolUse (Bash|PowerShell): bloquea comandos que pueden destruir datos, la rama
-// principal o exponer el .env. Solo mira comandos reales: ignora cuerpos de heredoc,
+// PreToolUse (Bash|PowerShell): bloquea comandos que pueden destruir datos (git push --force,
+// artisan que escribe en la base) o exponer el .env. Solo mira comandos reales: ignora cuerpos de heredoc,
 // here-strings y mensajes (git commit -m "...", echo "..."), para no dar falsos positivos.
-import { spawnSync } from 'node:child_process';
-import { block, projectRoot, readEvent } from './lib.mjs';
+import { block, readEvent } from './lib.mjs';
 
 const event = await readEvent();
 const raw = event.tool_input?.command;
 if (!raw) process.exit(0);
-
-const root = projectRoot(event);
 
 // Sin el cuerpo de heredocs (<<'EOF' ... EOF) ni here-strings de PowerShell (@' ... '@).
 const command = raw
   .replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n[\s\S]*?\n[ \t]*\2[ \t]*(?=\n|$)/g, (m) => m.split('\n')[0])
   .replace(/@(['"])[ \t]*\n[\s\S]*?\n\1@/g, ' ');
 
-const segments = command.split(/&&|\|\||[;|\n]/).map((s) => s.trim()).filter(Boolean);
+// Separa por && || ; | y saltos de línea, pero solo fuera de comillas.
+function splitSegments(text) {
+  const out = [];
+  let current = '';
+  let quote = null;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) {
+      current += ch;
+      if (ch === quote) quote = null;
+    } else if (ch === '"' || ch === "'") {
+      quote = ch;
+      current += ch;
+    } else if (ch === ';' || ch === '|' || ch === '\n' || (ch === '&' && text[i + 1] === '&')) {
+      if (ch === '&' || (ch === '|' && text[i + 1] === '|')) i++;
+      out.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  out.push(current);
+  return out.map((s) => s.trim()).filter(Boolean);
+}
+
+const segments = splitSegments(command);
 
 // .env y .env.* salvo .env.example, como argumento o destino de redirección.
 const ENV_FILE = /(?<![\w.-])(?:[^\s'"|;&<>]*[\/\\])?\.env(?:\.(?!example(?![\w.-]))[\w.-]+)?(?![\w.-])/;
@@ -46,16 +68,7 @@ for (const seg of segments) {
       if (flags.some((f) => f === '-f' || f.startsWith('--force')) || positional.some((p) => p.startsWith('+'))) {
         block('Bloqueado: git push --force / -f / --force-with-lease. Hay datos reales y un workflow de backup; pedile al usuario que lo haga a mano si de verdad hace falta.');
       }
-      if (positional.some((p) => /(^|[:/])(main|master)$/.test(p))) {
-        block('Bloqueado: git push a main/master. Pusheá una rama de trabajo y abrí un PR.');
-      }
-      // `git push` / `git push origin` sin rama explícita: empuja la rama actual.
-      if (positional.length <= 1) {
-        const br = spawnSync('git', ['branch', '--show-current'], { cwd: root, encoding: 'utf8' });
-        if (['main', 'master'].includes(br.stdout?.trim())) {
-          block('Bloqueado: estás en main/master y git push sin rama explícita empujaría a main. Cambiá a una rama de trabajo.');
-        }
-      }
+      // Push normal (incluido a main/master): permitido. Solo se bloquea el force.
     }
   }
 

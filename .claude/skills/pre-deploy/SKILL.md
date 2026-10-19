@@ -27,7 +27,7 @@ Corré los pasos en orden y reportá cada uno como ✅ / ❌ / ⚠️ con eviden
 7. **Sentry**: confirmar que `SENTRY_LARAVEL_DSN` y `SENTRY_TRACES_SAMPLE_RATE` están previstos en `.env.example`/Render, que `bootstrap/app.php` conserva `Sentry\Laravel\Integration::handles($exceptions)`, y que el cambio no agrega datos personales ni de pago a `report()`/contexto/breadcrumbs. Tras el deploy, mirar que no aparezcan errores nuevos.
 8. **Pagos y seguridad** (si el cambio toca checkout, pedidos, stock, rutas admin o auth): pasar por los subagentes `revisor-pagos-pedidos` y/o `revisor-seguridad-laravel` y resolver o aceptar explícitamente los hallazgos críticos y altos.
 9. **Docker/arranque**: si el cambio toca `Dockerfile`, `start.sh`, extensiones PHP o `composer.json`/`package.json`, verificar que el `composer.lock`/`package-lock.json` esté actualizado (se usan `composer install` y `npm ci`) y que nada dependa de paquetes de `require-dev` en runtime (la imagen instala `--no-dev`).
-10. **Rama y PR**: no pushear directo a `main` (hay un hook que lo bloquea); el cambio sale por PR y esperar el CI verde antes de mergear.
+10. **Push**: se puede pushear directo a `main` (el hook solo bloquea `--force`). Un push a `main` dispara el CI y, con él, el deploy: confirmar con el usuario antes de pushear y mirar que el CI quede verde.
 
 ## Después del deploy (para recordarle al usuario)
 
