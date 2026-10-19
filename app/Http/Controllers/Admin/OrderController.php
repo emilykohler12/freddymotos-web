@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
@@ -108,8 +107,6 @@ class OrderController extends Controller
             return $order;
         });
 
-        ActivityLog::log('pedido_local', "Pedido #{$order->id} cargado a mano (Local) para {$order->customer->name} ({$order->formatted_total})", $order);
-
         return redirect()->route('admin.orders.show', [$order, 'from' => 'local'])->with('status', 'Pedido cargado.');
     }
 
@@ -170,8 +167,6 @@ class OrderController extends Controller
     /** Borra un pedido cargado por error: deja de contar como venta/ingreso y devuelve el stock (si no estaba ya cancelado). */
     public function destroy(Request $request, Order $order): RedirectResponse
     {
-        $label = "Pedido #{$order->id} ({$order->formatted_total})";
-
         DB::transaction(function () use ($order) {
             // Un pedido cancelado ya devolvió su stock al cancelarse.
             if ($order->status !== Order::STATUS_CANCELADO) {
@@ -180,8 +175,6 @@ class OrderController extends Controller
 
             $order->delete();
         });
-
-        ActivityLog::log('pedido_eliminado', "{$label} eliminado");
 
         $from = $request->string('from')->toString();
 

@@ -19,7 +19,7 @@ Escribís tests PHPUnit (PHPUnit 12, clases `*Test` con métodos `test_...`, no 
 - Factories: hoy solo existe `UserFactory`. Los demás modelos se crean con `Model::create([...])` o relaciones (`$customer->orders()->create(...)`, `$order->items()->create(...)`), como en los tests actuales. Si hace falta una factory nueva, creala en `database/factories/` solo si el usuario lo pidió; si no, usá `create()`.
 - Productos mínimos: `Product::create(['name' => ..., 'slug' => ..., 'category' => ..., 'brand' => ..., 'price' => ..., 'stock' => ..., 'active' => true])`. Pedidos: usar las constantes de `Order` (`STATUS_*`, `PAYMENT_STATUS_*`, `ORIGIN_*`).
 - Rutas por nombre con `route('admin....')`; pedidos admin se resuelven por `uuid` (pasar el modelo a `route()`).
-- Afirmá el efecto real: `assertDatabaseHas/Missing`, `fresh()->stock`, `StockMovement`, `ActivityLog`, redirecciones y mensajes de sesión. Verificá stock antes y después en cualquier flujo de pedidos.
+- Afirmá el efecto real: `assertDatabaseHas/Missing`, `fresh()->stock`, `StockMovement`, redirecciones y mensajes de sesión. Verificá stock antes y después en cualquier flujo de pedidos.
 - Mail con `Mail::fake()`; Mercado Pago **siempre mockeado** (nunca llamar a la API real ni usar credenciales): `$this->mock(MercadoPagoService::class, ...)` / `Mockery`. Archivos con `Storage::fake('public')` y `UploadedFile::fake()`.
 - Un test = un comportamiento; nombres descriptivos en inglés como los actuales (`test_deleting_paid_order_removes_it_from_income_and_restores_stock`). Cubrí camino feliz, validación inválida y autorización.
 - Dejá `tests/Feature/tmp` como está.
