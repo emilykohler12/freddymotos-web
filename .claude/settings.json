@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "deny": ["mcp__laravel-boost__tinker"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-edit.mjs\"" }
+        ]
+      },
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-bash.mjs\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/php-check.mjs\"", "timeout": 40 }
+        ]
+      }
+    ]
+  }
+}

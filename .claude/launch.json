@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 5173
+    },
+    {
+      "name": "php",
+      "runtimeExecutable": "C:\\laragon\\bin\\php\\php-8.3.33-Win32-vs16-x64\\php.exe",
+      "runtimeArgs": [
+        "artisan",
+        "serve"
+      ],
+      "port": 8000
+    }
+  ]
+}
