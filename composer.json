@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "emilykohler/freddymotos",
+    "name": "kologic/freddymotos",
     "type": "project",
     "description": "Tienda online de repuestos y accesorios para motos, con panel de administración.",
     "keywords": ["laravel", "ecommerce"],
