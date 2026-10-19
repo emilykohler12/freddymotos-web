@@ -143,10 +143,12 @@ class OrderController extends Controller
             unset($data['refund_status']);
         }
 
-        $wasCancelled = $order->status === Order::STATUS_CANCELADO;
         $willCancel = $data['status'] === Order::STATUS_CANCELADO;
 
-        DB::transaction(function () use ($order, $data, $wasCancelled, $willCancel) {
+        DB::transaction(function () use ($order, $data, $willCancel) {
+            // Estado leído con la fila bloqueada: dos requests simultáneos no devuelven el stock dos veces.
+            $wasCancelled = Order::whereKey($order->id)->lockForUpdate()->value('status') === Order::STATUS_CANCELADO;
+
             $order->update($data);
 
             if ($data['payment_status'] === Order::PAYMENT_STATUS_PAGADO && ! $order->paid_at) {
@@ -169,7 +171,7 @@ class OrderController extends Controller
     {
         DB::transaction(function () use ($order) {
             // Un pedido cancelado ya devolvió su stock al cancelarse.
-            if ($order->status !== Order::STATUS_CANCELADO) {
+            if (Order::whereKey($order->id)->lockForUpdate()->value('status') !== Order::STATUS_CANCELADO) {
                 $this->restoreStock($order);
             }
 

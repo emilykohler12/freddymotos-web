@@ -13,7 +13,26 @@ use Illuminate\Support\Facades\Storage;
  */
 class SiteSetting extends Model
 {
-    protected $guarded = [];
+    // 'id' va en la lista porque firstOrNew(['id' => 1]) y updateOrCreate lo asignan en masa.
+    protected $fillable = [
+        'id',
+        'nombre_local',
+        'telefono',
+        'whatsapp',
+        'email',
+        'direccion',
+        'horario_atencion',
+        'dias_atencion',
+        'historia',
+        'fecha_creacion',
+        'instagram_url',
+        'facebook_url',
+        'logo_path',
+        'hero_photo_path',
+        'moneda',
+        'tax_rate',
+        'payment_methods',
+    ];
 
     public const DIAS = [
         'lun' => 'Lun', 'mar' => 'Mar', 'mie' => 'Mié', 'jue' => 'Jue',

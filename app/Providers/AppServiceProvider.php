@@ -5,10 +5,14 @@ namespace App\Providers;
 use App\Models\SiteSetting;
 use App\Support\Cart;
 use App\Support\Sorting;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Symfony\Component\Mailer\Transport;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +24,20 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Límites de intentos para login y reseteo de contraseña (el código de 6 dígitos
+        // se podía adivinar pidiendo códigos nuevos sin parar). Se usan con throttle:<nombre>.
+        RateLimiter::for('login', fn (Request $request) => [
+            Limit::perMinute(10)->by($request->ip()),
+            Limit::perMinute(5)->by(Str::lower((string) $request->input('email')) . '|' . $request->ip()),
+        ]);
+
+        RateLimiter::for('password-code', fn (Request $request) => [
+            Limit::perMinute(3)->by($request->ip()),
+            Limit::perHour(5)->by(Str::lower((string) $request->input('email'))),
+        ]);
+
+        RateLimiter::for('password-reset', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+
         // Datos disponibles en todas las vistas:
         //  - $settings   → configuración del sitio (SiteSetting, una sola fila)
         //  - $cartCount  → unidades en el carrito de la sesión
