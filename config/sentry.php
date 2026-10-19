@@ -53,6 +53,10 @@ return [
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#send_default_pii
     'send_default_pii' => env('SENTRY_SEND_DEFAULT_PII', false),
 
+    // Nunca capturar el cuerpo de las requests: sin esto, un error 500 en login, registro o
+    // reseteo mandaría a Sentry la contraseña o el código de 6 dígitos (aunque send_default_pii sea false).
+    'max_request_body_size' => 'none',
+
     // @see: https://docs.sentry.io/platforms/php/guides/laravel/configuration/options/#ignore_exceptions
     // 'ignore_exceptions' => [],
 

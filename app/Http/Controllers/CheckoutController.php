@@ -91,9 +91,10 @@ class CheckoutController extends Controller
                     'quantity' => $line->quantity,
                     'subtotal' => $line->subtotal,
                 ]);
-
-                $line->product->decrement('stock', min($line->quantity, $line->product->stock));
             }
+
+            // Falla (y revierte todo) si algún producto no tiene stock suficiente.
+            $order->discountStock();
 
             return $order;
         });
@@ -113,6 +114,10 @@ class CheckoutController extends Controller
             return redirect()->away($preference['init_point']);
         } catch (\Throwable $e) {
             report($e);
+
+            // El pedido nunca se cobró: se cancela y vuelve el stock, para no dejar pedidos
+            // huérfanos ni duplicados cuando el cliente reintenta.
+            $order->abandon();
 
             return redirect()->route('checkout.show')->with(
                 'error',

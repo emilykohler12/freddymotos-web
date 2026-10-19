@@ -39,7 +39,7 @@ Route::get('/producto/{product:slug}', [ProductController::class, 'show'])->name
 
 /* ---------------- Taller y consultas ---------------- */
 Route::get('/taller', [WorkshopController::class, 'index'])->name('workshop.index');
-Route::post('/consultas', [WorkshopController::class, 'storeInquiry'])->name('workshop.inquiries.store');
+Route::post('/consultas', [WorkshopController::class, 'storeInquiry'])->middleware('throttle:inquiry')->name('workshop.inquiries.store');
 
 /* ---------------- Carrito (sesión, sin login) ---------------- */
 Route::get('/carrito', [CartController::class, 'index'])->name('cart.index');
@@ -61,7 +61,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [ClientAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [ClientAuthController::class, 'login'])->middleware('throttle:login');
     Route::get('/registro', [ClientAuthController::class, 'showRegister'])->name('register');
-    Route::post('/registro', [ClientAuthController::class, 'register']);
+    Route::post('/registro', [ClientAuthController::class, 'register'])->middleware('throttle:register');
 });
 Route::post('/logout', [ClientAuthController::class, 'logout'])->middleware('auth')->name('logout');
 

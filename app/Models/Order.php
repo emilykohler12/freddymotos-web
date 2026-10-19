@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Exceptions\InsufficientStockException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -116,6 +118,59 @@ class Order extends Model
             'mp_payment_id' => $paymentId ?: $this->mp_payment_id,
             'paid_at' => now(),
         ])->save();
+    }
+
+    /** Devuelve al stock las unidades de cada ítem (los productos eliminados se ignoran). */
+    public function restoreStock(): void
+    {
+        foreach ($this->items()->with('product')->get() as $item) {
+            $item->product?->increment('stock', $item->quantity);
+        }
+    }
+
+    /**
+     * Descuenta del stock las unidades de cada ítem, con los productos bloqueados.
+     * Si algún producto no alcanza lanza InsufficientStockException sin descontar nada;
+     * llamar siempre dentro de una DB::transaction.
+     */
+    public function discountStock(): void
+    {
+        $needed = $this->items()->whereNotNull('product_id')->get()
+            ->groupBy('product_id')
+            ->map(fn ($items) => (int) $items->sum('quantity'));
+
+        $products = Product::whereIn('id', $needed->keys())->lockForUpdate()->get()->keyBy('id');
+
+        foreach ($needed as $productId => $quantity) {
+            $product = $products->get($productId);
+
+            if ($product && $product->stock < $quantity) {
+                throw new InsufficientStockException($product->name, (int) $product->stock);
+            }
+        }
+
+        foreach ($needed as $productId => $quantity) {
+            $products->get($productId)?->decrement('stock', $quantity);
+        }
+    }
+
+    /** Cancela un pedido que nunca se llegó a cobrar y devuelve su stock (una sola vez). */
+    public function abandon(): void
+    {
+        DB::transaction(function () {
+            $current = static::whereKey($this->id)->lockForUpdate()->first();
+
+            if (! $current || $current->status === self::STATUS_CANCELADO || $current->isPaid()) {
+                return;
+            }
+
+            $this->forceFill([
+                'status' => self::STATUS_CANCELADO,
+                'payment_status' => self::PAYMENT_STATUS_RECHAZADO,
+            ])->save();
+
+            $this->restoreStock();
+        });
     }
 
     public function isWhatsappOrigin(): bool

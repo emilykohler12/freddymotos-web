@@ -100,9 +100,10 @@ class OrderController extends Controller
                     'quantity' => $line['quantity'],
                     'subtotal' => $line['subtotal'],
                 ]);
-
-                $line['product']->decrement('stock', min($line['quantity'], $line['product']->stock));
             }
+
+            // Falla (y revierte todo) si algún producto no tiene stock suficiente.
+            $order->discountStock();
 
             return $order;
         });
@@ -157,9 +158,9 @@ class OrderController extends Controller
 
             // Cancelar devuelve el stock una sola vez; reabrir un pedido cancelado lo vuelve a descontar.
             if ($willCancel && ! $wasCancelled) {
-                $this->restoreStock($order);
+                $order->restoreStock();
             } elseif (! $willCancel && $wasCancelled) {
-                $this->discountStock($order);
+                $order->discountStock();
             }
         });
 
@@ -172,7 +173,7 @@ class OrderController extends Controller
         DB::transaction(function () use ($order) {
             // Un pedido cancelado ya devolvió su stock al cancelarse.
             if (Order::whereKey($order->id)->lockForUpdate()->value('status') !== Order::STATUS_CANCELADO) {
-                $this->restoreStock($order);
+                $order->restoreStock();
             }
 
             $order->delete();
@@ -182,20 +183,6 @@ class OrderController extends Controller
 
         return redirect()->route('admin.sales.index', $from !== '' ? ['tab' => $from] : [])
             ->with('status', 'Pedido eliminado.');
-    }
-
-    private function restoreStock(Order $order): void
-    {
-        foreach ($order->items()->with('product')->get() as $item) {
-            $item->product?->increment('stock', $item->quantity);
-        }
-    }
-
-    private function discountStock(Order $order): void
-    {
-        foreach ($order->items()->with('product')->get() as $item) {
-            $item->product?->decrement('stock', min($item->quantity, $item->product->stock));
-        }
     }
 
     private function statuses(): array

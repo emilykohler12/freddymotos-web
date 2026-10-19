@@ -34,18 +34,7 @@ class MercadoPagoService
      */
     public function createPreference(Order $order): array
     {
-        $order->loadMissing('items');
-
-        $items = $order->items
-            ->map(fn ($item) => [
-                'id' => (string) ($item->product_id ?? $item->id),
-                'title' => $item->product_name,
-                'quantity' => (int) $item->quantity,
-                'unit_price' => (float) $item->unit_price,
-                'currency_id' => (string) config('services.mercadopago.currency', 'ARS'),
-            ])
-            ->values()
-            ->all();
+        $items = $this->buildItems($order);
 
         $backUrl = route('checkout.success', $order);
 
@@ -68,9 +57,51 @@ class MercadoPagoService
     }
 
     /**
-     * Consulta un pago por id.
+     * Ítems de la preferencia, con el mismo monto que el pedido: cada línea va por su subtotal
+     * (ya con la promoción aplicada) y el envío como un ítem aparte. Si no suman el total
+     * del pedido, falla antes de cobrar un monto equivocado.
      *
-     * @return array{status:string,external_reference:?string}|null
+     * @return list<array{id:string,title:string,quantity:int,unit_price:float,currency_id:string}>
+     */
+    public function buildItems(Order $order): array
+    {
+        $order->loadMissing('items');
+        $currency = (string) config('services.mercadopago.currency', 'ARS');
+
+        $items = $order->items
+            ->map(fn ($item) => [
+                'id' => (string) ($item->product_id ?? $item->id),
+                'title' => $item->quantity > 1 ? "{$item->product_name} x{$item->quantity}" : $item->product_name,
+                'quantity' => 1,
+                'unit_price' => round((float) $item->subtotal, 2),
+                'currency_id' => $currency,
+            ])
+            ->values()
+            ->all();
+
+        if ((float) $order->shipping_cost > 0) {
+            $items[] = [
+                'id' => 'envio',
+                'title' => 'Envío',
+                'quantity' => 1,
+                'unit_price' => round((float) $order->shipping_cost, 2),
+                'currency_id' => $currency,
+            ];
+        }
+
+        $sum = round(array_sum(array_column($items, 'unit_price')), 2);
+
+        if (abs($sum - round((float) $order->total, 2)) > 0.009) {
+            throw new RuntimeException("Los ítems del pedido #{$order->id} no suman su total.");
+        }
+
+        return $items;
+    }
+
+    /**
+     * Consulta un pago por id. Devuelve null si no se pudo consultar.
+     *
+     * @return array{status:string,external_reference:?string,amount:float,currency:string}|null
      */
     public function getPayment(string $paymentId): ?array
     {
@@ -85,6 +116,8 @@ class MercadoPagoService
         return [
             'status' => (string) $payment->status,
             'external_reference' => $payment->external_reference,
+            'amount' => (float) $payment->transaction_amount,
+            'currency' => (string) $payment->currency_id,
         ];
     }
 }

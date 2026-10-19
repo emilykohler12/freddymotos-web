@@ -38,6 +38,17 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('password-reset', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 
+        // Registro de clientes y consultas del taller: evitan que un bot llene las tablas.
+        RateLimiter::for('register', fn (Request $request) => [
+            Limit::perMinute(5)->by($request->ip()),
+            Limit::perHour(20)->by($request->ip()),
+        ]);
+
+        RateLimiter::for('inquiry', fn (Request $request) => [
+            Limit::perMinute(3)->by($request->ip()),
+            Limit::perHour(10)->by($request->ip()),
+        ]);
+
         // Datos disponibles en todas las vistas:
         //  - $settings   → configuración del sitio (SiteSetting, una sola fila)
         //  - $cartCount  → unidades en el carrito de la sesión

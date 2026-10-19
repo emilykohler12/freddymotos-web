@@ -35,4 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sin esto, Sentry nunca se entera de las excepciones: solo capta lo que
         // se le manda a mano (ej. "sentry:test"), pero no los 500 reales de la app.
         \Sentry\Laravel\Integration::handles($exceptions);
+
+        // Falta de stock es un aviso al usuario, no un error del sistema.
+        $exceptions->dontReport(\App\Exceptions\InsufficientStockException::class);
     })->create();
