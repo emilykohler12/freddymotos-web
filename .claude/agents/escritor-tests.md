@@ -30,7 +30,7 @@ Si `php` no está en el PATH usá `C:\laragon\bin\php\php-8.3.33-Win32-vs16-x64\
 
 1. El test nuevo: `php artisan test --filter=NombreDelTest`
 2. Toda la suite: `php artisan test`
-3. Estilo: `vendor/bin/pint --test` (o `vendor/bin/pint tests/...` para corregir tus archivos).
+3. Estilo: `vendor/bin/pint --test <tu archivo nuevo>` (o `vendor/bin/pint <tu archivo nuevo>` para corregirlo). No corras Pint sobre tests o código existentes: no siguen el preset por defecto y se reescribirían líneas ajenas.
 
 No ejecutes migraciones, seeders ni `artisan` contra la base real.
 

@@ -19,7 +19,7 @@ Para guías generales de despliegue en la nube ver el skill de Laravel Boost `de
 Corré los pasos en orden y reportá cada uno como ✅ / ❌ / ⚠️ con evidencia. Si `php` no está en el PATH usar `C:\laragon\bin\php\php-8.3.33-Win32-vs16-x64\php.exe`.
 
 1. **Alcance del cambio**: `git status`, `git log main..HEAD --oneline` y `git diff main...HEAD --stat`. No debe haber cambios sin commitear ni archivos ajenos (`.env`, volcados, `database/database.sqlite`).
-2. **Estilo**: `vendor/bin/pint --test` (el CI no lo corre, así que acá es la única barrera).
+2. **Estilo**: el repo existente no es Pint-limpio (`vendor/bin/pint --test` global falla en decenas de archivos antiguos), así que no es un bloqueante. Verificá solo los archivos PHP **nuevos** del cambio con `vendor/bin/pint --test <archivo>` y no reformatees archivos existentes.
 3. **Tests**: `php artisan test` (sqlite en memoria; lo mismo que hace el CI).
 4. **Assets**: `npm run build` sin errores (Vite 5 + Tailwind 3). Si tocaste Blade/Tailwind, confirmar que las clases nuevas aparecen en el build.
 5. **Migraciones pendientes**: listar las nuevas con `git diff --name-only main...HEAD -- database/migrations` (no correr `migrate:status` ni `migrate` contra la base real). Por cada una aplicar el skill `nueva-migracion-segura`: columnas nullable/default, nada que borre algo que el código aún use, `down()` coherente, compatible con Postgres. Recordar que se aplicará **sola** al arrancar el contenedor. Si es riesgosa, pedir antes un backup manual (workflow *Backup semanal de la base* → *Run workflow*) y esperar que termine.

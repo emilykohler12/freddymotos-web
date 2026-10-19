@@ -146,23 +146,36 @@ class OrderController extends Controller
             unset($data['refund_status']);
         }
 
-        $order->update($data);
+        $wasCancelled = $order->status === Order::STATUS_CANCELADO;
+        $willCancel = $data['status'] === Order::STATUS_CANCELADO;
 
-        if ($data['payment_status'] === Order::PAYMENT_STATUS_PAGADO && ! $order->paid_at) {
-            $order->update(['paid_at' => now()]);
-        }
+        DB::transaction(function () use ($order, $data, $wasCancelled, $willCancel) {
+            $order->update($data);
+
+            if ($data['payment_status'] === Order::PAYMENT_STATUS_PAGADO && ! $order->paid_at) {
+                $order->update(['paid_at' => now()]);
+            }
+
+            // Cancelar devuelve el stock una sola vez; reabrir un pedido cancelado lo vuelve a descontar.
+            if ($willCancel && ! $wasCancelled) {
+                $this->restoreStock($order);
+            } elseif (! $willCancel && $wasCancelled) {
+                $this->discountStock($order);
+            }
+        });
 
         return back()->with('status', 'Pedido actualizado.');
     }
 
-    /** Borra un pedido cargado por error: deja de contar como venta/ingreso y devuelve el stock. */
+    /** Borra un pedido cargado por error: deja de contar como venta/ingreso y devuelve el stock (si no estaba ya cancelado). */
     public function destroy(Request $request, Order $order): RedirectResponse
     {
         $label = "Pedido #{$order->id} ({$order->formatted_total})";
 
         DB::transaction(function () use ($order) {
-            foreach ($order->items()->with('product')->get() as $item) {
-                $item->product?->increment('stock', $item->quantity);
+            // Un pedido cancelado ya devolvió su stock al cancelarse.
+            if ($order->status !== Order::STATUS_CANCELADO) {
+                $this->restoreStock($order);
             }
 
             $order->delete();
@@ -174,6 +187,20 @@ class OrderController extends Controller
 
         return redirect()->route('admin.sales.index', $from !== '' ? ['tab' => $from] : [])
             ->with('status', 'Pedido eliminado.');
+    }
+
+    private function restoreStock(Order $order): void
+    {
+        foreach ($order->items()->with('product')->get() as $item) {
+            $item->product?->increment('stock', $item->quantity);
+        }
+    }
+
+    private function discountStock(Order $order): void
+    {
+        foreach ($order->items()->with('product')->get() as $item) {
+            $item->product?->decrement('stock', min($item->quantity, $item->product->stock));
+        }
     }
 
     private function statuses(): array

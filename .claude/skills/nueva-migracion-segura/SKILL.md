@@ -44,5 +44,5 @@ No correr `php artisan migrate`, `migrate:fresh`, `db:wipe` ni `migrate:rollback
 - [ ] Nada se borra/renombra mientras el código aún lo usa
 - [ ] `down()` revierte `up()` (o falla explícitamente)
 - [ ] Funciona en sqlite y en Postgres (rama por driver si hace falta)
-- [ ] `php artisan test` y `vendor/bin/pint --test` pasan
+- [ ] `php artisan test` pasa y `vendor/bin/pint --test <la migración nueva>` no marca nada
 - [ ] `.env.example` actualizado si hay variables nuevas

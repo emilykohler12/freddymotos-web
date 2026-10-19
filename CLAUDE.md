@@ -78,7 +78,7 @@ Tienda online de repuestos y accesorios para motos (Freddy Motos) con panel de a
 - **Panel admin** (`app/Http/Controllers/Admin`, rutas `admin.*` en `routes/web.php`, middleware `admin` = `EnsureUserIsAdmin`): Dashboard, Sales, Order, Product, Category, CategoryAttribute, Customer, Supplier, Promotion, Shipping, Expense, ExpenseCategory, StockMovement, ActivityLog, Inquiry, Workshop, Mechanic, MechanicJob, SiteSetting.
 - **Services/Support**: `Services/MercadoPagoService`, `Support/Cart` (carrito en sesión), `Support/Sorting` (orden sin tildes, distinto en SQLite y Postgres).
 - Solo existe un Form Request (`CheckoutRequest`); el admin valida inline con `$request->validate()`.
-- Tests: `tests/Feature/Admin/*` y `tests/Feature/PasswordResetTest.php` son el patrón a seguir.
+- Tests: `tests/Feature/Admin/*` y `tests/Feature/PasswordResetTest.php` son el patrón a seguir. Solo existe `UserFactory`: los demás modelos se crean en los tests con `Model::create([...])` o por relación (`$customer->orders()->create(...)`).
 
 ## Comandos
 
@@ -88,7 +88,7 @@ Si `php` no está en el PATH (Windows/Laragon): `C:\laragon\bin\php\php-8.3.33-W
 - `composer dev` — `php artisan dev` (procesos de desarrollo; `php artisan dev:list` los muestra).
 - `composer test` — limpia config y corre `php artisan test` (sqlite en memoria, ver `phpunit.xml`).
 - Un solo test: `php artisan test --filter=NombreDelTest` o `php artisan test tests/Feature/Admin/OrderDeleteTest.php`.
-- Estilo: `vendor/bin/pint` (corrige) / `vendor/bin/pint --test` (solo verifica). No hay `pint.json`: preset por defecto.
+- Estilo: `vendor/bin/pint` (corrige) / `vendor/bin/pint --test` (solo verifica). No hay `pint.json` y el código existente **no** sigue el preset por defecto (decenas de archivos fallan `--test`, sobre todo `concat_space`: el proyecto escribe `'a' . $b`). No corras Pint sobre archivos existentes: reescribe líneas que no tocaste. Sí sobre archivos nuevos (el hook `php-check` lo hace solo).
 - Assets: `npm run build` (también lo hacen el Dockerfile y el CI).
 - CI (`.github/workflows/ci.yml`): `npm run build` + `php artisan test` en push/PR a main. El CI no corre Pint.
 - Deploy (`Dockerfile` + `start.sh`): `start.sh` corre `php artisan migrate --force` en cada arranque, usando `DB_URL_MIGRATE` (conexión directa a Neon) si existe, y luego `php artisan serve`. Toda migración llega a producción sola.
@@ -96,11 +96,11 @@ Si `php` no está en el PATH (Windows/Laragon): `C:\laragon\bin\php\php-8.3.33-W
 
 ## Reglas del dominio (confirmadas en el código)
 
-- **Stock**: `Product.stock` se descuenta con `decrement('stock', min(cantidad, stock))` al **crear** el pedido, tanto en `CheckoutController@store` (web/WhatsApp) como en `Admin\OrderController@store` (local), dentro de `DB::transaction`; no espera al pago. Al eliminar un pedido (`Admin\OrderController@destroy`) se devuelve el stock de cada ítem. Cambiar el estado a "cancelado" **no** devuelve stock.
+- **Stock**: `Product.stock` se descuenta con `decrement('stock', min(cantidad, stock))` al **crear** el pedido, tanto en `CheckoutController@store` (web/WhatsApp) como en `Admin\OrderController@store` (local), dentro de `DB::transaction`; no espera al pago. Al **cancelar** un pedido (`Admin\OrderController@update`, estado "cancelado") se devuelve el stock de cada ítem, una sola vez; si se reabre un pedido cancelado se vuelve a descontar; todo dentro de `DB::transaction`. Al eliminarlo (`@destroy`) se devuelve el stock, salvo que ya estuviera cancelado (ya lo devolvió).
 - `StockMovement` (con `user_id`) se crea solo en ajustes manuales (`Admin\StockMovementController`: compra = suma, venta_local = resta, ajuste) y en compras a proveedor no canceladas (`SupplierController@storePurchase`). Los pedidos no generan `StockMovement`.
 - **Estados separados** en `Order`: `status` (pendiente/enviado/entregado/cancelado; `pagado` es legacy), `payment_status` (pendiente/pagado/rechazado) y `refund_status`. Usar `isPaid()` y el scope `paid()` para incluir el legacy. `origin` (web/whatsapp/local) no cambia nunca; `payment_method` sí, cuando el admin marca como pagado un pedido de WhatsApp. Los pedidos locales nacen pagados.
 - **Soft deletes**: `Product`, `Promotion`, `Expense`, `ExpenseCategory`, `Mechanic`, `MechanicJob`, `WorkshopCategory`. `Order` se borra de verdad.
-- **ActivityLog**: `ActivityLog::log($tipo, $descripcion, $modelo)` se usa solo para pedidos (creado, local, pagado, eliminado). No hay registro automático de otras acciones del admin.
+- **ActivityLog**: `ActivityLog::log($tipo, $descripcion, $modelo)` se usa solo para pedidos (creado, local, pagado, eliminado). Es opcional: no hay registro automático de otras acciones del admin y **ninguna vista del panel lee la tabla `activity_logs`** (solo se escribe; la pantalla "Movimientos" muestra pedidos, consultas y deudas, no estos registros).
 - **SiteSetting**: una sola fila, siempre `SiteSetting::current()` (memoizado por request). Los datos de contacto no se inventan: sin cargar quedan en `null`.
 - Orden alfabético en SQL: usar `Sorting::foldedName()`, no `ORDER BY` directo.
 - Migraciones, storage y config corren contra Postgres (Neon) en producción: no usar SQL específico de SQLite.
@@ -114,6 +114,6 @@ Si `php` no está en el PATH (Windows/Laragon): `C:\laragon\bin\php\php-8.3.33-W
 
 ## Antes de dar algo por terminado
 
-1. `vendor/bin/pint --test` (si falla, `vendor/bin/pint` y revisar el diff)
+1. Archivos PHP **nuevos**: `vendor/bin/pint --test <archivo>` (el repo existente no es Pint-limpio, ver Comandos). En archivos existentes mantené el estilo que ya tienen.
 2. `php artisan test`
 3. Si tocaste assets: `npm run build`
