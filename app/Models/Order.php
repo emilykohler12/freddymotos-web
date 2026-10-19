@@ -116,8 +116,6 @@ class Order extends Model
             'mp_payment_id' => $paymentId ?: $this->mp_payment_id,
             'paid_at' => now(),
         ])->save();
-
-        ActivityLog::log('pedido', "Pedido #{$this->id} pagado ({$this->formatted_total})", $this);
     }
 
     public function isWhatsappOrigin(): bool

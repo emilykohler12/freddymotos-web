@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
@@ -108,8 +107,6 @@ class OrderController extends Controller
             return $order;
         });
 
-        ActivityLog::log('pedido_local', "Pedido #{$order->id} cargado a mano (Local) para {$order->customer->name} ({$order->formatted_total})", $order);
-
         return redirect()->route('admin.orders.show', [$order, 'from' => 'local'])->with('status', 'Pedido cargado.');
     }
 
@@ -146,34 +143,59 @@ class OrderController extends Controller
             unset($data['refund_status']);
         }
 
-        $order->update($data);
+        $willCancel = $data['status'] === Order::STATUS_CANCELADO;
 
-        if ($data['payment_status'] === Order::PAYMENT_STATUS_PAGADO && ! $order->paid_at) {
-            $order->update(['paid_at' => now()]);
-        }
+        DB::transaction(function () use ($order, $data, $willCancel) {
+            // Estado leído con la fila bloqueada: dos requests simultáneos no devuelven el stock dos veces.
+            $wasCancelled = Order::whereKey($order->id)->lockForUpdate()->value('status') === Order::STATUS_CANCELADO;
+
+            $order->update($data);
+
+            if ($data['payment_status'] === Order::PAYMENT_STATUS_PAGADO && ! $order->paid_at) {
+                $order->update(['paid_at' => now()]);
+            }
+
+            // Cancelar devuelve el stock una sola vez; reabrir un pedido cancelado lo vuelve a descontar.
+            if ($willCancel && ! $wasCancelled) {
+                $this->restoreStock($order);
+            } elseif (! $willCancel && $wasCancelled) {
+                $this->discountStock($order);
+            }
+        });
 
         return back()->with('status', 'Pedido actualizado.');
     }
 
-    /** Borra un pedido cargado por error: deja de contar como venta/ingreso y devuelve el stock. */
+    /** Borra un pedido cargado por error: deja de contar como venta/ingreso y devuelve el stock (si no estaba ya cancelado). */
     public function destroy(Request $request, Order $order): RedirectResponse
     {
-        $label = "Pedido #{$order->id} ({$order->formatted_total})";
-
         DB::transaction(function () use ($order) {
-            foreach ($order->items()->with('product')->get() as $item) {
-                $item->product?->increment('stock', $item->quantity);
+            // Un pedido cancelado ya devolvió su stock al cancelarse.
+            if (Order::whereKey($order->id)->lockForUpdate()->value('status') !== Order::STATUS_CANCELADO) {
+                $this->restoreStock($order);
             }
 
             $order->delete();
         });
 
-        ActivityLog::log('pedido_eliminado', "{$label} eliminado");
-
         $from = $request->string('from')->toString();
 
         return redirect()->route('admin.sales.index', $from !== '' ? ['tab' => $from] : [])
             ->with('status', 'Pedido eliminado.');
+    }
+
+    private function restoreStock(Order $order): void
+    {
+        foreach ($order->items()->with('product')->get() as $item) {
+            $item->product?->increment('stock', $item->quantity);
+        }
+    }
+
+    private function discountStock(Order $order): void
+    {
+        foreach ($order->items()->with('product')->get() as $item) {
+            $item->product?->decrement('stock', min($item->quantity, $item->product->stock));
+        }
     }
 
     private function statuses(): array

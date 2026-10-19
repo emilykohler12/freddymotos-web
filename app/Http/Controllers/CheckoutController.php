@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CheckoutRequest;
-use App\Models\ActivityLog;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\ShippingZone;
@@ -98,8 +97,6 @@ class CheckoutController extends Controller
 
             return $order;
         });
-
-        ActivityLog::log('pedido', "Pedido #{$order->id} creado por {$order->customer->name} ({$order->formatted_total})", $order);
 
         if ($data['payment_method'] === Order::PAYMENT_WHATSAPP) {
             $cart->clear();

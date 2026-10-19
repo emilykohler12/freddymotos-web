@@ -59,7 +59,7 @@ Route::post('/webhook/mercadopago', MercadoPagoWebhookController::class)->name('
 /* ---------------- Auth de clientes ---------------- */
 Route::middleware('guest')->group(function () {
     Route::get('/login', [ClientAuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [ClientAuthController::class, 'login']);
+    Route::post('/login', [ClientAuthController::class, 'login'])->middleware('throttle:login');
     Route::get('/registro', [ClientAuthController::class, 'showRegister'])->name('register');
     Route::post('/registro', [ClientAuthController::class, 'register']);
 });
@@ -68,9 +68,9 @@ Route::post('/logout', [ClientAuthController::class, 'logout'])->middleware('aut
 /* ---------------- Recuperar contraseña (código de 6 dígitos por email) ---------------- */
 Route::middleware('guest')->prefix('recuperar-contrasena')->group(function () {
     Route::get('/', [PasswordResetController::class, 'showRequestForm'])->name('password.request');
-    Route::post('/', [PasswordResetController::class, 'sendCode'])->name('password.send-code');
+    Route::post('/', [PasswordResetController::class, 'sendCode'])->middleware('throttle:password-code')->name('password.send-code');
     Route::get('/codigo', [PasswordResetController::class, 'showCodeForm'])->name('password.code-form');
-    Route::post('/codigo', [PasswordResetController::class, 'resetPassword'])->name('password.reset');
+    Route::post('/codigo', [PasswordResetController::class, 'resetPassword'])->middleware('throttle:password-reset')->name('password.reset');
 });
 
 /* ---------------- Panel de administración ---------------- */
