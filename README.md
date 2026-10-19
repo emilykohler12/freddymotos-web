@@ -53,4 +53,4 @@ Completá en `.env` las credenciales de Mercado Pago y Mailjet antes de usar pag
 
 ## Autoría
 
-Creado por [Emily Kohler](mailto:emilynoralikohler@gmail.com).
+Creado por [Kologic](mailto:kologic6@gmail.com).
