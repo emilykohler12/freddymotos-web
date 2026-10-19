@@ -24,9 +24,11 @@ if (lint.status !== 0) {
   block(`Error de sintaxis PHP en ${rel}:\n${(lint.stdout + lint.stderr).trim()}`);
 }
 
-// Pint corrige el estilo del archivo (puede reescribirlo). Si falla, avisa.
+// Pint solo sobre archivos NUEVOS (sin versionar). El repo no sigue el preset por defecto de
+// Pint (concat_space, etc.): formatear un archivo existente reescribiría líneas que no se tocaron.
+const tracked = spawnSync('git', ['ls-files', '--', rel], { cwd: root, encoding: 'utf8' }).stdout?.trim() !== '';
 const pint = path.join(root, 'vendor', 'bin', 'pint');
-if (existsSync(pint)) {
+if (!tracked && existsSync(pint)) {
   const r = spawnSync(php, [pint, abs], { cwd: root, encoding: 'utf8', timeout: 20000 });
   if (r.status !== 0 && r.status !== null) {
     block(`php-check: Pint no pudo formatear ${rel}:\n${(r.stdout + r.stderr).trim()}`);
