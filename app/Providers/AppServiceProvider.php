@@ -29,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', fn (Request $request) => [
             Limit::perMinute(10)->by($request->ip()),
             Limit::perMinute(5)->by(Str::lower((string) $request->input('email')) . '|' . $request->ip()),
+            // Tope por cuenta sin IP: con trustProxies('*') la IP se puede falsear con X-Forwarded-For
+            // (verificado en producción), así que los límites por IP solos no frenan la fuerza bruta.
+            Limit::perHour(30)->by('email:' . Str::lower((string) $request->input('email'))),
         ]);
 
         RateLimiter::for('password-code', fn (Request $request) => [

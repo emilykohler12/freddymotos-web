@@ -18,7 +18,8 @@ class PasswordResetTest extends TestCase
         $user = User::factory()->create();
 
         $this->post(route('password.send-code'), ['email' => $user->email])
-            ->assertRedirect(route('password.code-form', ['email' => $user->email]));
+            ->assertRedirect(route('password.code-form'))
+            ->assertSessionHas('password_reset_email', $user->email);
 
         Mail::assertSent(PasswordResetCodeMail::class);
         $this->assertDatabaseHas('password_reset_codes', ['email' => $user->email]);

@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class PasswordResetController extends Controller
@@ -33,15 +34,18 @@ class PasswordResetController extends Controller
         }
 
         // Mismo mensaje exista o no la cuenta, para no revelar qué emails están registrados.
+        // El email viaja en la sesión, no en la URL (la URL queda en el historial y en los logs).
+        session()->put('password_reset_email', $data['email']);
+
         return redirect()
-            ->route('password.code-form', ['email' => $data['email']])
+            ->route('password.code-form')
             ->with('status', 'Si el correo está registrado, te enviamos un código de 6 dígitos.');
     }
 
     public function showCodeForm(Request $request): View
     {
         return view('auth.password.code', [
-            'email' => $request->query('email', ''),
+            'email' => (string) $request->session()->get('password_reset_email', ''),
         ]);
     }
 
@@ -50,7 +54,7 @@ class PasswordResetController extends Controller
         $data = $request->validate([
             'email' => ['required', 'email'],
             'code' => ['required', 'digits:6'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
         $reset = PasswordResetCode::where('email', $data['email'])->first();
@@ -85,6 +89,7 @@ class PasswordResetController extends Controller
 
         $user->update(['password' => $data['password']]);
         $reset->delete();
+        $request->session()->forget('password_reset_email');
 
         return redirect()->route('login')->with('status', 'Contraseña actualizada. Ya podés ingresar.');
     }

@@ -129,12 +129,21 @@
                             const selected = Array.from(document.querySelectorAll('.product-checkbox:checked'))
                                 .map(cb => cb.closest('.product-item').textContent.trim().split('\n')[0]);
 
+                            // Nodos con textContent (no innerHTML): el nombre del producto nunca se interpreta como HTML.
+                            selectedProductsDiv.replaceChildren();
+
                             if (selected.length === 0) {
-                                selectedProductsDiv.innerHTML = '<p class="text-xs text-marca-gris-oscuro/60">Ninguno</p>';
+                                const none = document.createElement('p');
+                                none.className = 'text-xs text-marca-gris-oscuro/60';
+                                none.textContent = 'Ninguno';
+                                selectedProductsDiv.appendChild(none);
                             } else {
-                                selectedProductsDiv.innerHTML = selected
-                                    .map(name => `<span class="inline-block rounded-full bg-marca-amarillo/30 px-2 py-1 text-xs text-marca-negro">${name}</span>`)
-                                    .join('');
+                                selected.forEach(name => {
+                                    const chip = document.createElement('span');
+                                    chip.className = 'inline-block rounded-full bg-marca-amarillo/30 px-2 py-1 text-xs text-marca-negro';
+                                    chip.textContent = name;
+                                    selectedProductsDiv.appendChild(chip);
+                                });
                             }
                         }
 
