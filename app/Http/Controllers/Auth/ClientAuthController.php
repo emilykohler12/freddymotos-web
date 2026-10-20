@@ -34,6 +34,20 @@ class ClientAuthController extends Controller
                 ->withErrors(['email' => 'Las credenciales no coinciden con nuestros registros.']);
         }
 
+        // Admin con doble factor: la contraseña sola no alcanza. Se cierra la sesión recién abierta
+        // y se pide el código; el login real ocurre en TwoFactorChallengeController.
+        $user = Auth::user();
+        if ($user->isAdmin() && $user->hasTwoFactorEnabled()) {
+            Auth::logout();
+            $request->session()->regenerate();
+            $request->session()->put([
+                'two_factor_user_id' => $user->id,
+                'two_factor_started_at' => now()->timestamp,
+            ]);
+
+            return redirect()->route('two-factor.challenge');
+        }
+
         $request->session()->regenerate();
 
         // Si la cuenta es de admin, no se mezcla con el sitio público: va directo al panel.
