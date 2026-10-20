@@ -37,6 +37,16 @@ class ThrottleAndSettingsTest extends TestCase
         $this->post(route('password.send-code'), ['email' => $user->email])->assertStatus(429);
     }
 
+    public function test_formulario_de_configuracion_muestra_turnos_por_dia(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)->get(route('admin.settings.edit'))
+            ->assertOk()
+            ->assertSee('horarios[lun][manana][abierto]', false)
+            ->assertSee('horarios[dom][tarde][hasta]', false);
+    }
+
     public function test_horario_rechaza_tarde_que_empieza_antes_de_cerrar_la_manana(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
