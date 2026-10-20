@@ -23,6 +23,7 @@ class SiteSetting extends Model
         'direccion',
         'horario_atencion',
         'dias_atencion',
+        'horarios',
         'historia',
         'fecha_creacion',
         'instagram_url',
@@ -62,6 +63,7 @@ class SiteSetting extends Model
             'direccion' => null,
             'horario_atencion' => null,
             'dias_atencion' => [],
+            'horarios' => null,
             'historia' => null,
             'fecha_creacion' => null,
             'instagram_url' => null,
@@ -79,6 +81,7 @@ class SiteSetting extends Model
         return [
             'payment_methods' => 'array',
             'dias_atencion' => 'array',
+            'horarios' => 'array',
             'tax_rate' => 'decimal:2',
             'fecha_creacion' => 'date',
         ];
@@ -146,6 +149,46 @@ class SiteSetting extends Model
         return collect($this->dias_atencion ?? [])
             ->map(fn ($dia) => self::DIAS[$dia] ?? null)
             ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Líneas listas para mostrar ("Lun a Vie: 09:00 a 18:00"). Los días seguidos con el mismo
+     * horario se agrupan; los días cerrados no aparecen. Mientras el admin no cargue `horarios`
+     * se usan los campos viejos (días + texto libre) para no dejar el sitio sin datos.
+     */
+    public function getHorarioLineasAttribute(): array
+    {
+        if ($this->horarios === null) {
+            $legacy = array_filter([
+                implode(' · ', $this->dias_atencion_labels),
+                $this->horario_atencion,
+            ]);
+
+            return $legacy ? [implode(': ', $legacy)] : [];
+        }
+
+        $grupos = [];
+        foreach (self::DIAS as $clave => $etiqueta) {
+            $dia = $this->horarios[$clave] ?? null;
+            if (! ($dia['abierto'] ?? false)) {
+                $grupos[] = null;
+
+                continue;
+            }
+
+            $texto = ($dia['desde'] ?? '') . ' a ' . ($dia['hasta'] ?? '');
+            $ultimo = array_key_last($grupos);
+            if ($ultimo !== null && $grupos[$ultimo] !== null && $grupos[$ultimo]['texto'] === $texto) {
+                $grupos[$ultimo]['fin'] = $etiqueta;
+            } else {
+                $grupos[] = ['inicio' => $etiqueta, 'fin' => $etiqueta, 'texto' => $texto];
+            }
+        }
+
+        return collect($grupos)->filter()
+            ->map(fn ($g) => ($g['inicio'] === $g['fin'] ? $g['inicio'] : $g['inicio'] . ' a ' . $g['fin']) . ': ' . $g['texto'])
             ->values()
             ->all();
     }

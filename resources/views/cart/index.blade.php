@@ -7,7 +7,7 @@
     <x-site-nav />
 
     <main class="w-full bg-marca-blanco">
-        <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div class="w-full px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
 
             <h1 class="mb-8 text-3xl font-extrabold tracking-tight text-marca-negro sm:text-4xl">Tu carrito</h1>
 

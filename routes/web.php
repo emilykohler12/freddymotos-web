@@ -20,9 +20,7 @@ use App\Http\Controllers\Admin\StockMovementController as AdminStockMovementCont
 use App\Http\Controllers\Admin\SupplierController as AdminSupplierController;
 use App\Http\Controllers\Admin\WorkshopController as AdminWorkshopController;
 use App\Http\Controllers\Auth\ClientAuthController;
-use App\Http\Controllers\Admin\TwoFactorController as AdminTwoFactorController;
 use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
@@ -70,11 +68,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/registro', [ClientAuthController::class, 'showRegister'])->name('register');
     Route::post('/registro', [ClientAuthController::class, 'register'])->middleware('throttle:register');
 });
-/* Segundo paso del login de admin (el usuario todavía no está logueado: su id va en la sesión). */
-Route::middleware('guest')->group(function () {
-    Route::get('/login/verificacion', [TwoFactorChallengeController::class, 'show'])->name('two-factor.challenge');
-    Route::post('/login/verificacion', [TwoFactorChallengeController::class, 'verify'])->middleware('throttle:two-factor')->name('two-factor.verify');
-});
 Route::post('/logout', [ClientAuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 /* ---------------- Recuperar contraseña (código de 6 dígitos por email) ---------------- */
@@ -92,10 +85,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('logout', [ClientAuthController::class, 'logout'])->name('logout');
 
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-
-        /* Seguridad: doble factor */
-        Route::get('seguridad', [AdminTwoFactorController::class, 'show'])->name('two-factor.show');
-        Route::post('seguridad', [AdminTwoFactorController::class, 'confirm'])->name('two-factor.confirm');
 
         /* Categorías */
         Route::get('categorias', [AdminCategoryController::class, 'index'])->name('categories.index');

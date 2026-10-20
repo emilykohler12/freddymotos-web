@@ -37,14 +37,6 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(30)->by('email:' . Str::lower((string) $request->input('email'))),
         ]);
 
-        // Segundo paso del login de admin: se limita por la cuenta que espera el código
-        // (id en la sesión), no por IP, que se puede falsear.
-        RateLimiter::for('two-factor', function (Request $request) {
-            $key = 'two-factor:' . ($request->session()->get('two_factor_user_id') ?? $request->ip());
-
-            return [Limit::perMinute(5)->by($key), Limit::perHour(20)->by($key)];
-        });
-
         RateLimiter::for('password-code', fn (Request $request) => [
             Limit::perMinute(3)->by($request->ip()),
             Limit::perHour(5)->by(Str::lower((string) $request->input('email'))),

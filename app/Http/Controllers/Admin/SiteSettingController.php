@@ -43,15 +43,22 @@ class SiteSettingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        // Horario por día: solo se validan las horas de los días marcados como abiertos.
+        $reglasHorario = [];
+        foreach (array_keys(SiteSetting::DIAS) as $dia) {
+            $reglasHorario["horarios.$dia.abierto"] = ['nullable', 'boolean'];
+            if ($request->boolean("horarios.$dia.abierto")) {
+                $reglasHorario["horarios.$dia.desde"] = ['required', 'date_format:H:i'];
+                $reglasHorario["horarios.$dia.hasta"] = ['required', 'date_format:H:i', "after:horarios.$dia.desde"];
+            }
+        }
+
+        $data = $request->validate($reglasHorario + [
             'nombre_local' => ['nullable', 'string', 'max:120'],
             'telefono' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'whatsapp' => ['nullable', 'string', 'max:40', 'regex:/^[0-9+()\s-]{6,40}$/'],
             'email' => ['nullable', 'email', 'max:160'],
             'direccion' => ['nullable', 'string', 'max:200'],
-            'horario_atencion' => ['nullable', 'string', 'max:200'],
-            'dias_atencion' => ['nullable', 'array'],
-            'dias_atencion.*' => ['string', 'in:' . implode(',', array_keys(\App\Models\SiteSetting::DIAS))],
             'historia' => ['nullable', 'string', 'max:2000'],
             'fecha_creacion' => ['nullable', 'date', 'before_or_equal:today'],
             'instagram_url' => ['nullable', 'url', 'max:200'],
@@ -68,7 +75,13 @@ class SiteSettingController extends Controller
         ]);
 
         $data['payment_methods'] = $data['payment_methods'] ?? [];
-        $data['dias_atencion'] = $data['dias_atencion'] ?? [];
+        $data['horarios'] = collect(SiteSetting::DIAS)->map(function ($etiqueta, $dia) use ($data) {
+            $fila = $data['horarios'][$dia] ?? [];
+
+            return ! empty($fila['abierto'])
+                ? ['abierto' => true, 'desde' => $fila['desde'], 'hasta' => $fila['hasta']]
+                : ['abierto' => false];
+        })->all();
         $tab = $data['tab'] ?? 'general';
         unset($data['tab']);
 

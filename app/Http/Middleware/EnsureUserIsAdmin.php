@@ -20,13 +20,6 @@ class EnsureUserIsAdmin
             abort(403, 'No tenés acceso al panel de administración.');
         }
 
-        // Un admin sin doble factor solo puede activarlo (o salir): el resto del panel queda bloqueado.
-        if (config('auth.admin_requires_two_factor')
-            && ! $user->hasTwoFactorEnabled()
-            && ! $request->routeIs('admin.two-factor.*', 'admin.logout')) {
-            return redirect()->route('admin.two-factor.show');
-        }
-
         return $next($request);
     }
 }

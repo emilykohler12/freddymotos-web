@@ -47,8 +47,11 @@ class ThrottleAndSettingsTest extends TestCase
             'whatsapp' => '1155551111',
             'email' => 'info@example.com',
             'direccion' => 'Calle 123',
-            'horario_atencion' => '9 a 18',
-            'dias_atencion' => ['lun', 'mar'],
+            'horarios' => [
+                'lun' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '18:00'],
+                'mar' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '18:00'],
+                'sab' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '13:00'],
+            ],
             'historia' => 'Una historia',
             'fecha_creacion' => '2010-05-01',
             'instagram_url' => 'https://instagram.com/freddy',
@@ -67,8 +70,8 @@ class ThrottleAndSettingsTest extends TestCase
         $this->assertSame('1155551111', $settings->whatsapp);
         $this->assertSame('info@example.com', $settings->email);
         $this->assertSame('Calle 123', $settings->direccion);
-        $this->assertSame('9 a 18', $settings->horario_atencion);
-        $this->assertSame(['lun', 'mar'], $settings->dias_atencion);
+        $this->assertSame(['Lun a Mar: 09:00 a 18:00', 'Sáb: 09:00 a 13:00'], $settings->horario_lineas);
+        $this->assertFalse($settings->horarios['mie']['abierto']);
         $this->assertSame('Una historia', $settings->historia);
         $this->assertSame('2010-05-01', $settings->fecha_creacion->toDateString());
         $this->assertSame('https://instagram.com/freddy', $settings->instagram_url);
