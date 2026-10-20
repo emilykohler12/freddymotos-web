@@ -102,7 +102,7 @@ Si `php` no está en el PATH (Windows/Laragon): `C:\laragon\bin\php\php-8.3.33-W
 - **Soft deletes**: `Product`, `Promotion`, `Expense`, `ExpenseCategory`, `Mechanic`, `MechanicJob`, `WorkshopCategory`. `Order` se borra de verdad.
 - **Rate limit**: login (`throttle:login`) y reseteo de contraseña (`password-code`, `password-reset`) usan limiters definidos en `AppServiceProvider::boot()`; también `register` (registro de clientes) e `inquiry` (consultas del taller).
 - **`SiteSetting`** usa `$fillable` explícito: una columna nueva hay que agregarla ahí o `fill()` la descarta sin avisar.
-- **Sin registro de auditoría**: el modelo `ActivityLog` se eliminó (nada lo leía). La tabla `activity_logs` sigue existiendo en la base con datos viejos hasta que se agregue una migración que la borre, en un deploy posterior (ver `nueva-migracion-segura`). No usarla ni volver a escribir en ella. `Admin\ActivityLogController` es la pantalla "Movimientos" (pedidos, consultas, deudas) y no tiene relación con esa tabla.
+- **Sin registro de auditoría**: el modelo `ActivityLog` y la tabla `activity_logs` se eliminaron (nada los leía; la migración `2026_10_20_000001_drop_activity_logs_table` la borra). No hay historial de acciones del admin. `Admin\ActivityLogController` es la pantalla "Movimientos" (pedidos, consultas, deudas) y no tiene relación con esa tabla.
 - **SiteSetting**: una sola fila, siempre `SiteSetting::current()` (memoizado por request). Los datos de contacto no se inventan: sin cargar quedan en `null`.
 - Orden alfabético en SQL: usar `Sorting::foldedName()`, no `ORDER BY` directo.
 - Migraciones, storage y config corren contra Postgres (Neon) en producción: no usar SQL específico de SQLite.
