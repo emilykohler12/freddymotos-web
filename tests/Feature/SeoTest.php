@@ -38,6 +38,7 @@ class SeoTest extends TestCase
         $inactivo = Product::create(['name' => 'Oculto', 'slug' => 'oculto', 'price' => 100, 'stock' => 1, 'active' => false, 'category' => 'Transmisión', 'brand' => 'Honda']);
 
         $this->get('/sitemap.xml')->assertOk()
+            ->assertSee('<?xml version="1.0" encoding="UTF-8"?>', false)
             ->assertSee(route('products.show', $activo), false)
             ->assertDontSee(route('products.show', $inactivo), false);
     }
