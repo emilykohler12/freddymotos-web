@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\Services\MercadoPagoService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class WebhookSignatureAndHeadersTest extends TestCase
 {
+    use RefreshDatabase;
+
     private function signed(string $secret, string $id = '555', string $requestId = 'req-1', string $ts = '1700000000'): array
     {
         $v1 = hash_hmac('sha256', "id:{$id};request-id:{$requestId};ts:{$ts};", $secret);
@@ -47,6 +50,7 @@ class WebhookSignatureAndHeadersTest extends TestCase
     public function test_responses_carry_security_headers(): void
     {
         $this->get('/')
+            ->assertOk()
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
