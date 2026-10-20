@@ -10,7 +10,9 @@ use App\Models\SiteSetting;
 use App\Services\MercadoPagoService;
 use App\Support\Cart;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
@@ -29,6 +31,7 @@ class CheckoutController extends Controller
         return view('checkout.index', [
             'lines' => $cart->lines(),
             'subtotal' => $cart->subtotal(),
+            'checkoutToken' => (string) Str::uuid(),
             'shippingZones' => ShippingZone::with('company')
                 ->whereHas('company', fn ($q) => $q->where('active', true))
                 ->orderBy('name')
@@ -50,6 +53,17 @@ class CheckoutController extends Controller
         }
 
         $data = $request->validated();
+
+        // Cada formulario trae un token único. Si llega el mismo dos veces (doble clic, reenvío),
+        // solo el primero crea el pedido: Cache::add es atómico y devuelve false si ya existía.
+        $token = $data['checkout_token'] ?? null;
+
+        if ($token && ! Cache::add("checkout:{$token}", true, now()->addMinutes(10))) {
+            return redirect()->route('cart.index')->with(
+                'status',
+                'Ya estamos procesando tu pedido. Si no te llevó al pago, volvé a intentarlo en unos minutos.',
+            );
+        }
 
         $order = DB::transaction(function () use ($data, $lines) {
             $customer = Customer::updateOrCreate(

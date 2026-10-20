@@ -24,6 +24,7 @@ class CheckoutRequest extends FormRequest
             'delivery_method' => ['required', Rule::in([Order::DELIVERY_RETIRO, Order::DELIVERY_ENVIO])],
             'payment_method' => ['required', Rule::in([Order::PAYMENT_MERCADOPAGO, Order::PAYMENT_WHATSAPP])],
             'notes' => ['nullable', 'string', 'max:500'],
+            'checkout_token' => ['nullable', 'uuid'],
         ];
     }
 

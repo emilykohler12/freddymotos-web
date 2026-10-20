@@ -18,6 +18,7 @@
 
             <form method="POST" action="{{ route('checkout.store') }}" class="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 @csrf
+                <input type="hidden" name="checkout_token" value="{{ $checkoutToken }}">
 
                 {{-- ============ Columna izquierda: datos ============ --}}
                 <div class="space-y-8 lg:col-span-2">
@@ -220,6 +221,28 @@
                 .forEach((el) => el.addEventListener('change', sync));
             if (zoneSelect) zoneSelect.addEventListener('change', sync);
             sync();
+
+            // Evita el doble envío: tras el primer clic el botón queda bloqueado.
+            let sending = false;
+            btn.closest('form').addEventListener('submit', (e) => {
+                if (sending) {
+                    e.preventDefault();
+                    return;
+                }
+                sending = true;
+                btn.disabled = true;
+                btn.classList.add('opacity-60', 'cursor-wait');
+                btn.textContent = 'Procesando…';
+            });
+            // Si el navegador restaura la página al volver atrás, se puede enviar de nuevo.
+            window.addEventListener('pageshow', (e) => {
+                if (e.persisted) {
+                    sending = false;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-60', 'cursor-wait');
+                    sync();
+                }
+            });
         })();
     </script>
 @endsection

@@ -177,6 +177,45 @@ class PaymentsAndStockTest extends TestCase
         $this->assertSame(5, $product->fresh()->stock);
     }
 
+    public function test_checkout_form_carries_a_unique_token(): void
+    {
+        $product = $this->product();
+
+        $html = $this->actingAs(User::factory()->create())
+            ->withSession(['cart' => [$product->id => 1]])
+            ->get(route('checkout.show'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertMatchesRegularExpression('/name="checkout_token" value="[0-9a-f-]{36}"/', $html);
+    }
+
+    public function test_submitting_the_same_checkout_form_twice_creates_only_one_order(): void
+    {
+        $product = $this->product();
+        $user = User::factory()->create();
+        $payload = [
+            'name' => 'Cliente',
+            'phone' => '1155550000',
+            'delivery_method' => Order::DELIVERY_RETIRO,
+            'payment_method' => Order::PAYMENT_WHATSAPP,
+            'checkout_token' => '3f1c2d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f',
+        ];
+
+        // Doble clic: las dos peticiones llegan con el carrito todavía lleno.
+        $this->actingAs($user)->withSession(['cart' => [$product->id => 2]])
+            ->post(route('checkout.store'), $payload)
+            ->assertRedirectContains('https://wa.me/');
+
+        $this->actingAs($user)->withSession(['cart' => [$product->id => 2]])
+            ->post(route('checkout.store'), $payload)
+            ->assertRedirect(route('cart.index'))
+            ->assertSessionHas('status');
+
+        $this->assertSame(1, Order::count());
+        $this->assertSame(3, $product->fresh()->stock);
+    }
+
     public function test_checkout_rejects_quantities_above_the_available_stock(): void
     {
         $product = $this->product(1);
