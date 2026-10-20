@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Checkout — ' . $settings->nombre_local)
+@section('noindex', '1')
 
 @section('content')
     <x-site-nav />

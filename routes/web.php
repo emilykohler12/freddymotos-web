@@ -26,12 +26,16 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\WorkshopController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
 
 Route::get('/categorias', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/productos', [ProductController::class, 'index'])->name('products.index');

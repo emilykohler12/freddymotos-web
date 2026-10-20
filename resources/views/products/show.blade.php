@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('title', $product->name . ' — ' . $settings->nombre_local)
+@section('meta_description', \Illuminate\Support\Str::limit(trim(strip_tags($product->description ?: $product->name . ' en ' . $settings->nombre_local)), 155))
+@section('og_image', $product->image_url)
+@section('og_type', 'product')
 
 @section('content')
     <x-site-nav />
