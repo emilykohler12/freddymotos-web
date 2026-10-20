@@ -18,7 +18,7 @@ class ActivityLogsTableTest extends TestCase
 
     public function test_rolling_back_the_migration_recreates_the_empty_table(): void
     {
-        Artisan::call('migrate:rollback', ['--step' => 1]);
+        Artisan::call('migrate:rollback', ['--path' => 'database/migrations/2026_10_20_000001_drop_activity_logs_table.php']);
 
         $this->assertTrue(Schema::hasTable('activity_logs'));
         $this->assertTrue(Schema::hasColumns('activity_logs', ['user_id', 'type', 'description', 'read_at']));

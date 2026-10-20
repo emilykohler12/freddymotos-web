@@ -114,4 +114,10 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    | Si es true, los admins sin doble factor solo pueden activarlo (ver EnsureUserIsAdmin).
+    */
+
+    'admin_requires_two_factor' => env('ADMIN_REQUIRE_2FA', true),
+
 ];

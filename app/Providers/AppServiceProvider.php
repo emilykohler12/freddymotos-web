@@ -5,9 +5,12 @@ namespace App\Providers;
 use App\Models\SiteSetting;
 use App\Support\Cart;
 use App\Support\Sorting;
+use Illuminate\Auth\Events\Failed;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
@@ -34,6 +37,14 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(30)->by('email:' . Str::lower((string) $request->input('email'))),
         ]);
 
+        // Segundo paso del login de admin: se limita por la cuenta que espera el código
+        // (id en la sesión), no por IP, que se puede falsear.
+        RateLimiter::for('two-factor', function (Request $request) {
+            $key = 'two-factor:' . ($request->session()->get('two_factor_user_id') ?? $request->ip());
+
+            return [Limit::perMinute(5)->by($key), Limit::perHour(20)->by($key)];
+        });
+
         RateLimiter::for('password-code', fn (Request $request) => [
             Limit::perMinute(3)->by($request->ip()),
             Limit::perHour(5)->by(Str::lower((string) $request->input('email'))),
@@ -51,6 +62,17 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(3)->by($request->ip()),
             Limit::perHour(10)->by($request->ip()),
         ]);
+
+        // Rastro de intentos de login fallidos (nunca se registra la contraseña). Sirve para
+        // detectar fuerza bruta mirando los logs; en Render conviene LOG_CHANNEL=stderr.
+        Event::listen(Failed::class, function (Failed $event) {
+            Log::warning('Login fallido.', [
+                'email' => $event->credentials['email'] ?? null,
+                'cuenta_existe' => $event->user !== null,
+                'es_admin' => (bool) ($event->user?->is_admin),
+                'ip' => request()->ip(),
+            ]);
+        });
 
         // Datos disponibles en todas las vistas:
         //  - $settings   → configuración del sitio (SiteSetting, una sola fila)
