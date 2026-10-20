@@ -51,7 +51,7 @@
                         @endif
                         <span class="absolute inset-0 bg-gradient-to-t from-marca-negro/60 via-transparent to-transparent opacity-0 transition group-hover:opacity-100"></span>
                     </div>
-                    <span class="bg-marca-blanco px-3 py-2.5 text-center text-sm font-semibold text-marca-negro transition group-hover:text-marca-rojo">
+                    <span class="flex flex-1 items-center justify-center bg-marca-blanco px-3 py-2.5 text-center text-sm font-semibold text-marca-negro transition group-hover:text-marca-rojo">
                         {{ $cat->name }}
                     </span>
                 </a>

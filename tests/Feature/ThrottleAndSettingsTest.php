@@ -48,9 +48,9 @@ class ThrottleAndSettingsTest extends TestCase
             'email' => 'info@example.com',
             'direccion' => 'Calle 123',
             'horarios' => [
-                'lun' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '18:00'],
-                'mar' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '18:00'],
-                'sab' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '13:00'],
+                'lun' => ['abierto' => '1', 'manana_desde' => '09:00', 'manana_hasta' => '13:00', 'tarde_desde' => '16:00', 'tarde_hasta' => '20:00'],
+                'mar' => ['abierto' => '1', 'manana_desde' => '09:00', 'manana_hasta' => '13:00', 'tarde_desde' => '16:00', 'tarde_hasta' => '20:00'],
+                'sab' => ['abierto' => '1', 'manana_desde' => '09:00', 'manana_hasta' => '13:00'],
             ],
             'historia' => 'Una historia',
             'fecha_creacion' => '2010-05-01',
@@ -70,7 +70,7 @@ class ThrottleAndSettingsTest extends TestCase
         $this->assertSame('1155551111', $settings->whatsapp);
         $this->assertSame('info@example.com', $settings->email);
         $this->assertSame('Calle 123', $settings->direccion);
-        $this->assertSame(['Lun a Mar: 09:00 a 18:00', 'Sáb: 09:00 a 13:00'], $settings->horario_lineas);
+        $this->assertSame(['Lun a Mar: 09:00 a 13:00 y 16:00 a 20:00', 'Sáb: 09:00 a 13:00'], $settings->horario_lineas);
         $this->assertFalse($settings->horarios['mie']['abierto']);
         $this->assertSame('Una historia', $settings->historia);
         $this->assertSame('2010-05-01', $settings->fecha_creacion->toDateString());
