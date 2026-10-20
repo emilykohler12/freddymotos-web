@@ -43,8 +43,17 @@ class SeoController extends Controller
                 'lastmod' => $p->updated_at?->toAtomString(),
             ]));
 
-        return response()
-            ->view('seo.sitemap', ['urls' => $urls])
-            ->header('Content-Type', 'application/xml; charset=UTF-8');
+        // Se arma acá y no en Blade: con short_open_tag activo, Blade no compila la declaración "<?xml".
+        $items = $urls->map(function (array $u) {
+            $lastmod = $u['lastmod'] ? '<lastmod>' . e($u['lastmod']) . '</lastmod>' : '';
+
+            return '<url><loc>' . e($u['loc']) . '</loc>' . $lastmod . '</url>';
+        })->implode("\n");
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n"
+            . $items . "\n</urlset>\n";
+
+        return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
     }
 }
