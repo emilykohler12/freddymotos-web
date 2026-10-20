@@ -101,29 +101,30 @@
 
                 <div>
                     <label class="{{ $lbl }}">Días y horario de atención</label>
-                    <p class="mb-2 text-xs text-marca-gris-oscuro">Marcá los días que abrís y poné el horario de la mañana y el de la tarde (la tarde se puede dejar vacía).</p>
+                    <p class="mb-2 text-xs text-marca-gris-oscuro">Para cada día marcá si abrís a la mañana y/o a la tarde, y poné el horario de cada turno.</p>
                     <div class="space-y-2">
                         @foreach (\App\Models\SiteSetting::DIAS as $value => $label)
-                            @php
-                                $fila = $settings->horarios[$value] ?? [];
-                                $abierto = (bool) old("horarios.$value.abierto", $fila['abierto'] ?? false);
-                            @endphp
-                            <div class="flex flex-wrap items-center gap-3 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2">
-                                <label class="flex w-20 cursor-pointer items-center gap-2 text-sm font-semibold text-marca-negro">
-                                    <input type="checkbox" name="horarios[{{ $value }}][abierto]" value="1" @checked($abierto) class="h-4 w-4 rounded border-marca-gris-oscuro/40">
-                                    {{ $label }}
-                                </label>
-                                <span class="text-xs font-semibold uppercase text-marca-gris-oscuro">Mañana</span>
-                                <input type="time" name="horarios[{{ $value }}][manana_desde]" value="{{ old("horarios.$value.manana_desde", $fila['manana_desde'] ?? $fila['desde'] ?? '09:00') }}" aria-label="{{ $label }}: mañana, abre" class="{{ $field }} !w-auto">
-                                <span class="text-sm text-marca-gris-oscuro">a</span>
-                                <input type="time" name="horarios[{{ $value }}][manana_hasta]" value="{{ old("horarios.$value.manana_hasta", $fila['manana_hasta'] ?? $fila['hasta'] ?? '13:00') }}" aria-label="{{ $label }}: mañana, cierra" class="{{ $field }} !w-auto">
-                                <span class="text-xs font-semibold uppercase text-marca-gris-oscuro">Tarde</span>
-                                <input type="time" name="horarios[{{ $value }}][tarde_desde]" value="{{ old("horarios.$value.tarde_desde", $fila['tarde_desde'] ?? (isset($settings->horarios) ? '' : '16:00')) }}" aria-label="{{ $label }}: tarde, abre" class="{{ $field }} !w-auto">
-                                <span class="text-sm text-marca-gris-oscuro">a</span>
-                                <input type="time" name="horarios[{{ $value }}][tarde_hasta]" value="{{ old("horarios.$value.tarde_hasta", $fila['tarde_hasta'] ?? (isset($settings->horarios) ? '' : '20:00')) }}" aria-label="{{ $label }}: tarde, cierra" class="{{ $field }} !w-auto">
+                            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-lg border border-marca-gris-oscuro/20 px-3 py-2">
+                                <span class="w-12 text-sm font-semibold text-marca-negro">{{ $label }}</span>
+                                @foreach (['manana' => ['Mañana', '09:00', '13:00'], 'tarde' => ['Tarde', '16:00', '20:00']] as $turno => [$nombre, $desdeDef, $hastaDef])
+                                    @php
+                                        $fila = $settings->horarios[$value][$turno] ?? null;
+                                        $abierto = (bool) old("horarios.$value.$turno.abierto", $fila !== null);
+                                    @endphp
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <label class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-marca-negro">
+                                            <input type="checkbox" name="horarios[{{ $value }}][{{ $turno }}][abierto]" value="1" @checked($abierto) class="h-4 w-4 rounded border-marca-gris-oscuro/40">
+                                            {{ $nombre }}
+                                        </label>
+                                        <input type="time" name="horarios[{{ $value }}][{{ $turno }}][desde]" value="{{ old("horarios.$value.$turno.desde", $fila['desde'] ?? $desdeDef) }}" aria-label="{{ $label }} {{ $nombre }}: abre" class="{{ $field }} !w-auto">
+                                        <span class="text-sm text-marca-gris-oscuro">a</span>
+                                        <input type="time" name="horarios[{{ $value }}][{{ $turno }}][hasta]" value="{{ old("horarios.$value.$turno.hasta", $fila['hasta'] ?? $hastaDef) }}" aria-label="{{ $label }} {{ $nombre }}: cierra" class="{{ $field }} !w-auto">
+                                    </div>
+                                @endforeach
                             </div>
-                            @foreach (['manana_desde', 'manana_hasta', 'tarde_desde', 'tarde_hasta'] as $campo)
-                                @error("horarios.$value.$campo") <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                            @foreach (['manana', 'tarde'] as $turno)
+                                @error("horarios.$value.$turno.desde") <p class="text-xs text-red-600">{{ $label }} ({{ $turno }}): {{ $message }}</p> @enderror
+                                @error("horarios.$value.$turno.hasta") <p class="text-xs text-red-600">{{ $label }} ({{ $turno }}): {{ $message }}</p> @enderror
                             @endforeach
                         @endforeach
                     </div>

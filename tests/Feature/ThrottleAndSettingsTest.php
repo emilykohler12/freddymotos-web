@@ -37,6 +37,18 @@ class ThrottleAndSettingsTest extends TestCase
         $this->post(route('password.send-code'), ['email' => $user->email])->assertStatus(429);
     }
 
+    public function test_horario_rechaza_tarde_que_empieza_antes_de_cerrar_la_manana(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $this->actingAs($admin)->put(route('admin.settings.update'), [
+            'horarios' => ['lun' => [
+                'manana' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '13:00'],
+                'tarde' => ['abierto' => '1', 'desde' => '12:00', 'hasta' => '20:00'],
+            ]],
+        ])->assertSessionHasErrors('horarios.lun.tarde.desde');
+    }
+
     public function test_admin_can_save_every_site_setting_field(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
@@ -48,9 +60,10 @@ class ThrottleAndSettingsTest extends TestCase
             'email' => 'info@example.com',
             'direccion' => 'Calle 123',
             'horarios' => [
-                'lun' => ['abierto' => '1', 'manana_desde' => '09:00', 'manana_hasta' => '13:00', 'tarde_desde' => '16:00', 'tarde_hasta' => '20:00'],
-                'mar' => ['abierto' => '1', 'manana_desde' => '09:00', 'manana_hasta' => '13:00', 'tarde_desde' => '16:00', 'tarde_hasta' => '20:00'],
-                'sab' => ['abierto' => '1', 'manana_desde' => '09:00', 'manana_hasta' => '13:00'],
+                'lun' => ['manana' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '13:00'], 'tarde' => ['abierto' => '1', 'desde' => '16:00', 'hasta' => '20:00']],
+                'mar' => ['manana' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '13:00'], 'tarde' => ['abierto' => '1', 'desde' => '16:00', 'hasta' => '20:00']],
+                'sab' => ['manana' => ['abierto' => '1', 'desde' => '09:00', 'hasta' => '13:00']],
+                'vie' => ['tarde' => ['abierto' => '1', 'desde' => '17:00', 'hasta' => '21:00']],
             ],
             'historia' => 'Una historia',
             'fecha_creacion' => '2010-05-01',
@@ -70,8 +83,9 @@ class ThrottleAndSettingsTest extends TestCase
         $this->assertSame('1155551111', $settings->whatsapp);
         $this->assertSame('info@example.com', $settings->email);
         $this->assertSame('Calle 123', $settings->direccion);
-        $this->assertSame(['Lun a Mar: 09:00 a 13:00 y 16:00 a 20:00', 'Sáb: 09:00 a 13:00'], $settings->horario_lineas);
-        $this->assertFalse($settings->horarios['mie']['abierto']);
+        $this->assertSame(['Lun a Mar: 09:00 a 13:00 y 16:00 a 20:00', 'Vie: 17:00 a 21:00', 'Sáb: 09:00 a 13:00'], $settings->horario_lineas);
+        $this->assertNull($settings->horarios['mie']['manana']);
+        $this->assertNull($settings->horarios['mie']['tarde']);
         $this->assertSame('Una historia', $settings->historia);
         $this->assertSame('2010-05-01', $settings->fecha_creacion->toDateString());
         $this->assertSame('https://instagram.com/freddy', $settings->instagram_url);

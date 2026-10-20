@@ -171,18 +171,17 @@ class SiteSetting extends Model
 
         $grupos = [];
         foreach (self::DIAS as $clave => $etiqueta) {
-            $dia = $this->horarios[$clave] ?? null;
-            if (! ($dia['abierto'] ?? false)) {
+            $dia = $this->horarios[$clave] ?? [];
+            $turnos = array_filter([
+                ! empty($dia['manana']) ? $dia['manana']['desde'] . ' a ' . $dia['manana']['hasta'] : null,
+                ! empty($dia['tarde']) ? $dia['tarde']['desde'] . ' a ' . $dia['tarde']['hasta'] : null,
+            ]);
+            if (! $turnos) {
                 $grupos[] = null;
 
                 continue;
             }
 
-            // Formato viejo (un solo tramo "desde/hasta") se toma como mañana.
-            $turnos = array_filter([
-                ($dia['manana_desde'] ?? $dia['desde'] ?? null) ? ($dia['manana_desde'] ?? $dia['desde']) . ' a ' . ($dia['manana_hasta'] ?? $dia['hasta'] ?? '') : null,
-                ! empty($dia['tarde_desde']) ? $dia['tarde_desde'] . ' a ' . ($dia['tarde_hasta'] ?? '') : null,
-            ]);
             $texto = implode(' y ', $turnos);
             $ultimo = array_key_last($grupos);
             if ($ultimo !== null && $grupos[$ultimo] !== null && $grupos[$ultimo]['texto'] === $texto) {

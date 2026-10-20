@@ -43,16 +43,20 @@ class SiteSettingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        // Horario por día: solo se validan las horas de los días marcados como abiertos.
+        // Horario por día: cada día tiene turno mañana y/o tarde; solo se validan las horas de los turnos marcados.
         $reglasHorario = [];
         foreach (array_keys(SiteSetting::DIAS) as $dia) {
-            $reglasHorario["horarios.$dia.abierto"] = ['nullable', 'boolean'];
-            if ($request->boolean("horarios.$dia.abierto")) {
-                $reglasHorario["horarios.$dia.manana_desde"] = ['required', 'date_format:H:i'];
-                $reglasHorario["horarios.$dia.manana_hasta"] = ['required', 'date_format:H:i', "after:horarios.$dia.manana_desde"];
-                // La tarde es opcional (hay días que se abre solo a la mañana), pero va completa y después de la mañana.
-                $reglasHorario["horarios.$dia.tarde_desde"] = ['nullable', "required_with:horarios.$dia.tarde_hasta", 'date_format:H:i', "after:horarios.$dia.manana_hasta"];
-                $reglasHorario["horarios.$dia.tarde_hasta"] = ['nullable', "required_with:horarios.$dia.tarde_desde", 'date_format:H:i', "after:horarios.$dia.tarde_desde"];
+            foreach (['manana', 'tarde'] as $turno) {
+                $base = "horarios.$dia.$turno";
+                $reglasHorario["$base.abierto"] = ['nullable', 'boolean'];
+                if ($request->boolean("$base.abierto")) {
+                    $reglasHorario["$base.desde"] = ['required', 'date_format:H:i'];
+                    $reglasHorario["$base.hasta"] = ['required', 'date_format:H:i', "after:$base.desde"];
+                }
+            }
+            // Si abre los dos turnos, la tarde tiene que arrancar después de cerrar la mañana.
+            if ($request->boolean("horarios.$dia.manana.abierto") && $request->boolean("horarios.$dia.tarde.abierto")) {
+                $reglasHorario["horarios.$dia.tarde.desde"][] = "after:horarios.$dia.manana.hasta";
             }
         }
 
@@ -79,12 +83,11 @@ class SiteSettingController extends Controller
 
         $data['payment_methods'] = $data['payment_methods'] ?? [];
         $data['horarios'] = collect(SiteSetting::DIAS)->map(function ($etiqueta, $dia) use ($data) {
-            $fila = $data['horarios'][$dia] ?? [];
+            return collect(['manana', 'tarde'])->mapWithKeys(function ($turno) use ($data, $dia) {
+                $fila = $data['horarios'][$dia][$turno] ?? [];
 
-            return ! empty($fila['abierto'])
-                ? ['abierto' => true] + collect(['manana_desde', 'manana_hasta', 'tarde_desde', 'tarde_hasta'])
-                    ->mapWithKeys(fn ($campo) => [$campo => $fila[$campo] ?? null])->all()
-                : ['abierto' => false];
+                return [$turno => ! empty($fila['abierto']) ? ['desde' => $fila['desde'], 'hasta' => $fila['hasta']] : null];
+            })->all();
         })->all();
         $tab = $data['tab'] ?? 'general';
         unset($data['tab']);
