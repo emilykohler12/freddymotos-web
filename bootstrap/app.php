@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // que en realidad es HTTPS y genera todos los links (CSS, JS, forms) como
         // http://, que el navegador bloquea por "contenido mixto" en una página https.
         $middleware->trustProxies(at: '*');
+
+        $middleware->web(append: [\App\Http\Middleware\SecurityHeaders::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

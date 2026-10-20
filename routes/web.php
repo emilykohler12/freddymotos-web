@@ -27,6 +27,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MercadoPagoWebhookController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WorkshopController;
+use App\Http\Middleware\VerifyMercadoPagoSignature;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -54,7 +55,7 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.s
 Route::get('/checkout/gracias/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 /* ---------------- Webhook Mercado Pago (sin CSRF, ver bootstrap/app.php) ---------------- */
-Route::post('/webhook/mercadopago', MercadoPagoWebhookController::class)->name('webhook.mercadopago');
+Route::post('/webhook/mercadopago', MercadoPagoWebhookController::class)->middleware(VerifyMercadoPagoSignature::class)->name('webhook.mercadopago');
 
 /* ---------------- Auth de clientes ---------------- */
 Route::middleware('guest')->group(function () {
